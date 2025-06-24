@@ -1,7 +1,7 @@
 FROM gradle:8.7.0-jdk17 AS build
 WORKDIR /app/ninedot36
 
-COPY src .
+COPY . .
 RUN ls -al
 RUN chmod +x gradlew
 RUN ./gradlew build -x test
