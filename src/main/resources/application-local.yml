@@ -14,3 +14,6 @@ spring:
         show_sql: true
         format_sql: true
         dialect: org.hibernate.dialect.MySQL8Dialect
+  web:
+    resources:
+      add-mappings: false
