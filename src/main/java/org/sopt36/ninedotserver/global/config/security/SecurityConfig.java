@@ -28,15 +28,27 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
+
+        // 명시적으로 허용할 Origin
         config.setAllowedOrigins(List.of(
+            "http://localhost:3000",
             "http://localhost:5173",
             "https://ninedot.p-e.kr",
             "https://www.ninedot.p-e.kr"
         ));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(
-            List.of("Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization"));
+
+        // 모든 HTTP 메서드 명시적으로 허용
+        config.setAllowedMethods(
+            List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"));
+
+        // 모든 헤더 명시적으로 허용
+        config.setAllowedHeaders(List.of("*"));
+
+        // 응답 헤더 노출
+        config.setExposedHeaders(List.of("*"));
+
         config.setAllowCredentials(true);
+        config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
