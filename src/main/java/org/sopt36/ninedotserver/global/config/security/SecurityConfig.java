@@ -56,7 +56,7 @@ public class SecurityConfig {
         // 응답 헤더 노출
         config.setExposedHeaders(List.of("*"));
 
-        config.setAllowCredentials(true);
+        config.setAllowCredentials(false);
         config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
