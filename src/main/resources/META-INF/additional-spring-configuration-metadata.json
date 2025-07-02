@@ -9,6 +9,31 @@
       "name": "spring.springdoc.api-docs.enabled",
       "type": "java.lang.String",
       "description": "Description for spring.springdoc.api-docs.enabled."
+    },
+    {
+      "name": "spring.springdoc.swagger-ui.path",
+      "type": "java.lang.String",
+      "description": "Description for spring.springdoc.swagger-ui.path."
+    },
+    {
+      "name": "spring.springdoc.swagger-ui.config-url",
+      "type": "java.lang.String",
+      "description": "Description for spring.springdoc.swagger-ui.config-url."
+    },
+    {
+      "name": "spring.springdoc.swagger-ui.url",
+      "type": "java.lang.String",
+      "description": "Description for spring.springdoc.swagger-ui.url."
+    },
+    {
+      "name": "spring.springdoc.api-docs.path",
+      "type": "java.lang.String",
+      "description": "Description for spring.springdoc.api-docs.path."
+    },
+    {
+      "name": "spring.springdoc.show-actuator",
+      "type": "java.lang.String",
+      "description": "Description for spring.springdoc.show-actuator."
     }
   ]
 }
