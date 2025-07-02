@@ -12,3 +12,13 @@ spring:
         show_sql: true
         format_sql: true
         dialect: org.hibernate.dialect.MySQL8Dialect
+  springdoc:
+    swagger-ui:
+      enabled: true
+      path: /swagger-ui.html
+      config-url: /v3/api-docs/swagger-config
+      url: /v3/api-docs
+    api-docs:
+      enabled: true
+      path: /v3/api-docs
+    show-actuator: true
