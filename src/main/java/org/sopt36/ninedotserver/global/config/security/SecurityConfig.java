@@ -51,10 +51,7 @@ public class SecurityConfig {
             List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"));
 
         // 모든 헤더 명시적으로 허용
-        config.setAllowedHeaders(List.of("*"));
-
-        // 응답 헤더 노출
-        config.setExposedHeaders(List.of("*"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
 
         config.setAllowCredentials(false);
         config.setMaxAge(3600L);
