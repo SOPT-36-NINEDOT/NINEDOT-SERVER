@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class SubGoalController {
 
-    private SubGoalCommandService subGoalCommandService;
-    private SubGoalQueryService subGoalQueryService;
+    private final SubGoalCommandService subGoalCommandService;
+    private final SubGoalQueryService subGoalQueryService;
 
 }
