@@ -7,8 +7,22 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum UserErrorCode implements ErrorCode {
 
-    // TODO 에러 코드 별 메시지 관리. 추후 구현 시 아래 세미콜론 삭제
-    ;
+    // 400 BAD REQUEST
+    NAME_NOT_BLANK(HttpStatus.BAD_REQUEST, "이름은 빈 칸일 수 없습니다."),
+    INVALID_NAME_LENGTH(HttpStatus.BAD_REQUEST, "이름은 최대 10자까지 작성 가능합니다."),
+
+    EMAIL_NOT_BLANK(HttpStatus.BAD_REQUEST, "이메일은 빈 칸일 수 없습니다."),
+    INVALID_EMAIL_LENGTH(HttpStatus.BAD_REQUEST, "이메일은 최대 255자까지 작성 가능합니다."),
+
+    PROFILE_IMAGE_NOT_BLANK(HttpStatus.BAD_REQUEST, "프로필 사진 URL은 빈 칸일 수 없습니다."),
+    PROFILE_IMAGE_URL_TOO_LONG(HttpStatus.BAD_REQUEST, "프로필 사진 URL이 너무 깁니다."),
+
+    BIRTHDAY_NOT_BLANK(HttpStatus.BAD_REQUEST, "이메일은 빈 칸일 수 없습니다."),
+    INVALID_BIRTHDAY_LENGTH(HttpStatus.BAD_REQUEST, "생년월일은 최대 20자까지 작성 가능합니다."),
+    INVALID_BIRTHDAY_TYPE(HttpStatus.BAD_REQUEST, "생년월일은 yyyy.mm.dd 형태로 작성해야 합니다."),
+
+    JOB_NOT_NULL(HttpStatus.BAD_REQUEST, "직업은 반드시 선택해야 합니다."),
+    INVALID_JOB_VALUE(HttpStatus.BAD_REQUEST, "직업 값이 올바르지 않습니다.");
 
     private final HttpStatus status;
     private final String message;
