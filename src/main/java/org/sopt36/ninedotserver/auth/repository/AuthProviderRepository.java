@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface AuthProviderRepository extends JpaRepository<AuthProvider, Long> {
+public interface AuthProviderRepository
+    extends JpaRepository<AuthProvider, Long>, AuthProviderRepositoryCustom {
 
 }
