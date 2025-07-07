@@ -4,7 +4,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class RefreshTokenRepositoryImpl {
+public class RefreshTokenRepositoryImpl implements RefreshTokenRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
