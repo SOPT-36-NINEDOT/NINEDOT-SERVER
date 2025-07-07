@@ -4,7 +4,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class CoreGoalRepositoryImpl {
+public class CoreGoalRepositoryImpl implements CoreGoalRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 

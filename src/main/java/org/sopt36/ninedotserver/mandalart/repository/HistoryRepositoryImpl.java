@@ -4,7 +4,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class HistoryRepositoryImpl {
+public class HistoryRepositoryImpl implements HistoryRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 

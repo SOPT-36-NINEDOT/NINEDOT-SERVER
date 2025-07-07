@@ -4,7 +4,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class MandalartRepositoryImpl {
+public class MandalartRepositoryImpl implements MandalartRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
