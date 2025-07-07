@@ -7,8 +7,9 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum QuestionErrorCode implements ErrorCode {
 
-    // TODO 에러 코드 별 메시지 관리. 추후 구현 시 아래 세미콜론 삭제
-    ;
+    // 400 BAD REQUEST
+    CONTENT_NOT_BLANK(HttpStatus.BAD_REQUEST, "질문 내용은 빈 칸일 수 없습니다."),
+    INVALID_CONTENT_LENGTH(HttpStatus.BAD_REQUEST, "질문 내용은 255자까지 가능합니다.");
 
     private final HttpStatus status;
     private final String message;
