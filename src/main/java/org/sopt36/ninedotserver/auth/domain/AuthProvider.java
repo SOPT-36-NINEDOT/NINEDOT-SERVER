@@ -37,8 +37,8 @@ public class AuthProvider extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "provider", length = MAX_PROVIDER_LENGTH, nullable = false)
     @Enumerated(EnumType.STRING)
+    @Column(name = "provider", length = MAX_PROVIDER_LENGTH, nullable = false)
     private ProviderType provider;
 
     @Column(name = "provider_user_id", length = MAX_PROVIDER_USER_ID_LENGTH, nullable = false, unique = true)
