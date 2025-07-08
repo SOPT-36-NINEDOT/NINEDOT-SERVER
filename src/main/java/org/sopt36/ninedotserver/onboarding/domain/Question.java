@@ -14,6 +14,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
 import org.sopt36.ninedotserver.global.entity.BaseEntity;
 
 @Getter
@@ -21,12 +22,12 @@ import org.sopt36.ninedotserver.global.entity.BaseEntity;
 @AllArgsConstructor
 @Builder(access = AccessLevel.PROTECTED)
 @Table(name = "question")
+@DynamicInsert
 @Entity
 public class Question extends BaseEntity {
 
     private static final int MAX_DOMAIN_LENGTH = 20;
     private static final int MAX_TYPE_LENGTH = 10;
-    private static final int MAX_CONTENT_LENGTH = 255;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,7 +41,7 @@ public class Question extends BaseEntity {
     @Column(name = "type", length = 10, nullable = false)
     private Type type;
 
-    @Column(name = "content", length = MAX_CONTENT_LENGTH, nullable = false)
+    @Column(name = "content", nullable = false)
     private String content;
 
     @Column(name = "activated", nullable = false)
