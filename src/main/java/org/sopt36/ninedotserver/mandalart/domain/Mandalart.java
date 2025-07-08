@@ -1,5 +1,7 @@
 package org.sopt36.ninedotserver.mandalart.domain;
 
+import static org.sopt36.ninedotserver.mandalart.exception.MandalartErrorCode.INVALID_MANDALART_USER;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -17,6 +19,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.sopt36.ninedotserver.global.entity.BaseEntity;
+import org.sopt36.ninedotserver.mandalart.exception.MandalartException;
 import org.sopt36.ninedotserver.user.domain.User;
 
 @Getter
@@ -51,5 +54,11 @@ public class Mandalart extends BaseEntity {
             .title(title)
             .aiGeneratable(aiGeneratable)
             .build();
+    }
+
+    public void ensureOwnedBy(Long userId) {
+        if (!user.isSameId(userId)) {
+            throw new MandalartException(INVALID_MANDALART_USER);
+        }
     }
 }
