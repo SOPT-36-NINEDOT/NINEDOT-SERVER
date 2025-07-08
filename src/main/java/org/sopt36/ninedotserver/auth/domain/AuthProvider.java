@@ -31,7 +31,7 @@ public class AuthProvider extends BaseEntity {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Column(name = "provider", length = 10, nullable = false)
@@ -39,10 +39,10 @@ public class AuthProvider extends BaseEntity {
     private ProviderType provider;
 
     @Column(name = "provider_user_id", length = 255, nullable = false, unique = true)
-    private String provider_user_id;
+    private String providerUserId;
 
-    public static AuthProvider create(User user, ProviderType provider, String provider_user_id) {
+    public static AuthProvider create(User user, ProviderType provider, String providerUserId) {
         return AuthProvider.builder().user(user).provider(provider)
-                   .provider_user_id(provider_user_id).build();
+                   .providerUserId(providerUserId).build();
     }
 }
