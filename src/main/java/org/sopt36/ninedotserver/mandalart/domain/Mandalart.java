@@ -25,6 +25,8 @@ import org.sopt36.ninedotserver.user.domain.User;
 @Entity
 public class Mandalart extends BaseEntity {
 
+    private static final int MAX_TITLE_LENGTH = 30;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -33,7 +35,7 @@ public class Mandalart extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "title", length = 30, nullable = false)
+    @Column(name = "title", length = MAX_TITLE_LENGTH, nullable = false)
     private String title;
 
     @Column(name = "ai_generatable", nullable = false)
