@@ -40,7 +40,7 @@ public class CoreGoal extends BaseEntity {
     @Column(name = "title", length = MAX_TITLE_LENGTH, nullable = false)
     private String title;
 
-    @Column(name = "position", nullable = false, unique = true)
+    @Column(name = "position", nullable = false)
     private int position;
 
     @Column(name = "ai_generatable", nullable = false)

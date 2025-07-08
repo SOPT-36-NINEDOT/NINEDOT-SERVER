@@ -37,7 +37,7 @@ public class SubGoal extends BaseEntity {
     @Column(name = "title", length = MAX_TITLE_LENGTH, nullable = false)
     private String title;
 
-    @Column(name = "position", nullable = false, unique = true)
+    @Column(name = "position", nullable = false)
     private int position;
 
     public static SubGoal create(CoreGoal coreGoal, String title, int position) {
