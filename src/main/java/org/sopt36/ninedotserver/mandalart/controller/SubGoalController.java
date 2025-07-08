@@ -25,13 +25,12 @@ public class SubGoalController {
     public ResponseEntity<ApiResponse<Map<String, List<SubGoalIdResponse>>, Void>> getSubGoalIds(
         @PathVariable Long coreGoalId
     ) {
-        Long userId = 1L;
+        Long userId = 1L; // TODO: 로그인 구현되면 token에서 사용자id 가져오기
         List<SubGoalIdResponse> subGoalIds = subGoalQueryService.getSubGoalIds(userId, coreGoalId);
         Map<String, List<SubGoalIdResponse>> response = Map.of("subGoalIds", subGoalIds);
         return ResponseEntity.ok(
             ApiResponse.ok("성공적으로 해당 상위 목표의 하위 목표 ID 리스트를 조회했습니다.", response)
         );
-
 
     }
 
