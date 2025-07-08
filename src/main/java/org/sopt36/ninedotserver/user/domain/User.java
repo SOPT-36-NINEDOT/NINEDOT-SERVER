@@ -1,6 +1,5 @@
 package org.sopt36.ninedotserver.user.domain;
 
-import com.mysql.cj.protocol.ColumnDefinition;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,8 +8,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +15,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
 import org.sopt36.ninedotserver.global.entity.BaseEntity;
 
 @Getter
@@ -26,12 +22,11 @@ import org.sopt36.ninedotserver.global.entity.BaseEntity;
 @AllArgsConstructor
 @Builder(access = AccessLevel.PROTECTED)
 @Table(name = "user")
-@Entity
 @DynamicInsert
+@Entity
 public class User extends BaseEntity {
 
     private static final int MAX_NAME_LENGTH = 10;
-    private static final int MAX_EMAIL_LENGTH = 255;
     private static final int MAX_BIRTHDAY_LENGTH = 20;
     private static final int MAX_JOB_LENGTH = 100;
 
@@ -42,7 +37,7 @@ public class User extends BaseEntity {
     @Column(name = "name", length = MAX_NAME_LENGTH, nullable = false)
     private String name;
 
-    @Column(name = "email", length = 255, nullable = false, unique = true)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @Column(name = "profile_image_url", columnDefinition = "TEXT", nullable = false)
