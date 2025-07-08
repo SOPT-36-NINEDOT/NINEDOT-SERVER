@@ -43,7 +43,7 @@ public class Question extends BaseEntity {
     @Column(name = "content", length = MAX_CONTENT_LENGTH, nullable = false)
     private String content;
 
-    @Column(nullable = false)
+    @Column(name = "activated", nullable = false)
     @ColumnDefault(value = "true")
     private boolean activated;
 
