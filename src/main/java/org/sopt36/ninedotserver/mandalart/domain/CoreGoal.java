@@ -23,6 +23,8 @@ import org.sopt36.ninedotserver.mandalart.exception.CoreGoalException;
 @Entity
 public class CoreGoal extends BaseEntity {
 
+    private static final int MAX_TITLE_LENGTH = 30;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -57,7 +59,7 @@ public class CoreGoal extends BaseEntity {
         if (title == null || title.isBlank()) {
             throw new CoreGoalException(TITLE_NOT_BLANK);
         }
-        if (title.length() > 30) {
+        if (title.length() > MAX_TITLE_LENGTH) {
             throw new CoreGoalException(INVALID_TITLE_LENGTH);
         }
     }

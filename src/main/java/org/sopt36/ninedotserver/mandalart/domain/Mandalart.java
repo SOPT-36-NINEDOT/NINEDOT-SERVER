@@ -24,6 +24,8 @@ import org.sopt36.ninedotserver.user.domain.User;
 @Entity
 public class Mandalart extends BaseEntity {
 
+    private static final int MAX_TITLE_LENGTH = 30;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -53,7 +55,7 @@ public class Mandalart extends BaseEntity {
         if (title == null || title.isBlank()) {
             throw new MandalartException(TITLE_NOT_BLANK);
         }
-        if (title.length() > 30) {
+        if (title.length() > MAX_TITLE_LENGTH) {
             throw new MandalartException(INVALID_TITLE_LENGTH);
         }
     }
