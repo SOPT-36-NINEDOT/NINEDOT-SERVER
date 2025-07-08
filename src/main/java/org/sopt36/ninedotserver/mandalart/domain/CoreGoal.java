@@ -14,6 +14,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
 import org.sopt36.ninedotserver.global.entity.BaseEntity;
 
 @Getter
@@ -21,6 +23,7 @@ import org.sopt36.ninedotserver.global.entity.BaseEntity;
 @AllArgsConstructor
 @Builder(access = AccessLevel.PROTECTED)
 @Table(name = "core_goal")
+@DynamicInsert
 @Entity
 public class CoreGoal extends BaseEntity {
 
@@ -41,6 +44,7 @@ public class CoreGoal extends BaseEntity {
     private int position;
 
     @Column(name = "ai_generatable", nullable = false)
+    @ColumnDefault(value = "true")
     private boolean aiGeneratable;
 
     public static CoreGoal create(Mandalart mandalart,
