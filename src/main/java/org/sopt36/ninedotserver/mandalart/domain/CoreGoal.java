@@ -1,8 +1,5 @@
 package org.sopt36.ninedotserver.mandalart.domain;
 
-import static org.sopt36.ninedotserver.mandalart.exception.CoreGoalErrorCode.INVALID_TITLE_LENGTH;
-import static org.sopt36.ninedotserver.mandalart.exception.CoreGoalErrorCode.TITLE_NOT_BLANK;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -18,7 +15,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.sopt36.ninedotserver.global.entity.BaseEntity;
-import org.sopt36.ninedotserver.mandalart.exception.CoreGoalException;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -41,13 +37,12 @@ public class CoreGoal extends BaseEntity {
     @Column(name = "title", length = MAX_TITLE_LENGTH, nullable = false)
     private String title;
 
-    @Column(name = "position", nullable = false)
+    @Column(name = "position", nullable = false, unique = true)
     private int position;
 
     @Column(name = "ai_generatable", nullable = false)
     private boolean aiGeneratable;
 
-    @Builder
     public static CoreGoal create(Mandalart mandalart, String title, int position,
         boolean aiGeneratable) {
         return CoreGoal.builder()
