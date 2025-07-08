@@ -1,8 +1,5 @@
 package org.sopt36.ninedotserver.mandalart.domain;
 
-import static org.sopt36.ninedotserver.mandalart.exception.SubGoalErrorCode.INVALID_TITLE_LENGTH;
-import static org.sopt36.ninedotserver.mandalart.exception.SubGoalErrorCode.TITLE_NOT_BLANK;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -18,7 +15,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.sopt36.ninedotserver.global.entity.BaseEntity;
-import org.sopt36.ninedotserver.mandalart.exception.SubGoalException;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -41,7 +37,7 @@ public class SubGoal extends BaseEntity {
     @Column(name = "title", length = MAX_TITLE_LENGTH, nullable = false)
     private String title;
 
-    @Column(name = "position", nullable = false)
+    @Column(name = "position", nullable = false, unique = true)
     private int position;
 
     public static SubGoal create(CoreGoal coreGoal, String title, int position) {
