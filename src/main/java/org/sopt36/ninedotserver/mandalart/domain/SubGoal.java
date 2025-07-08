@@ -44,7 +44,6 @@ public class SubGoal extends BaseEntity {
     @Column(name = "position", nullable = false)
     private int position;
 
-    @Builder
     public static SubGoal create(CoreGoal coreGoal, String title, int position) {
         return SubGoal.builder()
             .coreGoal(coreGoal)
