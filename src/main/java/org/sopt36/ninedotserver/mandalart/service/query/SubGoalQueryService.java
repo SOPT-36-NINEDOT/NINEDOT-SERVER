@@ -38,4 +38,13 @@ public class SubGoalQueryService {
             .map(SubGoalIdResponse::from)
             .toList();
     }
+
+    private CoreGoal validateCoreGoalOwnerOrThrow(Long userId, Long coreGoalId) {
+        CoreGoal coreGoal = coreGoalRepository.findById(coreGoalId)
+            .orElseThrow(() -> new SubGoalException(CORE_GOAL_NOT_FOUND));
+
+        coreGoal.verifyUser(userId);
+
+        return coreGoal;
+    }
 }

@@ -60,4 +60,8 @@ public class CoreGoal extends BaseEntity {
             .build();
     }
 
+    public void verifyUser(Long userId) {
+        mandalart.ensureOwnedBy(userId);
+    }
+
 }
