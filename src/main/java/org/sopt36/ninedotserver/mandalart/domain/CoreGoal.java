@@ -11,7 +11,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,10 +22,11 @@ import org.sopt36.ninedotserver.mandalart.exception.CoreGoalException;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder(access = AccessLevel.PROTECTED)
+@Table(name = "core_goal")
 @Entity
 public class CoreGoal extends BaseEntity {
-
-    private static final int MAX_TITLE_LENGTH = 30;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,34 +36,31 @@ public class CoreGoal extends BaseEntity {
     @JoinColumn(name = "mandalart_id", nullable = false)
     private Mandalart mandalart;
 
-    @Column(length = 30, nullable = false)
+    @Column(name = "title", length = 30, nullable = false)
     private String title;
 
-    @Column(nullable = false)
+    @Column(name = "position", nullable = false)
     private int position;
 
-    @Column(nullable = false)
+    @Column(name = "ai_generatable", nullable = false)
     private boolean aiGeneratable;
 
     private CoreGoal(Mandalart mandalart, String title, int position, boolean aiGeneratable) {
-        validateTitle(title);
         this.mandalart = mandalart;
         this.title = title;
         this.position = position;
         this.aiGeneratable = aiGeneratable;
     }
 
+    @Builder
     public static CoreGoal create(Mandalart mandalart, String title, int position,
         boolean aiGeneratable) {
-        return new CoreGoal(mandalart, title, position, aiGeneratable);
+        return CoreGoal.builder()
+            .mandalart(mandalart)
+            .title(title)
+            .position(position)
+            .aiGeneratable(aiGeneratable)
+            .build();
     }
 
-    private void validateTitle(String title) {
-        if (title == null || title.isBlank()) {
-            throw new CoreGoalException(TITLE_NOT_BLANK);
-        }
-        if (title.length() > MAX_TITLE_LENGTH) {
-            throw new CoreGoalException(INVALID_TITLE_LENGTH);
-        }
-    }
 }
