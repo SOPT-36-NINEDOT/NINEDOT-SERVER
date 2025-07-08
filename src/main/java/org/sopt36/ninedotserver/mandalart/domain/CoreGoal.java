@@ -47,13 +47,6 @@ public class CoreGoal extends BaseEntity {
     @Column(name = "ai_generatable", nullable = false)
     private boolean aiGeneratable;
 
-    private CoreGoal(Mandalart mandalart, String title, int position, boolean aiGeneratable) {
-        this.mandalart = mandalart;
-        this.title = title;
-        this.position = position;
-        this.aiGeneratable = aiGeneratable;
-    }
-
     @Builder
     public static CoreGoal create(Mandalart mandalart, String title, int position,
         boolean aiGeneratable) {
