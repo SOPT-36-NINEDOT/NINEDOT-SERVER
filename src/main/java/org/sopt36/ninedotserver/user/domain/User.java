@@ -57,11 +57,15 @@ public class User extends BaseEntity {
     public static User create(String name, String email, String profileImageUrl, String birthday,
         JobType job) {
         return User.builder()
-                   .name(name)
-                   .email(email)
-                   .profileImageUrl(profileImageUrl)
-                   .birthday(birthday)
-                   .job(job)
-                   .build();
+            .name(name)
+            .email(email)
+            .profileImageUrl(profileImageUrl)
+            .birthday(birthday)
+            .job(job)
+            .build();
+    }
+
+    public boolean isSameId(Long id) {
+        return this.id.equals(id);
     }
 }
