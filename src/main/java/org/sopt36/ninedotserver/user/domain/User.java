@@ -7,10 +7,12 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
@@ -20,8 +22,10 @@ import org.sopt36.ninedotserver.global.entity.BaseEntity;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity
 @AllArgsConstructor
+@Builder(access = AccessLevel.PROTECTED)
+@Table(name = "user")
+@Entity
 @DynamicInsert
 public class User extends BaseEntity {
 
@@ -29,23 +33,34 @@ public class User extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 10)
+    @Column(name = "name", length = 10, nullable = false)
     private String name;
 
-    @Column(nullable = false, length = 255)
+    @Column(name = "email", length = 255, nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
+    @Column(name = "profile_image_url", nullable = false, unique = true)
     private String profileImageUrl;
 
-    @Column(nullable = false, length = 20)
+    @Column(name = "birthday", length = 20, nullable = false)
     private String birthday;
 
-    @Column(nullable = false)
+    @Column(name = "job", length = 100)
     @Enumerated(EnumType.STRING)
     private JobType job;
 
-    @Column(nullable = false)
+    @Column(name = "onboarding_completed", nullable = false)
     @ColumnDefault(value = "false")
     private Boolean onboardingCompleted;
+
+    public static User create(String name, String email, String profileImageUrl, String birthday,
+        JobType job) {
+        return User.builder()
+                   .name(name)
+                   .email(email)
+                   .profileImageUrl(profileImageUrl)
+                   .birthday(birthday)
+                   .job(job)
+                   .build();
+    }
 }
