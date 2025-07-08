@@ -43,8 +43,11 @@ public class CoreGoal extends BaseEntity {
     @Column(name = "ai_generatable", nullable = false)
     private boolean aiGeneratable;
 
-    public static CoreGoal create(Mandalart mandalart, String title, int position,
-        boolean aiGeneratable) {
+    public static CoreGoal create(Mandalart mandalart,
+        String title,
+        int position,
+        boolean aiGeneratable
+    ) {
         return CoreGoal.builder()
             .mandalart(mandalart)
             .title(title)
