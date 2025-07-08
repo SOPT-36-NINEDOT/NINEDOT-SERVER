@@ -2,11 +2,12 @@ package org.sopt36.ninedotserver.onboarding.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -20,25 +21,19 @@ import org.sopt36.ninedotserver.global.entity.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder(access = AccessLevel.PROTECTED)
-@Table(name = "question")
+@Table(name = "choice")
 @Entity
-public class Question extends BaseEntity {
+public class Choice extends BaseEntity {
 
-    private static final int MAX_DOMAIN_LENGTH = 20;
-    private static final int MAX_TYPE_LENGTH = 10;
     private static final int MAX_CONTENT_LENGTH = 255;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "domain", length = MAX_DOMAIN_LENGTH, nullable = false)
-    private Domain domain;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type", length = 10, nullable = false)
-    private Type type;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "question_id")
+    private Question question;
 
     @Column(name = "content", length = MAX_CONTENT_LENGTH, nullable = false)
     private String content;
@@ -47,13 +42,11 @@ public class Question extends BaseEntity {
     @ColumnDefault(value = "true")
     private boolean activated;
 
-    public static Question create(Domain domain, Type type, String content, boolean activated) {
-        return Question.builder()
-            .domain(domain)
-            .type(type)
+    public static Choice create(Question question, String content, boolean activated) {
+        return Choice.builder()
+            .question(question)
             .content(content)
             .activated(activated)
             .build();
     }
-
 }

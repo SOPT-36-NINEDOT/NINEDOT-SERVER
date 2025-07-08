@@ -5,7 +5,7 @@ import org.sopt36.ninedotserver.global.exception.ErrorCode;
 import org.springframework.http.HttpStatus;
 
 @RequiredArgsConstructor
-public enum OptionErrorCode implements ErrorCode {
+public enum ChoiceErrorCode implements ErrorCode {
 
     // TODO 에러 코드 별 메시지 관리. 추후 구현 시 아래 세미콜론 삭제
     ;
