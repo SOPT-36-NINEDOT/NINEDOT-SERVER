@@ -1,5 +1,6 @@
 package org.sopt36.ninedotserver.user.domain;
 
+import com.mysql.cj.protocol.ColumnDefinition;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -44,14 +45,14 @@ public class User extends BaseEntity {
     @Column(name = "email", length = 255, nullable = false, unique = true)
     private String email;
 
-    @Column(name = "profile_image_url", nullable = false)
+    @Column(name = "profile_image_url", columnDefinition = "TEXT", nullable = false)
     private String profileImageUrl;
 
-    @Column(name = "birthday", length = 20, nullable = false)
+    @Column(name = "birthday", length = MAX_BIRTHDAY_LENGTH, nullable = false)
     private String birthday;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "job", length = 100)
+    @Column(name = "job", length = MAX_JOB_LENGTH)
     private JobType job;
 
     @Column(name = "onboarding_completed", nullable = false)

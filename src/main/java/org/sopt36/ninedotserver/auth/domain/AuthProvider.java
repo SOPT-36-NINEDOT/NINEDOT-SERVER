@@ -26,6 +26,9 @@ import org.sopt36.ninedotserver.user.domain.User;
 @Entity
 public class AuthProvider extends BaseEntity {
 
+    private static final int MAX_PROVIDER_LENGTH = 10;
+    private static final int MAX_PROVIDER_USER_ID_LENGTH = 10;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -34,11 +37,11 @@ public class AuthProvider extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "provider", length = 10, nullable = false)
+    @Column(name = "provider", length = MAX_PROVIDER_LENGTH, nullable = false)
     @Enumerated(EnumType.STRING)
     private ProviderType provider;
 
-    @Column(name = "provider_user_id", length = 255, nullable = false, unique = true)
+    @Column(name = "provider_user_id", length = MAX_PROVIDER_USER_ID_LENGTH, nullable = false, unique = true)
     private String providerUserId;
 
     public static AuthProvider create(User user, ProviderType provider, String providerUserId) {
