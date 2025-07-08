@@ -7,6 +7,12 @@ public record MandalartCreateResponse(
     String title
 ) {
 
+    /**
+     * Creates a {@code MandalartCreateResponse} from the given {@code Mandalart} domain object.
+     *
+     * @param mandalart the source {@code Mandalart} object
+     * @return a new {@code MandalartCreateResponse} containing the id and title from the provided {@code Mandalart}
+     */
     public static MandalartCreateResponse from(Mandalart mandalart) {
         return new MandalartCreateResponse(mandalart.getId(), mandalart.getTitle());
     }

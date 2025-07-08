@@ -24,6 +24,15 @@ public class MandalartController {
     private final MandalartCommandService mandalartCommandService;
     private final MandalartQueryService mandalartQueryService;
 
+    /**
+     * Handles the creation of a new Mandalart resource.
+     *
+     * Accepts a validated Mandalart creation request, delegates creation to the command service,
+     * and returns an HTTP 201 Created response with the location of the new resource and its details.
+     *
+     * @param createRequest the validated request body containing Mandalart creation data
+     * @return a ResponseEntity with status 201 Created, location header, and the created Mandalart details wrapped in an ApiResponse
+     */
     @PostMapping("/mandalarts")
     public ResponseEntity<ApiResponse<MandalartCreateResponse, Void>> createMandalart(
         @Valid @RequestBody MandalartCreateRequest createRequest
