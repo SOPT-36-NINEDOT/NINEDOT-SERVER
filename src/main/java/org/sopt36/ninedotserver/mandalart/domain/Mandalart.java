@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.sopt36.ninedotserver.global.entity.BaseEntity;
 import org.sopt36.ninedotserver.user.domain.User;
 
@@ -21,7 +22,7 @@ import org.sopt36.ninedotserver.user.domain.User;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder(access = AccessLevel.PROTECTED)
-@Table(name = "mandarlart")
+@Table(name = "mandalart")
 @Entity
 public class Mandalart extends BaseEntity {
 
@@ -39,6 +40,7 @@ public class Mandalart extends BaseEntity {
     private String title;
 
     @Column(name = "ai_generatable", nullable = false)
+    @ColumnDefault(value = "true")
     private boolean aiGeneratable;
 
     public static Mandalart create(User user, String title, boolean aiGeneratable) {
