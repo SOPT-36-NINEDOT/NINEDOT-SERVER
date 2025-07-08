@@ -29,24 +29,29 @@ import org.sopt36.ninedotserver.global.entity.BaseEntity;
 @DynamicInsert
 public class User extends BaseEntity {
 
+    private static final int MAX_NAME_LENGTH = 10;
+    private static final int MAX_EMAIL_LENGTH = 255;
+    private static final int MAX_BIRTHDAY_LENGTH = 20;
+    private static final int MAX_JOB_LENGTH = 100;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", length = 10, nullable = false)
+    @Column(name = "name", length = MAX_NAME_LENGTH, nullable = false)
     private String name;
 
     @Column(name = "email", length = 255, nullable = false, unique = true)
     private String email;
 
-    @Column(name = "profile_image_url", nullable = false, unique = true)
+    @Column(name = "profile_image_url", nullable = false)
     private String profileImageUrl;
 
     @Column(name = "birthday", length = 20, nullable = false)
     private String birthday;
 
-    @Column(name = "job", length = 100)
     @Enumerated(EnumType.STRING)
+    @Column(name = "job", length = 100)
     private JobType job;
 
     @Column(name = "onboarding_completed", nullable = false)
