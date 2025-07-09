@@ -10,4 +10,8 @@ public interface SubGoalRepository extends JpaRepository<SubGoal, Long>, SubGoal
 
     List<SubGoal> findAllByCoreGoalId(Long coreGoalId);
 
+    int countByCoreGoalId(Long coreGoalId);
+
+    boolean existsByCoreGoalIdAndPosition(Long coreGoalId, int position);
+
 }
