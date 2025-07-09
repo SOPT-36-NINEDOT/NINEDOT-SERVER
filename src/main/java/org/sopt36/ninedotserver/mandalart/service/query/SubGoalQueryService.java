@@ -24,9 +24,7 @@ public class SubGoalQueryService {
     private final MandalartRepository mandalartRepository;
 
     public List<SubGoalIdResponse> getSubGoalIds(Long userId, Long coreGoalId) {
-        CoreGoal coreGoal = coreGoalRepository.findById(coreGoalId)
-            .orElseThrow(() -> new SubGoalException(CORE_GOAL_NOT_FOUND));
-
+        CoreGoal coreGoal = findCoreGoalOrThrow(coreGoalId);
         coreGoal.verifyUser(userId);
 
         List<SubGoal> subGoals = subGoalRepository.findAllByCoreGoalId(coreGoalId);
@@ -34,6 +32,11 @@ public class SubGoalQueryService {
         return subGoals.stream()
             .map(SubGoalIdResponse::from)
             .toList();
+    }
+
+    private CoreGoal findCoreGoalOrThrow(Long coreGoalId) {
+        return coreGoalRepository.findById(coreGoalId)
+            .orElseThrow(() -> new SubGoalException(CORE_GOAL_NOT_FOUND));
     }
 
 }
