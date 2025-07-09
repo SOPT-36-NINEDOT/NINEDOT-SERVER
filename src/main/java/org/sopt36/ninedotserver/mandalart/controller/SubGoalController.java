@@ -1,5 +1,7 @@
 package org.sopt36.ninedotserver.mandalart.controller;
 
+import static org.sopt36.ninedotserver.mandalart.controller.message.SubGoalMessage.SUB_GOAL_ID_LIST_FETCH_SUCCESS;
+
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +32,7 @@ public class SubGoalController {
         List<SubGoalIdResponse> subGoalIds = subGoalQueryService.getSubGoalIds(userId, coreGoalId);
         return ResponseEntity.ok()
             .body(ApiResponse.ok(
-                "성공적으로 해당 상위 목표의 하위 목표 ID 리스트를 조회했습니다.",
+                SUB_GOAL_ID_LIST_FETCH_SUCCESS,
                 SubGoalIdListResponse.from(subGoalIds)
             )
         );
