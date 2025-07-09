@@ -56,9 +56,4 @@ public class Mandalart extends BaseEntity {
             .build();
     }
 
-    public void ensureOwnedBy(Long userId) {
-        if (!user.getId().equals(userId)) {
-            throw new SubGoalException(FORBIDDEN_ACCESS);
-        }
-    }
 }
