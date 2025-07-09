@@ -50,7 +50,7 @@ public class CoreGoalController {
     public ResponseEntity<ApiResponse<CoreGoalIdsResponse, Void>> getCoreGoalIds(
         @PathVariable Long mandalartId
     ) {
-        Long userId = 2L; // TODO 로그인 구현 완료 후 Authentication 에서 가져오도록 변경
+        Long userId = 1L; // TODO 로그인 구현 완료 후 Authentication 에서 가져오도록 변경
         CoreGoalIdsResponse response = coreGoalQueryService.getCoreGoalIds(userId, mandalartId);
 
         return ResponseEntity.ok(ApiResponse.ok(IDS_RETRIEVED_SUCCESS, response));
