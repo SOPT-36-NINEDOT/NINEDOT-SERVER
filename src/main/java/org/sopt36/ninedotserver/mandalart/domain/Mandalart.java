@@ -1,6 +1,7 @@
 package org.sopt36.ninedotserver.mandalart.domain;
 
 import static org.sopt36.ninedotserver.mandalart.exception.MandalartErrorCode.INVALID_MANDALART_USER;
+import static org.sopt36.ninedotserver.mandalart.exception.MandalartErrorCode.MANDALART_USER_REQUIRED;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -57,6 +58,17 @@ public class Mandalart extends BaseEntity {
     }
 
     public void ensureOwnedBy(Long userId) {
+        requireUserId(userId);
+        checkOwnership(userId);
+    }
+
+    private void requireUserId(Long userId) {
+        if (userId == null) {
+            throw new MandalartException(MANDALART_USER_REQUIRED);
+        }
+    }
+
+    private void checkOwnership(Long userId) {
         if (!user.isSameId(userId)) {
             throw new MandalartException(INVALID_MANDALART_USER);
         }
