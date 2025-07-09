@@ -54,6 +54,13 @@ public class SubGoalCommandService {
         subGoal.update(request.title(), request.cycle());
     }
 
+    @Transactional
+    public void deleteSubGoal(Long userId, Long subGoalId) {
+        SubGoal subGoal = getExistingSubGoal(subGoalId);
+        subGoal.verifyUser(userId);
+        subGoalRepository.delete(subGoal);
+    }
+
     private void validateCreate(CoreGoal coreGoal, Long userId, SubGoalCreateRequest request) {
         coreGoal.verifyUser(userId);
         validateSubGoalLimitNotExceeded(coreGoal.getId());
@@ -81,6 +88,7 @@ public class SubGoalCommandService {
         return subGoalRepository.findById(subGoalId)
             .orElseThrow(() -> new SubGoalException(SUB_GOAL_NOT_FOUND));
     }
+
 
 
 }
