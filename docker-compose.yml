@@ -1,17 +1,6 @@
 version: "3.8"
 
 services:
-  app:
-    image: "${DOCKER_HUB_USERNAME}/ninedot-be-app-dev:latest"
-    container_name: ninedot-be-app-dev
-    restart: always
-    ports:
-      - "8080:8080"
-    volumes:
-      - /home/ubuntu/ninedot-be-app-dev/.env:/app/.env
-    env_file:
-      - .env
-
   dozzle:
     image: amir20/dozzle:latest
     container_name: dozzle
