@@ -13,7 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
-import java.time.Period;
+import java.time.temporal.ChronoUnit;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -65,7 +65,7 @@ public class Mandalart extends BaseEntity {
     }
 
     public int getProgressDays(LocalDate today) {
-        return Period.between(this.getCreatedAt().toLocalDate(), today).getDays() + 1;
+        return (int) ChronoUnit.DAYS.between(this.getCreatedAt().toLocalDate(), today) + 1;
     }
 
     private void requireUserId(Long userId) {
