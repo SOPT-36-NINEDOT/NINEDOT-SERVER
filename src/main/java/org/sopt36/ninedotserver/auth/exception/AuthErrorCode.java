@@ -6,9 +6,7 @@ import org.springframework.http.HttpStatus;
 
 @RequiredArgsConstructor
 public enum AuthErrorCode implements ErrorCode {
-
-    // TODO 에러 코드 별 메시지 관리. 추후 구현 시 아래 세미콜론 삭제
-    ;
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자 정보를 찾을 수 없습니다.");
 
     private final HttpStatus status;
     private final String message;
