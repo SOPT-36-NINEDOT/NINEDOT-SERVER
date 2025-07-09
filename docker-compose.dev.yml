@@ -2,13 +2,18 @@ version: "3.8"
 
 services:
   app:
-    image: "${DOCKER_HUB_USERNAME}/ninedot-be-app-dev:latest"
-    container_name: ninedot-be-app-dev
+    image: "${DOCKER_HUB_USERNAME}/ninedot-be-app:latest"
+    container_name: ninedot-be-app
     restart: always
     ports:
       - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: "jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME_DEV}"
+      SPRING_DATASOURCE_USERNAME: "${DB_USERNAME}"
+      SPRING_DATASOURCE_PASSWORD: "${DB_PASSWORD}"
     volumes:
-      - /home/ubuntu/ninedot-be-app-dev/.env:/app/.env
+      - /home/ubuntu/ninedot-be-app/.env:/app/.env
     env_file:
       - .env
 
