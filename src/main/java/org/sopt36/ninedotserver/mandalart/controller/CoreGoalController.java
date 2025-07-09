@@ -37,7 +37,8 @@ public class CoreGoalController {
             createRequest
         );
         Long coreGoalId = response.id();
-        URI location = URI.create("/api/v1/mandalarts/" + mandalartId + "/core-goals" + coreGoalId);
+        URI location = URI.create(
+            "/api/v1/mandalarts/" + mandalartId + "/core-goals/" + coreGoalId);
 
         return ResponseEntity.created(location)
             .body(ApiResponse.created(response, CREATED_SUCCESS));
