@@ -21,8 +21,8 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/ninedot-be-app:latest .
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/ninedot-be-app:latest
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/ninedot-be-app-dev:latest .
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/ninedot-be-app-dev:latest
 
       - name: Create Deployment Package
         run: |
