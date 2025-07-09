@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 public enum GlobalErrorCode implements ErrorCode {
 
     // 400 Bad Request
-    BAD_REQUEST(HttpStatus.BAD_REQUEST, "요청 경로의 파라미터는 올바른 형식이 아닙니다."),
+    BAD_REQUEST(HttpStatus.BAD_REQUEST, "유효하지 않은 '%s' 형식입니다."),
     MISSING_HEADER(HttpStatus.BAD_REQUEST, "요청 헤더 '%s'가 누락되었습니다."),
 
     // 404 Not Found
