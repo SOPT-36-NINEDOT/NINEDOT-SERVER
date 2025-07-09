@@ -41,6 +41,7 @@ public class SubGoalCommandService {
         );
 
         subGoalRepository.save(subGoal);
+
         return SubGoalCreateResponse.from(subGoal);
     }
 
@@ -53,7 +54,6 @@ public class SubGoalCommandService {
     private CoreGoal getExistingCoreGoal(Long coreGoalId) {
         return coreGoalRepository.findById(coreGoalId)
             .orElseThrow(() -> new SubGoalException(CORE_GOAL_NOT_FOUND));
-
     }
 
     private void validateSubGoalLimitNotExceeded(Long coreGoalId) {
