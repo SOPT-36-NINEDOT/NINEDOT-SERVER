@@ -35,7 +35,7 @@ public class CoreGoalCommandService {
         CoreGoalCreateRequest coreGoalCreateRequest
     ) {
         Mandalart mandalart = getExistingMandalart(mandalartId);
-        validate(mandalart, userId, mandalartId, coreGoalCreateRequest);
+        validate(mandalart, userId, coreGoalCreateRequest);
 
         CoreGoal coreGoal = CoreGoal.create(mandalart,
             coreGoalCreateRequest.title(),
@@ -47,16 +47,18 @@ public class CoreGoalCommandService {
         return CoreGoalCreateResponse.from(coreGoal);
     }
 
-    private void validate(Mandalart mandalart, Long userId, Long mandalartId,
-        CoreGoalCreateRequest coreGoalCreateRequest) {
-        mandalart.ensureOwnedBy(userId);
-        validateCoreGoalLimitNotExceeded(mandalartId);
-        validateAlreadyExists(mandalartId, coreGoalCreateRequest);
-    }
-
     private Mandalart getExistingMandalart(Long mandalartId) {
         return mandalartRepository.findById(mandalartId)
             .orElseThrow(() -> new MandalartException(MANDALART_NOT_FOUND));
+    }
+
+    private void validate(Mandalart mandalart,
+        Long userId,
+        CoreGoalCreateRequest coreGoalCreateRequest
+    ) {
+        mandalart.ensureOwnedBy(userId);
+        validateCoreGoalLimitNotExceeded(mandalart.getId());
+        validateAlreadyExists(mandalart.getId(), coreGoalCreateRequest);
     }
 
     private void validateCoreGoalLimitNotExceeded(Long mandalartId) {
