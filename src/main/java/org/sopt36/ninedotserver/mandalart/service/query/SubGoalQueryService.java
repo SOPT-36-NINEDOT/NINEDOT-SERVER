@@ -1,7 +1,6 @@
 package org.sopt36.ninedotserver.mandalart.service.query;
 
 import static org.sopt36.ninedotserver.mandalart.exception.SubGoalErrorCode.CORE_GOAL_NOT_FOUND;
-import static org.sopt36.ninedotserver.mandalart.exception.SubGoalErrorCode.FORBIDDEN_ACCESS;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -28,9 +27,7 @@ public class SubGoalQueryService {
         CoreGoal coreGoal = coreGoalRepository.findById(coreGoalId)
             .orElseThrow(() -> new SubGoalException(CORE_GOAL_NOT_FOUND));
 
-        if (!coreGoal.verifyUser(userId)) {
-            throw new SubGoalException(FORBIDDEN_ACCESS);
-        }
+        coreGoal.verifyUser(userId);
 
         List<SubGoal> subGoals = subGoalRepository.findAllByCoreGoalId(coreGoalId);
 
@@ -39,12 +36,4 @@ public class SubGoalQueryService {
             .toList();
     }
 
-    private CoreGoal validateCoreGoalOwnerOrThrow(Long userId, Long coreGoalId) {
-        CoreGoal coreGoal = coreGoalRepository.findById(coreGoalId)
-            .orElseThrow(() -> new SubGoalException(CORE_GOAL_NOT_FOUND));
-
-        coreGoal.verifyUser(userId);
-
-        return coreGoal;
-    }
 }
