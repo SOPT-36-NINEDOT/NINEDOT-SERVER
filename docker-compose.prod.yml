@@ -12,8 +12,6 @@ services:
       SPRING_DATASOURCE_URL: "jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}"
       SPRING_DATASOURCE_USERNAME: "${DB_USERNAME}"
       SPRING_DATASOURCE_PASSWORD: "${DB_PASSWORD}"
-    volumes:
-      - /home/ubuntu/ninedot-be-app/.env:/app/.env
     env_file:
       - .env
 
