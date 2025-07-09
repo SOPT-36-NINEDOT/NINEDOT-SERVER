@@ -46,7 +46,7 @@ public class CoreGoalController {
             .body(ApiResponse.created(response, CREATED_SUCCESS));
     }
 
-    @GetMapping("/mandalarts/{mandalartId}/core-goals")
+    @GetMapping("/mandalarts/{mandalartId}/core-goals/id-positions")
     public ResponseEntity<ApiResponse<CoreGoalIdsResponse, Void>> getCoreGoalIds(
         @PathVariable Long mandalartId
     ) {
