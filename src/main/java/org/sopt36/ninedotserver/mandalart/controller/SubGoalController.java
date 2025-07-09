@@ -1,6 +1,7 @@
 package org.sopt36.ninedotserver.mandalart.controller;
 
 import static org.sopt36.ninedotserver.mandalart.controller.message.SubGoalMessage.SUB_GOAL_CREATE_SUCCESS;
+import static org.sopt36.ninedotserver.mandalart.controller.message.SubGoalMessage.SUB_GOAL_DELETE_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.SubGoalMessage.SUB_GOAL_ID_LIST_FETCH_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.SubGoalMessage.SUB_GOAL_UPDATE_SUCCESS;
 
@@ -17,6 +18,7 @@ import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalIdResponse;
 import org.sopt36.ninedotserver.mandalart.service.command.SubGoalCommandService;
 import org.sopt36.ninedotserver.mandalart.service.query.SubGoalQueryService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -77,6 +79,19 @@ public class SubGoalController {
 
         return ResponseEntity.ok()
             .body(ApiResponse.ok(SUB_GOAL_UPDATE_SUCCESS));
+    }
+
+    @DeleteMapping("/sub-goals/{subGoalId}")
+    public ResponseEntity<ApiResponse<Void, Void>> deleteSubGoal(
+        @PathVariable Long subGoalId
+    ) {
+        Long userId = 1L; // TODO: 로그인 구현되면 token에서 사용자id 가져오기
+
+        subGoalCommandService.deleteSubGoal(userId, subGoalId);
+
+        return ResponseEntity.ok()
+            .body(ApiResponse.ok(SUB_GOAL_DELETE_SUCCESS));
+
     }
 
 }
