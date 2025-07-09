@@ -8,4 +8,7 @@ import org.springframework.stereotype.Repository;
 public interface CoreGoalRepository
     extends JpaRepository<CoreGoal, Long>, CoreGoalRepositoryCustom {
 
+    int countCoreGoalByMandalartId(Long mandalartId);
+
+    boolean existsByMandalartIdAndPosition(Long mandalartId, int position);
 }

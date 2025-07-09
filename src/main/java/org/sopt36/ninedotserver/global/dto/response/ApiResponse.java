@@ -26,6 +26,10 @@ public record ApiResponse<T, M>(int code, String message, T data, M meta) {
         return new ApiResponse<>(201, message, null, null);
     }
 
+    public static <T> ApiResponse<T, Void> created(T data, String message) {
+        return new ApiResponse<>(201, message, data, null);
+    }
+
     public static ApiResponse<Void, ErrorMeta> error(ErrorCode errorCode, ErrorMeta meta) {
         return new ApiResponse<>(errorCode.getStatus().value(), errorCode.getMessage(), null, meta);
     }

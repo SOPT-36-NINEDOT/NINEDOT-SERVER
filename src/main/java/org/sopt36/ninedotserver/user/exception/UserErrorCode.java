@@ -22,7 +22,10 @@ public enum UserErrorCode implements ErrorCode {
     INVALID_BIRTHDAY_TYPE(HttpStatus.BAD_REQUEST, "생년월일은 yyyy.mm.dd 형태로 작성해야 합니다."),
 
     JOB_NOT_NULL(HttpStatus.BAD_REQUEST, "직업은 반드시 선택해야 합니다."),
-    INVALID_JOB_VALUE(HttpStatus.BAD_REQUEST, "직업 값이 올바르지 않습니다.");
+    INVALID_JOB_VALUE(HttpStatus.BAD_REQUEST, "직업 값이 올바르지 않습니다."),
+
+    // 404 NOT FOUND
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 유저를 찾을 수 없습니다.");
 
     private final HttpStatus status;
     private final String message;

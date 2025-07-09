@@ -68,11 +68,12 @@ public class GlobalExceptionHandler {
         HttpServletRequest request
     ) {
         log.error("MethodArgumentTypeMismatchException 발생: {}", ex.getMessage());
+        String message = GlobalErrorCode.BAD_REQUEST.format(ex.getName());
 
         ErrorMeta meta = createMeta(request);
 
         return ResponseEntity.status(GlobalErrorCode.BAD_REQUEST.getStatus())
-            .body(ApiResponse.error(GlobalErrorCode.BAD_REQUEST, meta));
+            .body(ApiResponse.error(HttpStatus.BAD_REQUEST.value(), message, meta));
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)
