@@ -28,7 +28,7 @@ public class SubGoalQueryService {
         CoreGoal coreGoal = coreGoalRepository.findById(coreGoalId)
             .orElseThrow(() -> new SubGoalException(CORE_GOAL_NOT_FOUND));
 
-        if (!coreGoal.getMandalart().getUser().getId().equals(userId)) {
+        if (!coreGoal.verifyUser(userId)) {
             throw new SubGoalException(FORBIDDEN_ACCESS);
         }
 
