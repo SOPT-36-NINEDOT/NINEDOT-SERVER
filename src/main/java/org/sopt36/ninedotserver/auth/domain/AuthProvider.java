@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,7 +24,10 @@ import org.sopt36.ninedotserver.user.domain.User;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder(access = AccessLevel.PROTECTED)
-@Table(name = "auth_provider")
+@Table(name = "auth_provider",
+    uniqueConstraints = @UniqueConstraint(
+        name = "uk_auth_provider_provider_user",
+        columnNames = {"provider", "provider_user_id"}))
 @Entity
 public class AuthProvider extends BaseEntity {
 

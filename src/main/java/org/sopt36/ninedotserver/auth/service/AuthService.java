@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.auth.domain.AuthProvider;
@@ -15,6 +14,9 @@ import org.sopt36.ninedotserver.auth.domain.ProviderType;
 import org.sopt36.ninedotserver.auth.domain.RefreshToken;
 import org.sopt36.ninedotserver.auth.dto.response.GoogleTokenResponse;
 import org.sopt36.ninedotserver.auth.dto.response.GoogleUserInfo;
+import org.sopt36.ninedotserver.auth.dto.response.LoginOrSignupResponse;
+import org.sopt36.ninedotserver.auth.dto.response.LoginOrSignupResponse.LoginData;
+import org.sopt36.ninedotserver.auth.dto.response.LoginOrSignupResponse.SignupData;
 import org.sopt36.ninedotserver.auth.exception.AuthException;
 import org.sopt36.ninedotserver.auth.repository.AuthProviderRepository;
 import org.sopt36.ninedotserver.auth.repository.RefreshTokenRepository;
@@ -24,7 +26,6 @@ import org.sopt36.ninedotserver.user.domain.User;
 import org.sopt36.ninedotserver.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -51,7 +52,8 @@ public class AuthService {
     @Value("${spring.jwt.refresh-token-expiration-milliseconds}")
     long refreshTokenExpirationMilliseconds;
 
-    public ResponseEntity<?> loginOrSignupWithCode(String code, HttpServletResponse response) {
+    public LoginOrSignupResponse<?> loginOrSignupWithCode(String code,
+        HttpServletResponse response) {
         GoogleTokenResponse tokens = getGoogleToken(code); //code로 구글에서 access token 가져와요
         GoogleUserInfo googleUserInfo = getGoogleUserInfo(
             tokens.accessToken()); //access token으로 user info 받아와요
@@ -67,14 +69,11 @@ public class AuthService {
             //ㄴ토큰을 만들어
             cookieUtil.createRefreshTokenCookie(response, refreshToken);
             //ㄴ쿠키에 담아
-            Map<String, Object> body = createLoginResponseBody(accessToken);
-            //ㄴresponse body 생성
             addRefreshTokenToDB(userId, refreshToken);
             //ㄴdb에 refresh token 추가
-            return ResponseEntity.ok(body);
+            return createLoginResponse(accessToken);
         }
-        Map<String, Object> body = createSignUpResponseBody(googleUserInfo);
-        return ResponseEntity.ok(body);
+        return createSignupResponse(googleUserInfo);
     }
 
     private GoogleTokenResponse getGoogleToken(String code) {
@@ -114,25 +113,14 @@ public class AuthService {
                    .toLocalDateTime();
     }
 
-    private Map<String, Object> createLoginResponseBody(String accessToken) {
-        Map<String, Object> body = Map.of(
-            "code", 200,
-            "data", Map.of("exists", true, "accessToken", accessToken),
-            "message", "성공적으로 로그인을 완료했습니다."
-        );
-        return body;
+    private LoginOrSignupResponse<LoginData> createLoginResponse(String accessToken) {
+        LoginData loginData = new LoginData(true, accessToken);
+        return new LoginOrSignupResponse<>(200, loginData, "성공적으로 로그인을 완료했습니다.");
     }
 
-    private Map<String, Object> createSignUpResponseBody(GoogleUserInfo googleUserInfo) {
-        Map<String, Object> body = Map.of(
-            "code", 200,
-            "data", Map.of(
-                "exists", false,
-                "name", googleUserInfo.name(),
-                "email", googleUserInfo.email()
-            ),
-            "message", "회원가입이 필요한 유저입니다."
-        );
-        return body;
+    private LoginOrSignupResponse<SignupData> createSignupResponse(GoogleUserInfo googleUserInfo) {
+        SignupData signupData = new SignupData(false, googleUserInfo.name(),
+            googleUserInfo.email());
+        return new LoginOrSignupResponse<>(200, signupData, "회원가입이 필요한 유저입니다.");
     }
 }
