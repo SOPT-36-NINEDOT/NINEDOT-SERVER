@@ -4,9 +4,12 @@ import static org.sopt36.ninedotserver.mandalart.exception.MandalartErrorCode.MA
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.sopt36.ninedotserver.mandalart.domain.CoreGoal;
 import org.sopt36.ninedotserver.mandalart.domain.Mandalart;
+import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalDetailResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalIdResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalIdsResponse;
+import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalsResponse;
 import org.sopt36.ninedotserver.mandalart.exception.MandalartException;
 import org.sopt36.ninedotserver.mandalart.repository.CoreGoalRepository;
 import org.sopt36.ninedotserver.mandalart.repository.MandalartRepository;
@@ -30,6 +33,15 @@ public class CoreGoalQueryService {
         return CoreGoalIdsResponse.of(ids);
     }
 
+    public CoreGoalsResponse getCoreGoals(Long userId, Long mandalartId) {
+        Mandalart mandalart = getExistingMandalart(mandalartId);
+        mandalart.ensureOwnedBy(userId);
+
+        List<CoreGoalDetailResponse> coreGoals = findCoreGoalDetails(mandalartId);
+
+        return CoreGoalsResponse.of(coreGoals);
+    }
+
     private Mandalart getExistingMandalart(Long mandalartId) {
         return mandalartRepository.findById(mandalartId)
             .orElseThrow(() -> new MandalartException(MANDALART_NOT_FOUND));
@@ -40,6 +52,14 @@ public class CoreGoalQueryService {
             .findAllByMandalartIdOrderByPosition(mandalartId)
             .stream()
             .map(CoreGoalIdResponse::from)
+            .toList();
+    }
+
+    private List<CoreGoalDetailResponse> findCoreGoalDetails(Long mandalartId) {
+        return coreGoalRepository
+            .findAllByMandalartIdOrderByPosition(mandalartId)
+            .stream()
+            .map(CoreGoalDetailResponse::from)
             .toList();
     }
 
