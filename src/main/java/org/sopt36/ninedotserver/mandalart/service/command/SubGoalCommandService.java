@@ -3,12 +3,14 @@ package org.sopt36.ninedotserver.mandalart.service.command;
 import static org.sopt36.ninedotserver.mandalart.exception.SubGoalErrorCode.CORE_GOAL_NOT_FOUND;
 import static org.sopt36.ninedotserver.mandalart.exception.SubGoalErrorCode.SUB_GOAL_COMPLETED;
 import static org.sopt36.ninedotserver.mandalart.exception.SubGoalErrorCode.SUB_GOAL_CONFLICT;
+import static org.sopt36.ninedotserver.mandalart.exception.SubGoalErrorCode.SUB_GOAL_NOT_FOUND;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.ai.service.AiRecommendationService;
 import org.sopt36.ninedotserver.mandalart.domain.CoreGoal;
 import org.sopt36.ninedotserver.mandalart.domain.SubGoal;
 import org.sopt36.ninedotserver.mandalart.dto.request.SubGoalCreateRequest;
+import org.sopt36.ninedotserver.mandalart.dto.request.SubGoalUpdateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalCreateResponse;
 import org.sopt36.ninedotserver.mandalart.exception.SubGoalException;
 import org.sopt36.ninedotserver.mandalart.repository.CoreGoalRepository;
@@ -31,7 +33,7 @@ public class SubGoalCommandService {
         SubGoalCreateRequest request) {
 
         CoreGoal coreGoal = getExistingCoreGoal(coreGoalId);
-        validate(coreGoal, userId, request);
+        validateCreate(coreGoal, userId, request);
 
         SubGoal subGoal = SubGoal.create(
             coreGoal,
@@ -45,7 +47,21 @@ public class SubGoalCommandService {
         return SubGoalCreateResponse.from(subGoal);
     }
 
-    private void validate(CoreGoal coreGoal, Long userId, SubGoalCreateRequest request) {
+    @Transactional
+    public void updateSubGoal(Long userId, Long subGoalId, SubGoalUpdateRequest request) {
+        SubGoal subGoal = getExistingSubGoal(subGoalId);
+        subGoal.verifyUser(userId);
+        subGoal.update(request.title(), request.cycle());
+    }
+
+    @Transactional
+    public void deleteSubGoal(Long userId, Long subGoalId) {
+        SubGoal subGoal = getExistingSubGoal(subGoalId);
+        subGoal.verifyUser(userId);
+        subGoalRepository.delete(subGoal);
+    }
+
+    private void validateCreate(CoreGoal coreGoal, Long userId, SubGoalCreateRequest request) {
         coreGoal.verifyUser(userId);
         validateSubGoalLimitNotExceeded(coreGoal.getId());
         validateAlreadyExists(coreGoal.getId(), request.position());
@@ -67,4 +83,12 @@ public class SubGoalCommandService {
             throw new SubGoalException(SUB_GOAL_CONFLICT);
         }
     }
+
+    private SubGoal getExistingSubGoal(Long subGoalId) {
+        return subGoalRepository.findById(subGoalId)
+            .orElseThrow(() -> new SubGoalException(SUB_GOAL_NOT_FOUND));
+    }
+
+
+
 }

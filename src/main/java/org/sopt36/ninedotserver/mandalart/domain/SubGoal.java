@@ -60,4 +60,13 @@ public class SubGoal extends BaseEntity {
             .build();
     }
 
+    public void verifyUser(Long userId) {
+        this.coreGoal.verifyUser(userId);
+    }
+
+    public void update(String title, Cycle cycle) {
+        this.title = title;
+        this.cycle = cycle;
+    }
+
 }
