@@ -71,4 +71,10 @@ public class User extends BaseEntity {
         }
         return this.id.equals(id);
     }
+
+    public void completeOnboarding() {
+        if (Boolean.FALSE.equals(this.onboardingCompleted)) {
+            this.onboardingCompleted = true;
+        }
+    }
 }

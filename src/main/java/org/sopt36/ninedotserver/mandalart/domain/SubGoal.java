@@ -2,6 +2,8 @@ package org.sopt36.ninedotserver.mandalart.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,6 +27,7 @@ import org.sopt36.ninedotserver.global.entity.BaseEntity;
 public class SubGoal extends BaseEntity {
 
     private static final int MAX_TITLE_LENGTH = 30;
+    private static final int MAX_CYCLE_LENGTH = 20;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,12 +43,30 @@ public class SubGoal extends BaseEntity {
     @Column(name = "position", nullable = false)
     private int position;
 
-    public static SubGoal create(CoreGoal coreGoal, String title, int position) {
+    @Enumerated(EnumType.STRING)
+    @Column(name = "cycle", length = MAX_CYCLE_LENGTH, nullable = false)
+    private Cycle cycle;
+
+    public static SubGoal create(CoreGoal coreGoal,
+        String title,
+        int position,
+        Cycle cycle
+    ) {
         return SubGoal.builder()
             .coreGoal(coreGoal)
             .title(title)
             .position(position)
+            .cycle(cycle)
             .build();
+    }
+
+    public void verifyUser(Long userId) {
+        this.coreGoal.verifyUser(userId);
+    }
+
+    public void update(String title, Cycle cycle) {
+        this.title = title;
+        this.cycle = cycle;
     }
 
 }

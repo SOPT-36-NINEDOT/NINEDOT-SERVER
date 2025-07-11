@@ -12,6 +12,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -60,6 +62,10 @@ public class Mandalart extends BaseEntity {
     public void ensureOwnedBy(Long userId) {
         requireUserId(userId);
         checkOwnership(userId);
+    }
+
+    public int getProgressDays(LocalDate today) {
+        return (int) ChronoUnit.DAYS.between(this.getCreatedAt().toLocalDate(), today) + 1;
     }
 
     private void requireUserId(Long userId) {

@@ -1,7 +1,8 @@
 package org.sopt36.ninedotserver.mandalart.controller;
 
-import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CREATED_SUCCESS;
-import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.IDS_RETRIEVED_SUCCESS;
+import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CORE_GOAL_CREATED_SUCCESS;
+import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CORE_GOAL_IDS_RETRIEVED_SUCCESS;
+import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CORE_GOAL_LIST_RETRIEVED_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.ONBOARDING_UPDATED_SUCCESS;
 
 import jakarta.validation.Valid;
@@ -12,6 +13,7 @@ import org.sopt36.ninedotserver.mandalart.dto.request.CoreGoalCreateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.request.CoreGoalUpdateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalCreateResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalIdsResponse;
+import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalsResponse;
 import org.sopt36.ninedotserver.mandalart.service.command.CoreGoalCommandService;
 import org.sopt36.ninedotserver.mandalart.service.query.CoreGoalQueryService;
 import org.springframework.http.ResponseEntity;
@@ -46,19 +48,30 @@ public class CoreGoalController {
             "/api/v1/mandalarts/" + mandalartId + "/core-goals/" + coreGoalId);
 
         return ResponseEntity.created(location)
-            .body(ApiResponse.created(response, CREATED_SUCCESS));
+            .body(ApiResponse.created(response, CORE_GOAL_CREATED_SUCCESS));
     }
 
-    @GetMapping("/mandalarts/{mandalartId}/core-goals")
+    @GetMapping("/mandalarts/{mandalartId}/core-goals/id-positions")
     public ResponseEntity<ApiResponse<CoreGoalIdsResponse, Void>> getCoreGoalIds(
         @PathVariable Long mandalartId
     ) {
         Long userId = 1L; // TODO 로그인 구현 완료 후 Authentication 에서 가져오도록 변경
         CoreGoalIdsResponse response = coreGoalQueryService.getCoreGoalIds(userId, mandalartId);
 
-        return ResponseEntity.ok(ApiResponse.ok(IDS_RETRIEVED_SUCCESS, response));
+        return ResponseEntity.ok(ApiResponse.ok(CORE_GOAL_IDS_RETRIEVED_SUCCESS, response));
     }
 
+
+    @GetMapping("/mandalarts/{mandalartId}/core-goals")
+    public ResponseEntity<ApiResponse<CoreGoalsResponse, Void>> getCoreGoals(
+        @PathVariable Long mandalartId
+    ) {
+        Long userId = 1L;
+        CoreGoalsResponse response = coreGoalQueryService.getCoreGoals(userId, mandalartId);
+
+        return ResponseEntity.ok(ApiResponse.ok(CORE_GOAL_LIST_RETRIEVED_SUCCESS, response));
+    }
+  
     @PatchMapping("/core-goals/{coreGoalId}")
     public ResponseEntity<ApiResponse<Void, Void>> updateCoreGoal(
         @PathVariable Long coreGoalId,
@@ -67,6 +80,7 @@ public class CoreGoalController {
         Long userId = 1L;
         coreGoalCommandService.updateCoreGoal(userId, coreGoalId, updateRequest);
 
-        return ResponseEntity.ok(ApiResponse.ok(ONBOARDING_UPDATED_SUCCESS));
+        return ResponseEntity.ok(ApiResponse.ok(CORE_GOAL_ONBOARDING_UPDATED_SUCCESS));
     }
+
 }

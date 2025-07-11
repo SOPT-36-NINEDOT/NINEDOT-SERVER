@@ -15,7 +15,12 @@ public enum SubGoalErrorCode implements ErrorCode {
     FORBIDDEN_ACCESS(HttpStatus.FORBIDDEN, "해당 하위 목표에 접근할 권한이 없습니다."),
 
     // 404 Not Found
-    CORE_GOAL_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 상위 목표입니다.");
+    CORE_GOAL_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 상위 목표입니다."),
+    SUB_GOAL_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 하위 목표입니다."),
+
+    // 409 Conflict
+    SUB_GOAL_COMPLETED(HttpStatus.CONFLICT, "이미 해당 상위 목표의 하위 목표 8개를 모두 작성하였습니다."),
+    SUB_GOAL_CONFLICT(HttpStatus.CONFLICT, "이미 해당 위치에 하위 목표가 존재합니다.");
 
     private final HttpStatus status;
     private final String message;
