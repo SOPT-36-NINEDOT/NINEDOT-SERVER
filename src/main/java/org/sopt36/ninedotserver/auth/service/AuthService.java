@@ -25,7 +25,7 @@ import org.sopt36.ninedotserver.auth.dto.response.LoginOrSignupResponse.SignupDa
 import org.sopt36.ninedotserver.auth.exception.AuthException;
 import org.sopt36.ninedotserver.auth.repository.AuthProviderRepository;
 import org.sopt36.ninedotserver.auth.repository.RefreshTokenRepository;
-import org.sopt36.ninedotserver.auth.security.JwtProvider;
+import org.sopt36.ninedotserver.global.config.security.JwtProvider;
 import org.sopt36.ninedotserver.global.util.CookieUtil;
 import org.sopt36.ninedotserver.mandalart.repository.CoreGoalRepository;
 import org.sopt36.ninedotserver.mandalart.repository.MandalartRepository;
@@ -73,6 +73,7 @@ public class AuthService {
         Optional<AuthProvider> optionalUser = authProviderRepository.findByProviderAndProviderUserId(
             ProviderType.GOOGLE,
             googleUserInfo.sub()); //provider user id로 AuthProvider가 db에 있는지 확인해요
+
         if (optionalUser.isPresent()) {
             Long userId = optionalUser.get().getUser().getId();
             String accessToken = jwtProvider.createToken(userId,
@@ -125,7 +126,7 @@ public class AuthService {
 
     // 로그인 시 데이터베이스에 리프레시 토큰 생성
     private void addRefreshTokenToDB(Long userId, String refreshToken) {
-        Claims claims = jwtProvider.parseClaims(refreshToken);
+        Claims claims = jwtProvider.parseClaims(refreshToken).getPayload();
         User user = userRepository.findById(userId)
                         .orElseThrow(
                             () -> new AuthException(USER_NOT_FOUND));
@@ -154,13 +155,11 @@ public class AuthService {
     }
 
     private String readErrorBody(ClientHttpResponse res) {
-        String body = null;
         try (var is = res.getBody()) {
-            body = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+            return new String(is.readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException e) {
-            body = "(error reading body: " + e.getMessage() + ")";
+            return "(error reading body: " + e.getMessage() + ")";
         }
-        return body;
     }
 
     private boolean findUserOnboardingCompleted(Long userId) {
