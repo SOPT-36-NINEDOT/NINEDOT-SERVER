@@ -2,18 +2,21 @@ package org.sopt36.ninedotserver.mandalart.controller;
 
 import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CREATED_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.IDS_RETRIEVED_SUCCESS;
+import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.ONBOARDING_UPDATED_SUCCESS;
 
 import jakarta.validation.Valid;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.global.dto.response.ApiResponse;
 import org.sopt36.ninedotserver.mandalart.dto.request.CoreGoalCreateRequest;
+import org.sopt36.ninedotserver.mandalart.dto.request.CoreGoalUpdateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalCreateResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalIdsResponse;
 import org.sopt36.ninedotserver.mandalart.service.command.CoreGoalCommandService;
 import org.sopt36.ninedotserver.mandalart.service.query.CoreGoalQueryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -56,4 +59,14 @@ public class CoreGoalController {
         return ResponseEntity.ok(ApiResponse.ok(IDS_RETRIEVED_SUCCESS, response));
     }
 
+    @PatchMapping("/core-goals/{coreGoalId}")
+    public ResponseEntity<ApiResponse<Void, Void>> updateCoreGoal(
+        @PathVariable Long coreGoalId,
+        @Valid @RequestBody CoreGoalUpdateRequest updateRequest
+    ) {
+        Long userId = 1L;
+        coreGoalCommandService.updateCoreGoal(userId, coreGoalId, updateRequest);
+
+        return ResponseEntity.ok(ApiResponse.ok(ONBOARDING_UPDATED_SUCCESS));
+    }
 }
