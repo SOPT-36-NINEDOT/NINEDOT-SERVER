@@ -40,7 +40,6 @@ public class CoreGoalCommandService {
         validateCanCreateCoreGoal(mandalart, userId, coreGoalCreateRequest);
 
         CoreGoal coreGoal = CoreGoal.create(mandalart,
-            coreGoalCreateRequest.title(),
             coreGoalCreateRequest.position(),
             AI_GENERATABLE
         );
