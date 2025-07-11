@@ -3,10 +3,14 @@ package org.sopt36.ninedotserver.mandalart.service.query;
 import static org.sopt36.ninedotserver.mandalart.exception.MandalartErrorCode.MANDALART_NOT_FOUND;
 
 import java.util.List;
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
+import org.sopt36.ninedotserver.mandalart.domain.CoreGoal;
 import org.sopt36.ninedotserver.mandalart.domain.Mandalart;
+import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalDetailResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalIdResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalIdsResponse;
+import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalsResponse;
 import org.sopt36.ninedotserver.mandalart.exception.MandalartException;
 import org.sopt36.ninedotserver.mandalart.repository.CoreGoalRepository;
 import org.sopt36.ninedotserver.mandalart.repository.MandalartRepository;
@@ -30,16 +34,33 @@ public class CoreGoalQueryService {
         return CoreGoalIdsResponse.of(ids);
     }
 
+    public CoreGoalsResponse getCoreGoals(Long userId, Long mandalartId) {
+        Mandalart mandalart = getExistingMandalart(mandalartId);
+        mandalart.ensureOwnedBy(userId);
+
+        List<CoreGoalDetailResponse> coreGoals = findCoreGoalDetails(mandalartId);
+
+        return CoreGoalsResponse.of(coreGoals);
+    }
+
     private Mandalart getExistingMandalart(Long mandalartId) {
         return mandalartRepository.findById(mandalartId)
             .orElseThrow(() -> new MandalartException(MANDALART_NOT_FOUND));
     }
 
     private List<CoreGoalIdResponse> findCoreGoalIds(Long mandalartId) {
+        return findCoreGoals(mandalartId, CoreGoalIdResponse::from);
+    }
+
+    private List<CoreGoalDetailResponse> findCoreGoalDetails(Long mandalartId) {
+        return findCoreGoals(mandalartId, CoreGoalDetailResponse::from);
+    }
+
+    private <T> List<T> findCoreGoals(Long mandalartId, Function<CoreGoal, T> mapper) {
         return coreGoalRepository
             .findAllByMandalartIdOrderByPosition(mandalartId)
             .stream()
-            .map(CoreGoalIdResponse::from)
+            .map(mapper)
             .toList();
     }
 
