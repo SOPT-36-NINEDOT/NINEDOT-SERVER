@@ -65,6 +65,10 @@ public class CoreGoal extends BaseEntity {
         mandalart.ensureOwnedBy(userId);
     }
 
+    public void updateTitle(String title) {
+        this.title = title;
+    }
+  
     public User getUser() {
         return this.getMandalart().getUser();
     }
