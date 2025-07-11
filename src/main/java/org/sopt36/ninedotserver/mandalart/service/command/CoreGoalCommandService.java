@@ -64,13 +64,15 @@ public class CoreGoalCommandService {
     @Transactional
     public void updateCoreGoal(
         Long userId,
-        Long coreGoalId,
+        Long coreGoalSnapshotId,
         CoreGoalUpdateRequest coreGoalUpdateRequest
     ) {
-        CoreGoal coreGoal = getExistingCoreGoal(coreGoalId);
-        coreGoal.verifyUser(userId);
+        CoreGoalSnapshot coreGoalSnapshot = getExistingCoreGoal(coreGoalSnapshotId);
+        coreGoalSnapshot.verifyCoreGoalUser(userId);
 
-        coreGoalRepository.save(coreGoal);
+        coreGoalSnapshot.updateTitle(coreGoalUpdateRequest.title());
+
+        coreGoalSnapshotRepository.save(coreGoalSnapshot);
     }
 
     private Mandalart getExistingMandalart(Long mandalartId) {
@@ -102,8 +104,8 @@ public class CoreGoalCommandService {
         }
     }
 
-    private CoreGoal getExistingCoreGoal(Long coreGoalId) {
-        return coreGoalRepository.findById(coreGoalId)
+    private CoreGoalSnapshot getExistingCoreGoal(Long coreGoalId) {
+        return coreGoalSnapshotRepository.findById(coreGoalId)
             .orElseThrow(() -> new CoreGoalException(CORE_GOAL_NOT_FOUND));
     }
 }

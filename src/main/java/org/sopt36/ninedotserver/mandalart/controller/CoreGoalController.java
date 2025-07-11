@@ -71,7 +71,6 @@ public class CoreGoalController {
         return ResponseEntity.ok(ApiResponse.ok(CORE_GOAL_LIST_RETRIEVED_SUCCESS, response));
     }
 
-    // TODO 상위 목표 수정
     @PatchMapping("/core-goals/{coreGoalId}")
     public ResponseEntity<ApiResponse<Void, Void>> updateCoreGoal(
         @PathVariable Long coreGoalId,

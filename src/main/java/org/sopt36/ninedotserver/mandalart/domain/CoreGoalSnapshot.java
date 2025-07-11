@@ -59,4 +59,12 @@ public class CoreGoalSnapshot extends BaseEntity {
             .validTo(validTo)
             .build();
     }
+
+    public void verifyCoreGoalUser(Long userId) {
+        this.coreGoal.verifyUser(userId);
+    }
+
+    public void updateTitle(String title) {
+        this.title = title;
+    }
 }
