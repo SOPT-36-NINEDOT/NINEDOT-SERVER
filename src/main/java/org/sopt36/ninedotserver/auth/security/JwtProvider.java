@@ -6,6 +6,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Date;
 import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +24,15 @@ public class JwtProvider {
 
     @PostConstruct
     public void init() {
-        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
+        byte[] keyBytes;
+        keyBytes = Base64.getDecoder().decode(secret);
+        if (keyBytes.length < 32) {
+            throw new IllegalArgumentException(
+                "JWT secret key must be at least 32 bytes for HS256 (current: "
+                    + keyBytes.length + " bytes)"
+            );
+        }
+        this.secretKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String createToken(Long id, long expirationMilliSeconds) {
