@@ -64,4 +64,8 @@ public class CoreGoal extends BaseEntity {
         mandalart.ensureOwnedBy(userId);
     }
 
+    public void updateTitle(String title) {
+        this.title = title;
+    }
+
 }
