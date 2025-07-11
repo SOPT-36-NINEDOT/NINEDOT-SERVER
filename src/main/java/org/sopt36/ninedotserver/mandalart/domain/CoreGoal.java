@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.sopt36.ninedotserver.global.entity.BaseEntity;
+import org.sopt36.ninedotserver.user.domain.User;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -62,6 +63,10 @@ public class CoreGoal extends BaseEntity {
 
     public void verifyUser(Long userId) {
         mandalart.ensureOwnedBy(userId);
+    }
+
+    public User getUser() {
+        return this.getMandalart().getUser();
     }
 
 }

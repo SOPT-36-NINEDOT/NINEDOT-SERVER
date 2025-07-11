@@ -45,11 +45,8 @@ public class SubGoalCommandService {
 
         subGoalRepository.save(subGoal);
 
-        User user = getUserFrom(coreGoal);
-
-        if (!user.getOnboardingCompleted()) {
-            user.completeOnboarding();
-        }
+        User user = coreGoal.getUser();
+        user.completeOnboarding();
 
         return SubGoalCreateResponse.from(subGoal);
     }
@@ -96,9 +93,6 @@ public class SubGoalCommandService {
             .orElseThrow(() -> new SubGoalException(SUB_GOAL_NOT_FOUND));
     }
 
-    private User getUserFrom(CoreGoal coreGoal) {
-        return coreGoal.getMandalart().getUser();
-    }
 
 
 }
