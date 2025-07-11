@@ -15,6 +15,7 @@ import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalCreateResponse;
 import org.sopt36.ninedotserver.mandalart.exception.SubGoalException;
 import org.sopt36.ninedotserver.mandalart.repository.CoreGoalRepository;
 import org.sopt36.ninedotserver.mandalart.repository.SubGoalRepository;
+import org.sopt36.ninedotserver.user.domain.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +44,12 @@ public class SubGoalCommandService {
         );
 
         subGoalRepository.save(subGoal);
+
+        User user = getUserFrom(coreGoal);
+
+        if (!user.getOnboardingCompleted()) {
+            user.completeOnboarding();
+        }
 
         return SubGoalCreateResponse.from(subGoal);
     }
@@ -89,6 +96,9 @@ public class SubGoalCommandService {
             .orElseThrow(() -> new SubGoalException(SUB_GOAL_NOT_FOUND));
     }
 
+    private User getUserFrom(CoreGoal coreGoal) {
+        return coreGoal.getMandalart().getUser();
+    }
 
 
 }
