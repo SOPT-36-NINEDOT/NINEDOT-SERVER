@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.auth.domain.AuthProvider;
+import org.sopt36.ninedotserver.auth.domain.OnboardingPage;
 import org.sopt36.ninedotserver.auth.domain.ProviderType;
 import org.sopt36.ninedotserver.auth.domain.RefreshToken;
 import org.sopt36.ninedotserver.auth.dto.response.GoogleTokenResponse;
@@ -26,6 +27,9 @@ import org.sopt36.ninedotserver.auth.repository.AuthProviderRepository;
 import org.sopt36.ninedotserver.auth.repository.RefreshTokenRepository;
 import org.sopt36.ninedotserver.auth.security.JwtProvider;
 import org.sopt36.ninedotserver.global.util.CookieUtil;
+import org.sopt36.ninedotserver.mandalart.repository.CoreGoalRepository;
+import org.sopt36.ninedotserver.mandalart.repository.MandalartRepository;
+import org.sopt36.ninedotserver.mandalart.repository.SubGoalRepository;
 import org.sopt36.ninedotserver.user.domain.User;
 import org.sopt36.ninedotserver.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,6 +51,9 @@ public class AuthService {
     private final AuthProviderRepository authProviderRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
+    private final SubGoalRepository subGoalRepository;
+    private final CoreGoalRepository coreGoalRepository;
+    private final MandalartRepository mandalartRepository;
     @Value("${GOOGLE_CLIENT_ID}")
     String clientId;
     @Value("${GOOGLE_CLIENT_SECRET}")
@@ -77,7 +84,7 @@ public class AuthService {
             //ㄴ쿠키에 담아
             addRefreshTokenToDB(userId, refreshToken);
             //ㄴdb에 refresh token 추가
-            return createLoginResponse(accessToken);
+            return createLoginResponse(userId, accessToken);
         }
         return createSignupResponse(googleUserInfo);
     }
@@ -133,8 +140,10 @@ public class AuthService {
                    .toLocalDateTime();
     }
 
-    private LoginOrSignupResponse<LoginData> createLoginResponse(String accessToken) {
-        LoginData loginData = new LoginData(true, accessToken);
+    private LoginOrSignupResponse<LoginData> createLoginResponse(Long userId, String accessToken) {
+        Boolean onboardingCompleted = findUserOnboardingCompleted(userId);
+        OnboardingPage onboardingPage = findUserOnboardingPage(userId);
+        LoginData loginData = new LoginData(true, accessToken, onboardingCompleted, onboardingPage);
         return new LoginOrSignupResponse<>(200, loginData, "성공적으로 로그인을 완료했습니다.");
     }
 
@@ -152,5 +161,26 @@ public class AuthService {
             body = "(error reading body: " + e.getMessage() + ")";
         }
         return body;
+    }
+
+    private boolean findUserOnboardingCompleted(Long userId) {
+        Optional<User> optUser = userRepository.findById(userId);
+        if (optUser.isPresent()) {
+            return optUser.get().getOnboardingCompleted();
+        }
+        throw new AuthException(USER_NOT_FOUND);
+    }
+
+    private OnboardingPage findUserOnboardingPage(Long userId) {
+        if (subGoalRepository.existsByUserId(userId)) {
+            return OnboardingPage.ONBOARDING_COMPLETED;
+        }
+        if (coreGoalRepository.existsByUserId(userId)) {
+            return OnboardingPage.SUB_GOAL;
+        }
+        if (mandalartRepository.existsByUserId(userId)) {
+            return OnboardingPage.CORE_GOAL;
+        }
+        return OnboardingPage.MANDALART;
     }
 }

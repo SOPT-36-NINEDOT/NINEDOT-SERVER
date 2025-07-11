@@ -1,5 +1,7 @@
 package org.sopt36.ninedotserver.auth.dto.response;
 
+import org.sopt36.ninedotserver.auth.domain.OnboardingPage;
+
 public record LoginOrSignupResponse<T>(
     int code,
     T data,
@@ -8,7 +10,9 @@ public record LoginOrSignupResponse<T>(
 
     public record LoginData(
         boolean exists,
-        String accessToken
+        String accessToken,
+        Boolean onboardingCompleted,
+        OnboardingPage onboardingPage
     ) {
 
     }
