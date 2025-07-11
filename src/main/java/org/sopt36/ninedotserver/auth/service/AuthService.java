@@ -1,9 +1,13 @@
 package org.sopt36.ninedotserver.auth.service;
 
+import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.GOOGLE_USER_INFO_RETRIEVAL_FAILED;
+import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.UNAUTHORIZED;
 import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.USER_NOT_FOUND;
 
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
@@ -25,7 +29,9 @@ import org.sopt36.ninedotserver.global.util.CookieUtil;
 import org.sopt36.ninedotserver.user.domain.User;
 import org.sopt36.ninedotserver.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -93,6 +99,20 @@ public class AuthService {
                    .uri("https://openidconnect.googleapis.com/v1/userinfo")
                    .headers(h -> h.setBearerAuth(accessToken))
                    .retrieve()
+                   //파라미터 누락, 존재하지 않는 사용자, 비활성 사용자(구글에서) 등 처리
+                   .onStatus(HttpStatusCode::is4xxClientError, (req, res) -> {
+                       throw new AuthException(
+                           UNAUTHORIZED,
+                           "Google userinfo 4xx error: " + readErrorBody(res)
+                       );
+                   })
+                   //구글 터짐
+                   .onStatus(HttpStatusCode::is5xxServerError, (req, res) -> {
+                       throw new AuthException(
+                           GOOGLE_USER_INFO_RETRIEVAL_FAILED,
+                           "Google userinfo 5xx error: " + readErrorBody(res)
+                       );
+                   })
                    .body(GoogleUserInfo.class);
     }
 
@@ -122,5 +142,15 @@ public class AuthService {
         SignupData signupData = new SignupData(false, googleUserInfo.name(),
             googleUserInfo.email());
         return new LoginOrSignupResponse<>(200, signupData, "회원가입이 필요한 유저입니다.");
+    }
+
+    private String readErrorBody(ClientHttpResponse res) {
+        String body = null;
+        try (var is = res.getBody()) {
+            body = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            body = "(error reading body: " + e.getMessage() + ")";
+        }
+        return body;
     }
 }
