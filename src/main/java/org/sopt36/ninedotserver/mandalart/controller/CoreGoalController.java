@@ -61,7 +61,6 @@ public class CoreGoalController {
         return ResponseEntity.ok(ApiResponse.ok(CORE_GOAL_IDS_RETRIEVED_SUCCESS, response));
     }
 
-    // TODO 상위 목표까지만 보기
     @GetMapping("/mandalarts/{mandalartId}/core-goals")
     public ResponseEntity<ApiResponse<CoreGoalsResponse, Void>> getCoreGoals(
         @PathVariable Long mandalartId
@@ -72,6 +71,7 @@ public class CoreGoalController {
         return ResponseEntity.ok(ApiResponse.ok(CORE_GOAL_LIST_RETRIEVED_SUCCESS, response));
     }
 
+    // TODO 상위 목표 수정
     @PatchMapping("/core-goals/{coreGoalId}")
     public ResponseEntity<ApiResponse<Void, Void>> updateCoreGoal(
         @PathVariable Long coreGoalId,

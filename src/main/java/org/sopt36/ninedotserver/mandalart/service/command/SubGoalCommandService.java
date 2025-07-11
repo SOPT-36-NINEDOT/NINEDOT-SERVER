@@ -38,9 +38,7 @@ public class SubGoalCommandService {
 
         SubGoal subGoal = SubGoal.create(
             coreGoal,
-            request.title(),
-            request.position(),
-            request.cycle()
+            request.position()
         );
 
         subGoalRepository.save(subGoal);
@@ -55,7 +53,6 @@ public class SubGoalCommandService {
     public void updateSubGoal(Long userId, Long subGoalId, SubGoalUpdateRequest request) {
         SubGoal subGoal = getExistingSubGoal(subGoalId);
         subGoal.verifyUser(userId);
-        subGoal.update(request.title(), request.cycle());
     }
 
     @Transactional
@@ -92,7 +89,6 @@ public class SubGoalCommandService {
         return subGoalRepository.findById(subGoalId)
             .orElseThrow(() -> new SubGoalException(SUB_GOAL_NOT_FOUND));
     }
-
 
 
 }
