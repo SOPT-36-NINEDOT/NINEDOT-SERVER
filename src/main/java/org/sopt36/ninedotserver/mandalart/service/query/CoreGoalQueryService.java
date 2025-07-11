@@ -3,6 +3,7 @@ package org.sopt36.ninedotserver.mandalart.service.query;
 import static org.sopt36.ninedotserver.mandalart.exception.MandalartErrorCode.MANDALART_NOT_FOUND;
 
 import java.util.List;
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.mandalart.domain.CoreGoal;
 import org.sopt36.ninedotserver.mandalart.domain.Mandalart;
@@ -48,18 +49,18 @@ public class CoreGoalQueryService {
     }
 
     private List<CoreGoalIdResponse> findCoreGoalIds(Long mandalartId) {
-        return coreGoalRepository
-            .findAllByMandalartIdOrderByPosition(mandalartId)
-            .stream()
-            .map(CoreGoalIdResponse::from)
-            .toList();
+        return findCoreGoals(mandalartId, CoreGoalIdResponse::from);
     }
 
     private List<CoreGoalDetailResponse> findCoreGoalDetails(Long mandalartId) {
+        return findCoreGoals(mandalartId, CoreGoalDetailResponse::from);
+    }
+
+    private <T> List<T> findCoreGoals(Long mandalartId, Function<CoreGoal, T> mapper) {
         return coreGoalRepository
             .findAllByMandalartIdOrderByPosition(mandalartId)
             .stream()
-            .map(CoreGoalDetailResponse::from)
+            .map(mapper)
             .toList();
     }
 
