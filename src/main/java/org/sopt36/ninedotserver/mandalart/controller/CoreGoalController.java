@@ -51,7 +51,6 @@ public class CoreGoalController {
             .body(ApiResponse.created(response, CORE_GOAL_CREATED_SUCCESS));
     }
 
-    // TODO 상위 목표 id 리스트 반환
     @GetMapping("/mandalarts/{mandalartId}/core-goals/id-positions")
     public ResponseEntity<ApiResponse<CoreGoalIdsResponse, Void>> getCoreGoalIds(
         @PathVariable Long mandalartId

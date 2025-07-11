@@ -5,7 +5,7 @@ import static org.sopt36.ninedotserver.mandalart.exception.MandalartErrorCode.MA
 import java.util.List;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
-import org.sopt36.ninedotserver.mandalart.domain.CoreGoal;
+import org.sopt36.ninedotserver.mandalart.domain.CoreGoalSnapshot;
 import org.sopt36.ninedotserver.mandalart.domain.Mandalart;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalDetailResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalIdResponse;
@@ -13,6 +13,7 @@ import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalIdsResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalsResponse;
 import org.sopt36.ninedotserver.mandalart.exception.MandalartException;
 import org.sopt36.ninedotserver.mandalart.repository.CoreGoalRepository;
+import org.sopt36.ninedotserver.mandalart.repository.CoreGoalSnapshotRepository;
 import org.sopt36.ninedotserver.mandalart.repository.MandalartRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ public class CoreGoalQueryService {
 
     private final CoreGoalRepository coreGoalRepository;
     private final MandalartRepository mandalartRepository;
+    private final CoreGoalSnapshotRepository coreGoalSnapshotRepository;
 
     public CoreGoalIdsResponse getCoreGoalIds(Long userId, Long mandalartId) {
         Mandalart mandalart = getExistingMandalart(mandalartId);
@@ -56,9 +58,9 @@ public class CoreGoalQueryService {
         return findCoreGoals(mandalartId, CoreGoalDetailResponse::from);
     }
 
-    private <T> List<T> findCoreGoals(Long mandalartId, Function<CoreGoal, T> mapper) {
-        return coreGoalRepository
-            .findAllByMandalartIdOrderByPosition(mandalartId)
+    private <T> List<T> findCoreGoals(Long mandalartId, Function<CoreGoalSnapshot, T> mapper) {
+        return coreGoalSnapshotRepository
+            .findByMandalartIdOrderByPosition(mandalartId)
             .stream()
             .map(mapper)
             .toList();
