@@ -41,14 +41,15 @@ public class SubGoalController {
     ) {
         Long userId = 1L; // TODO: 로그인 구현되면 token에서 사용자id 가져오기
         List<SubGoalIdResponse> subGoalIds = subGoalQueryService.getSubGoalIds(userId, coreGoalId);
+
         return ResponseEntity.ok()
-            .body(ApiResponse.ok(
-                    SUB_GOAL_ID_LIST_FETCH_SUCCESS,
-                    SubGoalIdListResponse.from(subGoalIds)
-                )
+            .body(
+                ApiResponse.ok(SUB_GOAL_ID_LIST_FETCH_SUCCESS,
+                    SubGoalIdListResponse.from(subGoalIds))
             );
     }
 
+    // TODO 만다라트 하위 목표 생성
     @PostMapping("/core-goals/{coreGoalId}/sub-goals")
     public ResponseEntity<ApiResponse<SubGoalCreateResponse, Void>> createSubGoal(
         @PathVariable Long coreGoalId,
@@ -68,6 +69,7 @@ public class SubGoalController {
             .body(ApiResponse.created(response, SUB_GOAL_CREATE_SUCCESS));
     }
 
+    // TODO 하위 목표 수정 (온보딩 시)
     @PatchMapping("/sub-goals/{subGoalId}")
     public ResponseEntity<ApiResponse<Void, Void>> updateSubGoal(
         @PathVariable Long subGoalId,
@@ -81,6 +83,7 @@ public class SubGoalController {
             .body(ApiResponse.ok(SUB_GOAL_UPDATE_SUCCESS));
     }
 
+    // TODO 하위 목표 삭제
     @DeleteMapping("/sub-goals/{subGoalId}")
     public ResponseEntity<ApiResponse<Void, Void>> deleteSubGoal(
         @PathVariable Long subGoalId
