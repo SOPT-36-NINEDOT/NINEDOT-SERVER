@@ -67,7 +67,6 @@ public class SubGoalController {
             .body(ApiResponse.created(response, SUB_GOAL_CREATE_SUCCESS));
     }
 
-    // TODO 하위 목표 수정 (온보딩 시)
     @PatchMapping("/sub-goals/{subGoalId}")
     public ResponseEntity<ApiResponse<Void, Void>> updateSubGoal(
         @PathVariable Long subGoalId,
@@ -81,7 +80,6 @@ public class SubGoalController {
             .body(ApiResponse.ok(SUB_GOAL_UPDATE_SUCCESS));
     }
 
-    // TODO 하위 목표 삭제
     @DeleteMapping("/sub-goals/{subGoalId}")
     public ResponseEntity<ApiResponse<Void, Void>> deleteSubGoal(
         @PathVariable Long subGoalId

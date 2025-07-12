@@ -65,16 +65,17 @@ public class SubGoalCommandService {
     }
 
     @Transactional
-    public void updateSubGoal(Long userId, Long subGoalId, SubGoalUpdateRequest request) {
-        SubGoal subGoal = getExistingSubGoal(subGoalId);
-        subGoal.verifyUser(userId);
+    public void updateSubGoal(Long userId, Long subGoalSnapshotId, SubGoalUpdateRequest request) {
+        SubGoalSnapshot subGoalSnapshot = getExistingSubGoal(subGoalSnapshotId);
+        subGoalSnapshot.verifySubGoalUser(userId);
+        subGoalSnapshot.update(request.title(), request.cycle());
     }
 
     @Transactional
     public void deleteSubGoal(Long userId, Long subGoalId) {
-        SubGoal subGoal = getExistingSubGoal(subGoalId);
-        subGoal.verifyUser(userId);
-        subGoalRepository.delete(subGoal);
+        SubGoalSnapshot subGoalSnapshot = getExistingSubGoal(subGoalId);
+        subGoalSnapshot.verifySubGoalUser(userId);
+        subGoalSnapshotRepository.delete(subGoalSnapshot);
     }
 
     private void validateCreate(CoreGoalSnapshot coreGoalSnapshot, Long userId,
@@ -100,8 +101,8 @@ public class SubGoalCommandService {
         }
     }
 
-    private SubGoal getExistingSubGoal(Long subGoalId) {
-        return subGoalRepository.findById(subGoalId)
+    private SubGoalSnapshot getExistingSubGoal(Long subGoalSnapShotId) {
+        return subGoalSnapshotRepository.findById(subGoalSnapShotId)
             .orElseThrow(() -> new SubGoalException(SUB_GOAL_NOT_FOUND));
     }
 

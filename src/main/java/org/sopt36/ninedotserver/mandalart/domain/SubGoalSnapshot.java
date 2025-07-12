@@ -66,4 +66,13 @@ public class SubGoalSnapshot {
             .build();
     }
 
+    public void verifySubGoalUser(Long userId) {
+        this.subGoal.verifyUser(userId);
+    }
+
+    public void update(String title, Cycle cycle) {
+        this.title = title;
+        this.cycle = cycle;
+    }
+
 }
