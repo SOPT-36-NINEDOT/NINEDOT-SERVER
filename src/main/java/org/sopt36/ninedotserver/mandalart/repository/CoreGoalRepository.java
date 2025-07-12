@@ -13,5 +13,5 @@ public interface CoreGoalRepository
 
     boolean existsByMandalartIdAndPosition(Long mandalartId, int position);
 
-    List<CoreGoal> findAllByMandalartIdOrderByPosition(Long mandalartId);
+    List<CoreGoal> findByMandalartId(Long mandalartId);
 }
