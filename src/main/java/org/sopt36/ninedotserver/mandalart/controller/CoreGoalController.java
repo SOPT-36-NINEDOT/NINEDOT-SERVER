@@ -3,7 +3,7 @@ package org.sopt36.ninedotserver.mandalart.controller;
 import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CORE_GOAL_CREATED_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CORE_GOAL_IDS_RETRIEVED_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CORE_GOAL_LIST_RETRIEVED_SUCCESS;
-import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.ONBOARDING_UPDATED_SUCCESS;
+import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CORE_GOAL_ONBOARDING_UPDATED_SUCCESS;
 
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -61,7 +61,6 @@ public class CoreGoalController {
         return ResponseEntity.ok(ApiResponse.ok(CORE_GOAL_IDS_RETRIEVED_SUCCESS, response));
     }
 
-
     @GetMapping("/mandalarts/{mandalartId}/core-goals")
     public ResponseEntity<ApiResponse<CoreGoalsResponse, Void>> getCoreGoals(
         @PathVariable Long mandalartId
@@ -71,7 +70,7 @@ public class CoreGoalController {
 
         return ResponseEntity.ok(ApiResponse.ok(CORE_GOAL_LIST_RETRIEVED_SUCCESS, response));
     }
-  
+
     @PatchMapping("/core-goals/{coreGoalId}")
     public ResponseEntity<ApiResponse<Void, Void>> updateCoreGoal(
         @PathVariable Long coreGoalId,

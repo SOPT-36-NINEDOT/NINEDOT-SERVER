@@ -41,11 +41,11 @@ public class SubGoalController {
     ) {
         Long userId = 1L; // TODO: 로그인 구현되면 token에서 사용자id 가져오기
         List<SubGoalIdResponse> subGoalIds = subGoalQueryService.getSubGoalIds(userId, coreGoalId);
+
         return ResponseEntity.ok()
-            .body(ApiResponse.ok(
-                    SUB_GOAL_ID_LIST_FETCH_SUCCESS,
-                    SubGoalIdListResponse.from(subGoalIds)
-                )
+            .body(
+                ApiResponse.ok(SUB_GOAL_ID_LIST_FETCH_SUCCESS,
+                    SubGoalIdListResponse.from(subGoalIds))
             );
     }
 
@@ -60,7 +60,6 @@ public class SubGoalController {
             coreGoalId,
             request
         );
-
         URI location = URI.create(
             "/api/v1/core-goals/" + coreGoalId + "/sub-goals/" + response.id());
 

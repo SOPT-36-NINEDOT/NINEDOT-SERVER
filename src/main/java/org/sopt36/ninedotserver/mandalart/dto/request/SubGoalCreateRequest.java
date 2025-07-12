@@ -3,6 +3,7 @@ package org.sopt36.ninedotserver.mandalart.dto.request;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.sopt36.ninedotserver.mandalart.domain.Cycle;
 
@@ -15,7 +16,7 @@ public record SubGoalCreateRequest(
     @Max(value = 8, message = "position은 1 이상 8 이하의 값이어야 합니다.")
     int position,
 
-    @NotBlank(message = "cycle은 필수 입력값입니다.")
+    @NotNull(message = "cycle은 필수 입력값입니다.")
     Cycle cycle
 ) {
 
