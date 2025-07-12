@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PromptBuilder {
 
     public static String buildCoreGoalPrompt(int age, String job,
+
         List<String> questions, List<String> answers,
         String mandalartTitle,
         List<String> coreGoals) {
