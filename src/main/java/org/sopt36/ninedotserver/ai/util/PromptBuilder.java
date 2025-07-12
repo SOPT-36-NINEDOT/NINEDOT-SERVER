@@ -1,7 +1,9 @@
 package org.sopt36.ninedotserver.ai.util;
 
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class PromptBuilder {
 
     public static String buildCoreGoalPrompt(int age, String job,
@@ -36,6 +38,7 @@ public class PromptBuilder {
         for (int i = 0; i < coreGoals.size(); i++) {
             sb.append(coreGoals.get(i)).append("\n");
         }
+        log.info(sb.toString());
         return sb.toString();
     }
 }

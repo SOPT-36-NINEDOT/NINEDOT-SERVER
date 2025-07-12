@@ -20,6 +20,7 @@ import org.sopt36.ninedotserver.ai.util.PromptBuilder;
 import org.sopt36.ninedotserver.global.exception.ErrorCode;
 import org.sopt36.ninedotserver.mandalart.repository.CoreGoalSnapshotRepository;
 import org.sopt36.ninedotserver.mandalart.repository.MandalartRepository;
+import org.sopt36.ninedotserver.onboarding.domain.Domain;
 import org.sopt36.ninedotserver.onboarding.domain.Question;
 import org.sopt36.ninedotserver.onboarding.repository.AnswerRepository;
 import org.sopt36.ninedotserver.user.domain.User;
@@ -70,7 +71,8 @@ public class AiRecommendationService {
     }
 
     private List<String> findQuestionByUserId(Long userId) {
-        List<String> questions = answerRepository.findAllQuestionByUserId((userId))
+        List<String> questions = answerRepository.findQuestionsByUserIdAndDomain(userId,
+                Domain.PERSONA)
                                      .stream()
                                      .map(Question::getContent)
                                      .collect(Collectors.toList());
