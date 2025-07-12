@@ -1,17 +1,21 @@
 package org.sopt36.ninedotserver.mandalart.controller;
 
+import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.AI_RESPONSE_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CREATED_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.IDS_RETRIEVED_SUCCESS;
 
 import jakarta.validation.Valid;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
+import org.sopt36.ninedotserver.ai.dto.response.CoreGoalAiResponse;
+import org.sopt36.ninedotserver.ai.service.AiRecommendationService;
 import org.sopt36.ninedotserver.global.dto.response.ApiResponse;
 import org.sopt36.ninedotserver.mandalart.dto.request.CoreGoalCreateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalCreateResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalIdsResponse;
 import org.sopt36.ninedotserver.mandalart.service.command.CoreGoalCommandService;
 import org.sopt36.ninedotserver.mandalart.service.query.CoreGoalQueryService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,14 +23,22 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestClient;
 
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
 @RestController
 public class CoreGoalController {
 
+    private final RestClient restClient;
     private final CoreGoalCommandService coreGoalCommandService;
     private final CoreGoalQueryService coreGoalQueryService;
+    private final AiRecommendationService aiRecommendationService;
+
+    @Value("${gemini.api.url}")
+    private String apiUrl;
+    @Value("${gemini.api.key}")
+    private String apiKey;
 
     @PostMapping("/mandalarts/{mandalartId}/core-goals")
     public ResponseEntity<ApiResponse<CoreGoalCreateResponse, Void>> createCoreGoal(
@@ -43,7 +55,7 @@ public class CoreGoalController {
             "/api/v1/mandalarts/" + mandalartId + "/core-goals/" + coreGoalId);
 
         return ResponseEntity.created(location)
-            .body(ApiResponse.created(response, CREATED_SUCCESS));
+                   .body(ApiResponse.created(response, CREATED_SUCCESS));
     }
 
     @GetMapping("/mandalarts/{mandalartId}/core-goals/id-positions")
@@ -56,4 +68,11 @@ public class CoreGoalController {
         return ResponseEntity.ok(ApiResponse.ok(IDS_RETRIEVED_SUCCESS, response));
     }
 
+    @PostMapping("/mandalarts/{mandalartId}/ai")
+    public ResponseEntity<ApiResponse<String, Void>> createAI(
+        @PathVariable Long mandalartId) {
+        Long userId = 1L;
+        String response = aiRecommendationService.fetchAiRecommendation(mandalartId);
+        return ResponseEntity.ok(ApiResponse.created(response, AI_RESPONSE_SUCCESS));
+    }
 }
