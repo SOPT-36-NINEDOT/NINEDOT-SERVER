@@ -75,7 +75,9 @@ public class SubGoalCommandService {
     public void deleteSubGoal(Long userId, Long subGoalId) {
         SubGoalSnapshot subGoalSnapshot = getExistingSubGoal(subGoalId);
         subGoalSnapshot.verifySubGoalUser(userId);
+        SubGoal subGoal = subGoalSnapshot.getSubGoal();
         subGoalSnapshotRepository.delete(subGoalSnapshot);
+        subGoalRepository.delete(subGoal);
     }
 
     private void validateCreate(CoreGoalSnapshot coreGoalSnapshot, Long userId,
