@@ -1,5 +1,8 @@
 package org.sopt36.ninedotserver.mandalart.controller;
 
+import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.AI_RESPONSE_SUCCESS;
+import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CREATED_SUCCESS;
+import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.IDS_RETRIEVED_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CORE_GOAL_AI_CREATED_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CORE_GOAL_CREATED_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CORE_GOAL_IDS_RETRIEVED_SUCCESS;
@@ -10,6 +13,8 @@ import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMess
 import jakarta.validation.Valid;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
+import org.sopt36.ninedotserver.ai.dto.response.CoreGoalAiResponse;
+import org.sopt36.ninedotserver.ai.service.AiRecommendationService;
 import org.sopt36.ninedotserver.global.dto.response.ApiResponse;
 import org.sopt36.ninedotserver.mandalart.dto.request.CoreGoalAiCreateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.request.CoreGoalCreateRequest;
@@ -20,6 +25,7 @@ import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalIdsResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalsResponse;
 import org.sopt36.ninedotserver.mandalart.service.command.CoreGoalCommandService;
 import org.sopt36.ninedotserver.mandalart.service.query.CoreGoalQueryService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,14 +35,22 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestClient;
 
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
 @RestController
 public class CoreGoalController {
 
+    private final RestClient restClient;
     private final CoreGoalCommandService coreGoalCommandService;
     private final CoreGoalQueryService coreGoalQueryService;
+    private final AiRecommendationService aiRecommendationService;
+
+    @Value("${gemini.api.url}")
+    private String apiUrl;
+    @Value("${gemini.api.key}")
+    private String apiKey;
 
     @PostMapping("/onboarding/mandalarts/{mandalartId}/core-goals")
     public ResponseEntity<ApiResponse<CoreGoalCreateResponse, Void>> createCoreGoal(
@@ -112,4 +126,11 @@ public class CoreGoalController {
         return ResponseEntity.ok(ApiResponse.ok(CORE_GOAL_AI_CREATED_SUCCESS, response));
     }
 
+    @PostMapping("/mandalarts/{mandalartId}/ai")
+    public ResponseEntity<ApiResponse<CoreGoalAiResponse, Void>> createAI(
+        @PathVariable Long mandalartId) {
+        Long userId = 1L;
+        CoreGoalAiResponse response = aiRecommendationService.fetchAiRecommendation(mandalartId);
+        return ResponseEntity.ok(ApiResponse.created(response, AI_RESPONSE_SUCCESS));
+    }
 }
