@@ -1,10 +1,13 @@
 package org.sopt36.ninedotserver.mandalart.dto.response;
 
-import org.sopt36.ninedotserver.mandalart.domain.CoreGoal;
+import org.sopt36.ninedotserver.mandalart.domain.CoreGoalSnapshot;
 
 public record CoreGoalIdResponse(Long id, int position) {
 
-    public static CoreGoalIdResponse from(CoreGoal coreGoal) {
-        return new CoreGoalIdResponse(coreGoal.getId(), coreGoal.getPosition());
+    public static CoreGoalIdResponse from(CoreGoalSnapshot coreGoalSnapshot) {
+        return new CoreGoalIdResponse(
+            coreGoalSnapshot.getId(),
+            coreGoalSnapshot.getCoreGoal().getPosition()
+        );
     }
 }

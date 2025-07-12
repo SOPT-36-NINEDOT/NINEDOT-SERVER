@@ -30,17 +30,16 @@ public class History extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "subgoal_id", nullable = false)
-    private SubGoal subGoal;
+    @JoinColumn(name = "subgoal_snapshot_id", nullable = false)
+    private SubGoalSnapshot subGoalSnapshot;
 
     @Column(name = "completed_date", nullable = false)
     private LocalDate completedDate;
 
-    public static History create(SubGoal subGoal, LocalDate completedDate) {
+    public static History create(SubGoalSnapshot subGoalSnapshot, LocalDate completedDate) {
         return History.builder()
-            .subGoal(subGoal)
+            .subGoalSnapshot(subGoalSnapshot)
             .completedDate(completedDate)
             .build();
-
     }
 }
