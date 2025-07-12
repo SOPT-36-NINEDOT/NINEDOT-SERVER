@@ -7,8 +7,8 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum HistoryErrorCode implements ErrorCode {
 
-    // TODO 에러 코드 별 메시지 관리. 추후 구현 시 아래 세미콜론 삭제
-    ;
+    // 409 Conflict
+    HISTORY_ALREADY_COMPLETED(HttpStatus.CONFLICT, "이미 오늘 해당 하위 목표를 완료했습니다.");
 
     private final HttpStatus status;
     private final String message;
