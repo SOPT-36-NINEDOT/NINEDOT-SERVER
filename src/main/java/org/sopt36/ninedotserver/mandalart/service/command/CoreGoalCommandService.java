@@ -75,6 +75,15 @@ public class CoreGoalCommandService {
         coreGoalSnapshotRepository.save(coreGoalSnapshot);
     }
 
+    @Transactional
+    public void deleteCoreGoal(Long userId, Long coreGoalSnapshotId) {
+        CoreGoalSnapshot coreGoalSnapshot = getExistingCoreGoal(coreGoalSnapshotId);
+        coreGoalSnapshot.verifyCoreGoalUser(userId);
+        CoreGoal coreGoal = coreGoalSnapshot.getCoreGoal();
+        coreGoalSnapshotRepository.delete(coreGoalSnapshot);
+        coreGoalRepository.delete(coreGoal);
+    }
+
     private Mandalart getExistingMandalart(Long mandalartId) {
         return mandalartRepository.findById(mandalartId)
             .orElseThrow(() -> new MandalartException(MANDALART_NOT_FOUND));
