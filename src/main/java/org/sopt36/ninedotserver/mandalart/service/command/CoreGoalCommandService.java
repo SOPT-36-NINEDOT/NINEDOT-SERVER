@@ -19,6 +19,8 @@ import org.sopt36.ninedotserver.mandalart.exception.MandalartException;
 import org.sopt36.ninedotserver.mandalart.repository.CoreGoalRepository;
 import org.sopt36.ninedotserver.mandalart.repository.CoreGoalSnapshotRepository;
 import org.sopt36.ninedotserver.mandalart.repository.MandalartRepository;
+import org.sopt36.ninedotserver.mandalart.repository.SubGoalRepository;
+import org.sopt36.ninedotserver.mandalart.repository.SubGoalSnapshotRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +35,8 @@ public class CoreGoalCommandService {
     private final MandalartRepository mandalartRepository;
     private final AiRecommendationService aiRecommendationService;
     private final CoreGoalSnapshotRepository coreGoalSnapshotRepository;
+    private final SubGoalRepository subGoalRepository;
+    private final SubGoalSnapshotRepository subGoalSnapshotRepository;
 
     @Transactional
     public CoreGoalCreateResponse createCoreGoal(
@@ -79,7 +83,12 @@ public class CoreGoalCommandService {
     public void deleteCoreGoal(Long userId, Long coreGoalSnapshotId) {
         CoreGoalSnapshot coreGoalSnapshot = getExistingCoreGoal(coreGoalSnapshotId);
         coreGoalSnapshot.verifyCoreGoalUser(userId);
+
         CoreGoal coreGoal = coreGoalSnapshot.getCoreGoal();
+
+        subGoalSnapshotRepository.deleteBySubGoal_CoreGoal(coreGoal);
+        subGoalRepository.deleteByCoreGoal(coreGoal);
+
         coreGoalSnapshotRepository.delete(coreGoalSnapshot);
         coreGoalRepository.delete(coreGoal);
     }
