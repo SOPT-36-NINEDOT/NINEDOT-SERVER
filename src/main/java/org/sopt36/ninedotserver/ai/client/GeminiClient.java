@@ -25,11 +25,22 @@ public class GeminiClient implements AiClient {
 
     @Override
     public String fetchAiResponse(String prompt) {
+        GenerateContentRequest request = buildGeminiRequest(prompt);
+
+        return restClient.post()
+                   .body(request)
+                   .retrieve()
+                   .body(String.class);
+    }
+
+    private GenerateContentRequest buildGeminiRequest(String prompt) {
+        //ai에 보낼 request 만들어주는 부분
         var contents = List.of(
             new GenerateContentRequest.Content(
                 List.of(new GenerateContentRequest.Part(prompt))
             )
         );
+
         JsonNode schemaNode;
         try {
             schemaNode = objectMapper.readTree(responseSchema);
@@ -37,17 +48,14 @@ public class GeminiClient implements AiClient {
             log.error("responseSchema JSON parsing error", e);
             throw new RuntimeException("Invalid response schema JSON", e);
         }
+
         GenerationConfig config = new GenerationConfig(
             "application/json",
             schemaNode
             , new GenerationConfig.ThinkingConfig(512)
         );
-        GenerateContentRequest request = new GenerateContentRequest(contents, config);
 
-        return restClient.post()
-                   .body(request)
-                   .retrieve()
-                   .body(String.class);
+        return new GenerateContentRequest(contents, config);
     }
 
 }
