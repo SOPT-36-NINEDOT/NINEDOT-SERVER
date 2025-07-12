@@ -7,10 +7,10 @@ public class PromptBuilder {
     public static String buildCoreGoalPrompt(int age, String job,
         List<String> questions, List<String> answers,
         String mandalartTitle,
-        String core1, String core2) {
+        List<String> coreGoals) {
 
         if (job == null || questions == null || answers == null ||
-                mandalartTitle == null || core1 == null || core2 == null) {
+                mandalartTitle == null || coreGoals == null) {
             throw new IllegalArgumentException("필수 파라미터가 null입니다");
         }
 
@@ -31,9 +31,11 @@ public class PromptBuilder {
                       + "만다라트에는 전체목표 하나에 8개의 상위목표가 따르고, 상위목표 각각에 하위목표 8개씩 있어. "
                       + "이 내용들을 바탕으로 상위목표 8개를 추천해줘. 지금까지 작성한 전체목표, 상위목표는 다음과 같아.\n")
 
-            .append("- 전체목표: ").append(mandalartTitle).append("\n")
-            .append("    - 상위목표1: ").append(core1).append("\n")
-            .append("    - 상위목표2: ").append(core2).append("\n");
+            .append("- 전체목표: ").append(mandalartTitle).append("\n");
+
+        for (int i = 0; i < coreGoals.size(); i++) {
+            sb.append(coreGoals.get(i)).append("\n");
+        }
         return sb.toString();
     }
 }

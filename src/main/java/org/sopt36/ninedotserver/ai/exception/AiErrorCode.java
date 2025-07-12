@@ -10,6 +10,7 @@ public enum AiErrorCode implements ErrorCode {
     MANDALART_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 만다라트입니다."),
     QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "질문이 존재하지 않습니다."),
     ANSWER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자의 답변이 존재하지 않습니다."),
+    CORE_GOAL_NOT_FOUND(HttpStatus.NOT_FOUND, "상위목표가 존재하지 않습니다."),
 
     //500
     AI_RESPONSE_PARSE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AI 응답 파싱에 실패했습니다."),

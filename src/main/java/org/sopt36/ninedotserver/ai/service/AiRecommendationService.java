@@ -2,6 +2,7 @@ package org.sopt36.ninedotserver.ai.service;
 
 import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.AI_RESPONSE_PARSE_ERROR;
 import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.ANSWER_NOT_FOUND;
+import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.CORE_GOAL_NOT_FOUND;
 import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.MANDALART_NOT_FOUND;
 import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.QUESTION_NOT_FOUND;
 
@@ -17,6 +18,7 @@ import org.sopt36.ninedotserver.ai.exception.AiException;
 import org.sopt36.ninedotserver.ai.util.AgeUtil;
 import org.sopt36.ninedotserver.ai.util.PromptBuilder;
 import org.sopt36.ninedotserver.global.exception.ErrorCode;
+import org.sopt36.ninedotserver.mandalart.repository.CoreGoalSnapshotRepository;
 import org.sopt36.ninedotserver.mandalart.repository.MandalartRepository;
 import org.sopt36.ninedotserver.onboarding.domain.Question;
 import org.sopt36.ninedotserver.onboarding.repository.AnswerRepository;
@@ -29,6 +31,7 @@ public class AiRecommendationService {
 
     private final MandalartRepository mandalartRepository;
     private final AnswerRepository answerRepository;
+    private final CoreGoalSnapshotRepository coreGoalSnapshotRepository;
     private final GeminiClient geminiClient;
     private final ObjectMapper objectMapper;
 
@@ -45,13 +48,15 @@ public class AiRecommendationService {
         String mandalart = mandalartRepository.findTitleByMandalartId(mandalartId)
                                .orElseThrow(() -> new AiException(MANDALART_NOT_FOUND));
 
+        List<String> coreGoals = findCoreGoalsByMandalartId(mandalartId);
+
         String prompt = PromptBuilder.buildCoreGoalPrompt(
             age,
             user.getJob().getDisplayName(),
             questions,
             answers,
             mandalart,
-            "매일 운동하기", "3대 300찍기");
+            coreGoals);
 
         String response = geminiClient.fetchAiResponse(prompt);
 
@@ -77,6 +82,13 @@ public class AiRecommendationService {
         List<String> answers = answerRepository.findAllAnswerContentsByUserId(userId);
         isListEmpty(answers, ANSWER_NOT_FOUND);
         return answers;
+    }
+
+    private List<String> findCoreGoalsByMandalartId(Long mandalartId) {
+        List<String> coreGoals = coreGoalSnapshotRepository.findActiveCoreGoalTitleByMandalartId(
+            mandalartId);
+        isListEmpty(coreGoals, CORE_GOAL_NOT_FOUND);
+        return coreGoals;
     }
 
     private CoreGoalAiResponse convertAiResponseToDtoResponse(String response) {

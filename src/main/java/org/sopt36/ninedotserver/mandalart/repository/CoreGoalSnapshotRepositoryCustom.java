@@ -6,4 +6,6 @@ import org.sopt36.ninedotserver.mandalart.domain.CoreGoalSnapshot;
 public interface CoreGoalSnapshotRepositoryCustom {
 
     List<CoreGoalSnapshot> findByMandalartIdOrderByPosition(Long mandalartId);
+
+    List<String> findActiveCoreGoalTitleByMandalartId(Long mandalartId);
 }
