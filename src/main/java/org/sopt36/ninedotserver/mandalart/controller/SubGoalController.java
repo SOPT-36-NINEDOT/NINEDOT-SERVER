@@ -49,7 +49,6 @@ public class SubGoalController {
             );
     }
 
-    // TODO 만다라트 하위 목표 생성
     @PostMapping("/core-goals/{coreGoalId}/sub-goals")
     public ResponseEntity<ApiResponse<SubGoalCreateResponse, Void>> createSubGoal(
         @PathVariable Long coreGoalId,
@@ -61,7 +60,6 @@ public class SubGoalController {
             coreGoalId,
             request
         );
-
         URI location = URI.create(
             "/api/v1/core-goals/" + coreGoalId + "/sub-goals/" + response.id());
 
