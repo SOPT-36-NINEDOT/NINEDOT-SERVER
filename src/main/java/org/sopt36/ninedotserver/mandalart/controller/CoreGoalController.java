@@ -3,6 +3,7 @@ package org.sopt36.ninedotserver.mandalart.controller;
 import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CORE_GOAL_CREATED_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CORE_GOAL_IDS_RETRIEVED_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CORE_GOAL_LIST_RETRIEVED_SUCCESS;
+import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CORE_GOAL_ONBOARDING_DELETED_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CORE_GOAL_ONBOARDING_UPDATED_SUCCESS;
 
 import jakarta.validation.Valid;
@@ -17,6 +18,7 @@ import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalsResponse;
 import org.sopt36.ninedotserver.mandalart.service.command.CoreGoalCommandService;
 import org.sopt36.ninedotserver.mandalart.service.query.CoreGoalQueryService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,7 +35,7 @@ public class CoreGoalController {
     private final CoreGoalCommandService coreGoalCommandService;
     private final CoreGoalQueryService coreGoalQueryService;
 
-    @PostMapping("/mandalarts/{mandalartId}/core-goals")
+    @PostMapping("/onboarding/mandalarts/{mandalartId}/core-goals")
     public ResponseEntity<ApiResponse<CoreGoalCreateResponse, Void>> createCoreGoal(
         @PathVariable Long mandalartId,
         @Valid @RequestBody CoreGoalCreateRequest createRequest
@@ -61,7 +63,7 @@ public class CoreGoalController {
         return ResponseEntity.ok(ApiResponse.ok(CORE_GOAL_IDS_RETRIEVED_SUCCESS, response));
     }
 
-    @GetMapping("/mandalarts/{mandalartId}/core-goals")
+    @GetMapping("/onboarding/mandalarts/{mandalartId}/core-goals")
     public ResponseEntity<ApiResponse<CoreGoalsResponse, Void>> getCoreGoals(
         @PathVariable Long mandalartId
     ) {
@@ -71,7 +73,7 @@ public class CoreGoalController {
         return ResponseEntity.ok(ApiResponse.ok(CORE_GOAL_LIST_RETRIEVED_SUCCESS, response));
     }
 
-    @PatchMapping("/core-goals/{coreGoalId}")
+    @PatchMapping("/onboarding/core-goals/{coreGoalId}")
     public ResponseEntity<ApiResponse<Void, Void>> updateCoreGoal(
         @PathVariable Long coreGoalId,
         @Valid @RequestBody CoreGoalUpdateRequest updateRequest
@@ -80,6 +82,16 @@ public class CoreGoalController {
         coreGoalCommandService.updateCoreGoal(userId, coreGoalId, updateRequest);
 
         return ResponseEntity.ok(ApiResponse.ok(CORE_GOAL_ONBOARDING_UPDATED_SUCCESS));
+    }
+
+    @DeleteMapping("/onboarding/core-goals/{coreGoalId}")
+    public ResponseEntity<ApiResponse<Void, Void>> deleteCoreGoal(
+        @PathVariable Long coreGoalId
+    ) {
+        Long userId = 1L;
+        coreGoalCommandService.deleteCoreGoal(userId, coreGoalId);
+
+        return ResponseEntity.ok(ApiResponse.ok(CORE_GOAL_ONBOARDING_DELETED_SUCCESS));
     }
 
 }

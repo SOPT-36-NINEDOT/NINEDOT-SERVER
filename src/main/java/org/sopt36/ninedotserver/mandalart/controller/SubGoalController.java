@@ -73,7 +73,6 @@ public class SubGoalController {
         @Valid @RequestBody SubGoalUpdateRequest request
     ) {
         Long userId = 1L; // TODO: 로그인 구현되면 token에서 사용자id 가져오기
-
         subGoalCommandService.updateSubGoal(userId, subGoalId, request);
 
         return ResponseEntity.ok()
@@ -85,7 +84,6 @@ public class SubGoalController {
         @PathVariable Long subGoalId
     ) {
         Long userId = 1L; // TODO: 로그인 구현되면 token에서 사용자id 가져오기
-
         subGoalCommandService.deleteSubGoal(userId, subGoalId);
 
         return ResponseEntity.ok()
