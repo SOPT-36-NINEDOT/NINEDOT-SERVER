@@ -1,5 +1,6 @@
 package org.sopt36.ninedotserver.ai.service;
 
+import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.AI_RESPONSE_PARSE_ERROR;
 import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.ANSWER_NOT_FOUND;
 import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.MANDALART_NOT_FOUND;
 import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.QUESTION_NOT_FOUND;
@@ -44,7 +45,8 @@ public class AiRecommendationService {
         String mandalart = mandalartRepository.findTitleByMandalartId(mandalartId)
                                .orElseThrow(() -> new AiException(MANDALART_NOT_FOUND));
 
-        String prompt = PromptBuilder.buildCoreGoalPrompt(age,
+        String prompt = PromptBuilder.buildCoreGoalPrompt(
+            age,
             user.getJob().getDisplayName(),
             questions,
             answers,
@@ -90,7 +92,7 @@ public class AiRecommendationService {
             //Read value는 그 json 응답을 dto랑 매칭시켜서 바로 포장해준다.
             return objectMapper.readValue(innerJson, CoreGoalAiResponse.class);
         } catch (JsonProcessingException e) {
-            throw new AiException(ANSWER_NOT_FOUND);
+            throw new AiException(AI_RESPONSE_PARSE_ERROR);
         }
     }
 

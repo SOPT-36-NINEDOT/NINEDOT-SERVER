@@ -12,8 +12,13 @@ public enum AiErrorCode implements ErrorCode {
     ANSWER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자의 답변이 존재하지 않습니다."),
 
     //500
-    AI_RESPONSE_PARSE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AI 응답 파싱에 실패했습니다.");
+    AI_RESPONSE_PARSE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AI 응답 파싱에 실패했습니다."),
 
+    //502
+    AI_API_ERROR(HttpStatus.BAD_GATEWAY, "AI API 호출 중 오류가 발생했습니다."),
+
+    //504
+    AI_API_CONNECTION_ERROR(HttpStatus.GATEWAY_TIMEOUT, "AI API와 연결할 수 없습니다.");
     private final HttpStatus status;
     private final String message;
 

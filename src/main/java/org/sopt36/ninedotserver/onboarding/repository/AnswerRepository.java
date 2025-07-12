@@ -14,11 +14,10 @@ import org.springframework.stereotype.Repository;
 public interface AnswerRepository extends JpaRepository<Answer, Long>, AnswerRepositoryCustom {
 
     @Query("SELECT a.question FROM Answer a WHERE a.user.id = :userId")
-    List<Question> findAllQuestionByUserId(Long userId);
+    List<Question> findAllQuestionByUserId(@Param("userId") Long userId);
 
 
     @Query("SELECT a.content FROM Answer a WHERE a.user.id = :userId")
     List<String> findAllAnswerContentsByUserId(@Param("userId") Long userId);
 
-    Long user(User user);
 }

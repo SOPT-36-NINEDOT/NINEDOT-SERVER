@@ -22,6 +22,6 @@ spring:
       chat: none
 gemini:
   api:
-    key: ${GEMINI_API_KEY:defaultIfMissing}
+    key: ${GEMINI_API_KEY}
     url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite-preview-06-17:generateContent
-    response-schema: ${GEMINI_RESPONSE_STRUCTURE}
+    response-schema: ${GEMINI_RESPONSE_STRUCTURE:}

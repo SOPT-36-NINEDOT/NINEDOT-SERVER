@@ -8,6 +8,16 @@ public class PromptBuilder {
         List<String> questions, List<String> answers,
         String mandalartTitle,
         String core1, String core2) {
+
+        if (job == null || questions == null || answers == null ||
+                mandalartTitle == null || core1 == null || core2 == null) {
+            throw new IllegalArgumentException("필수 파라미터가 null입니다");
+        }
+
+        if (questions.size() != answers.size()) {
+            throw new IllegalArgumentException("질문과 답변의 개수가 일치하지 않습니다"); //근데 이럴 일이 있나..
+        }
+
         StringBuilder sb = new StringBuilder();
 
         sb.append("나는 ").append(age).append("세 ").append(job).append("이고, 다음은 나를 알 수 있는 질답이야.\n\n");
