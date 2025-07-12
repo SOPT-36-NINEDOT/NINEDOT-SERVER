@@ -2,23 +2,31 @@ package org.sopt36.ninedotserver.mandalart.service.command;
 
 import static org.sopt36.ninedotserver.mandalart.exception.CoreGoalErrorCode.CORE_GOAL_COMPLETED;
 import static org.sopt36.ninedotserver.mandalart.exception.CoreGoalErrorCode.CORE_GOAL_CONFLICT;
+import static org.sopt36.ninedotserver.mandalart.exception.CoreGoalErrorCode.CORE_GOAL_LIMITED;
 import static org.sopt36.ninedotserver.mandalart.exception.CoreGoalErrorCode.CORE_GOAL_NOT_FOUND;
 import static org.sopt36.ninedotserver.mandalart.exception.MandalartErrorCode.MANDALART_NOT_FOUND;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.ai.service.AiRecommendationService;
 import org.sopt36.ninedotserver.mandalart.domain.CoreGoal;
 import org.sopt36.ninedotserver.mandalart.domain.CoreGoalSnapshot;
 import org.sopt36.ninedotserver.mandalart.domain.Mandalart;
+import org.sopt36.ninedotserver.mandalart.dto.request.CoreGoalAiCreateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.request.CoreGoalCreateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.request.CoreGoalUpdateRequest;
+import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalAiDetailResponse;
+import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalAiListResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalCreateResponse;
 import org.sopt36.ninedotserver.mandalart.exception.CoreGoalException;
 import org.sopt36.ninedotserver.mandalart.exception.MandalartException;
 import org.sopt36.ninedotserver.mandalart.repository.CoreGoalRepository;
 import org.sopt36.ninedotserver.mandalart.repository.CoreGoalSnapshotRepository;
 import org.sopt36.ninedotserver.mandalart.repository.MandalartRepository;
+import org.sopt36.ninedotserver.mandalart.repository.SubGoalRepository;
+import org.sopt36.ninedotserver.mandalart.repository.SubGoalSnapshotRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +41,8 @@ public class CoreGoalCommandService {
     private final MandalartRepository mandalartRepository;
     private final AiRecommendationService aiRecommendationService;
     private final CoreGoalSnapshotRepository coreGoalSnapshotRepository;
+    private final SubGoalRepository subGoalRepository;
+    private final SubGoalSnapshotRepository subGoalSnapshotRepository;
 
     @Transactional
     public CoreGoalCreateResponse createCoreGoal(
@@ -75,6 +85,48 @@ public class CoreGoalCommandService {
         coreGoalSnapshotRepository.save(coreGoalSnapshot);
     }
 
+    @Transactional
+    public void deleteCoreGoal(Long userId, Long coreGoalSnapshotId) {
+        CoreGoalSnapshot coreGoalSnapshot = getExistingCoreGoal(coreGoalSnapshotId);
+        coreGoalSnapshot.verifyCoreGoalUser(userId);
+
+        CoreGoal coreGoal = coreGoalSnapshot.getCoreGoal();
+
+        subGoalSnapshotRepository.deleteBySubGoal_CoreGoal(coreGoal);
+        subGoalRepository.deleteByCoreGoal(coreGoal);
+
+        coreGoalSnapshotRepository.delete(coreGoalSnapshot);
+        coreGoalRepository.delete(coreGoal);
+    }
+
+    @Transactional
+    public CoreGoalAiListResponse createAiCoreGoals(
+        Long userId,
+        Long mandalartId,
+        CoreGoalAiCreateRequest createRequest
+    ) {
+        // TODO ValidateCanCreate 어떻게 쓸지 생각해서 나중에 얘로 바꾸기
+        Mandalart mandalart = getExistingAndValidate(mandalartId, userId);
+        validateCoreGoalCounts(mandalartId, createRequest);
+
+        List<Integer> freePositions = findFreePositions(mandalartId, createRequest.goals().size());
+        List<CoreGoal> coreGoals = buildCoreGoals(mandalart, freePositions);
+        List<CoreGoalSnapshot> snapshots = buildSnapshots(coreGoals, createRequest.goals());
+
+        coreGoalRepository.saveAll(coreGoals);
+        coreGoalSnapshotRepository.saveAll(snapshots);
+
+        return CoreGoalAiListResponse.of(toDetailResponses(coreGoals, snapshots));
+    }
+
+    private void validateCoreGoalCounts(Long mandalartId, CoreGoalAiCreateRequest createRequest) {
+        int existingCoreGoals = coreGoalRepository.countCoreGoalByMandalartId(mandalartId);
+        int requestCoreGoals = createRequest.goals().size();
+        if (existingCoreGoals + requestCoreGoals > MAX_MANDALART) {
+            throw new CoreGoalException(CORE_GOAL_LIMITED);
+        }
+    }
+
     private Mandalart getExistingMandalart(Long mandalartId) {
         return mandalartRepository.findById(mandalartId)
             .orElseThrow(() -> new MandalartException(MANDALART_NOT_FOUND));
@@ -107,5 +159,50 @@ public class CoreGoalCommandService {
     private CoreGoalSnapshot getExistingCoreGoal(Long coreGoalId) {
         return coreGoalSnapshotRepository.findById(coreGoalId)
             .orElseThrow(() -> new CoreGoalException(CORE_GOAL_NOT_FOUND));
+    }
+
+    private Mandalart getExistingAndValidate(Long mandalartId, Long userId) {
+        Mandalart mandalart = getExistingMandalart(mandalartId);
+        mandalart.ensureOwnedBy(userId);
+        return mandalart;
+    }
+
+    private List<Integer> findFreePositions(Long mandalartId, int requiredCount) {
+        List<Integer> occupied = coreGoalRepository.findByMandalartId(mandalartId)
+            .stream().
+            map(CoreGoal::getPosition)
+            .toList();
+
+        return IntStream.rangeClosed(1, MAX_MANDALART)
+            .filter(pos -> !occupied.contains(pos))
+            .limit(requiredCount)
+            .boxed()
+            .toList();
+    }
+
+    private List<CoreGoal> buildCoreGoals(Mandalart mandalart, List<Integer> positions) {
+        return positions.stream()
+            .map(position -> CoreGoal.create(mandalart, position, AI_GENERATABLE))
+            .toList();
+    }
+
+    private List<CoreGoalSnapshot> buildSnapshots(List<CoreGoal> coreGoals, List<String> titles) {
+        LocalDateTime now = LocalDateTime.now();
+        return IntStream.range(0, coreGoals.size())
+            .mapToObj(i -> CoreGoalSnapshot.create(
+                coreGoals.get(i),
+                titles.get(i),
+                now,
+                null))
+            .toList();
+    }
+
+    private List<CoreGoalAiDetailResponse> toDetailResponses(
+        List<CoreGoal> coreGoals,
+        List<CoreGoalSnapshot> snapshots
+    ) {
+        return IntStream.range(0, coreGoals.size())
+            .mapToObj(i -> CoreGoalAiDetailResponse.of(coreGoals.get(i), snapshots.get(i)))
+            .toList();
     }
 }
