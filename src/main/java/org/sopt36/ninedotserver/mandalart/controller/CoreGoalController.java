@@ -35,7 +35,7 @@ public class CoreGoalController {
     private final CoreGoalCommandService coreGoalCommandService;
     private final CoreGoalQueryService coreGoalQueryService;
 
-    @PostMapping("/mandalarts/{mandalartId}/core-goals")
+    @PostMapping("/onboarding/mandalarts/{mandalartId}/core-goals")
     public ResponseEntity<ApiResponse<CoreGoalCreateResponse, Void>> createCoreGoal(
         @PathVariable Long mandalartId,
         @Valid @RequestBody CoreGoalCreateRequest createRequest
@@ -63,7 +63,7 @@ public class CoreGoalController {
         return ResponseEntity.ok(ApiResponse.ok(CORE_GOAL_IDS_RETRIEVED_SUCCESS, response));
     }
 
-    @GetMapping("/mandalarts/{mandalartId}/core-goals")
+    @GetMapping("/onboarding/mandalarts/{mandalartId}/core-goals")
     public ResponseEntity<ApiResponse<CoreGoalsResponse, Void>> getCoreGoals(
         @PathVariable Long mandalartId
     ) {
@@ -73,7 +73,7 @@ public class CoreGoalController {
         return ResponseEntity.ok(ApiResponse.ok(CORE_GOAL_LIST_RETRIEVED_SUCCESS, response));
     }
 
-    @PatchMapping("/core-goals/{coreGoalId}")
+    @PatchMapping("/onboarding/core-goals/{coreGoalId}")
     public ResponseEntity<ApiResponse<Void, Void>> updateCoreGoal(
         @PathVariable Long coreGoalId,
         @Valid @RequestBody CoreGoalUpdateRequest updateRequest
@@ -84,7 +84,7 @@ public class CoreGoalController {
         return ResponseEntity.ok(ApiResponse.ok(CORE_GOAL_ONBOARDING_UPDATED_SUCCESS));
     }
 
-    @DeleteMapping("/core-goals/{coreGoalId}")
+    @DeleteMapping("/onboarding/core-goals/{coreGoalId}")
     public ResponseEntity<ApiResponse<Void, Void>> deleteCoreGoal(
         @PathVariable Long coreGoalId
     ) {
