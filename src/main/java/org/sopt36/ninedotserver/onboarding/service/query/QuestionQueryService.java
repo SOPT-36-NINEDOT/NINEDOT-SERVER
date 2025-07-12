@@ -8,6 +8,8 @@ import org.sopt36.ninedotserver.onboarding.domain.Choice;
 import org.sopt36.ninedotserver.onboarding.domain.Question;
 import org.sopt36.ninedotserver.onboarding.dto.response.PersonaQuestionResponse;
 import org.sopt36.ninedotserver.onboarding.dto.response.QuestionResponse;
+import org.sopt36.ninedotserver.onboarding.exception.QuestionErrorCode;
+import org.sopt36.ninedotserver.onboarding.exception.QuestionException;
 import org.sopt36.ninedotserver.onboarding.repository.ChoiceRepository;
 import org.sopt36.ninedotserver.onboarding.repository.QuestionRepository;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,10 @@ public class QuestionQueryService {
         List<Question> questions = questionRepository.findAllActivated();
         List<Choice> choices = choiceRepository.findAllByActivatedTrue();
 
+        if (questions.isEmpty()) {
+            throw new QuestionException(QuestionErrorCode.QUESTION_NOT_FOUND);
+        }
+
         Map<Long, List<Choice>> choiceMap = choices.stream()
             .collect(Collectors.groupingBy(c -> c.getQuestion().getId()));
 
@@ -33,5 +39,5 @@ public class QuestionQueryService {
             .toList();
 
         return PersonaQuestionResponse.from(responseList);
-        }
+    }
 }
