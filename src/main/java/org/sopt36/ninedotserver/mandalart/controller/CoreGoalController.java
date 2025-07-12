@@ -1,5 +1,6 @@
 package org.sopt36.ninedotserver.mandalart.controller;
 
+import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CORE_GOAL_AI_CREATED_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CORE_GOAL_CREATED_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CORE_GOAL_IDS_RETRIEVED_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CORE_GOAL_LIST_RETRIEVED_SUCCESS;
@@ -10,8 +11,10 @@ import jakarta.validation.Valid;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.global.dto.response.ApiResponse;
+import org.sopt36.ninedotserver.mandalart.dto.request.CoreGoalAiCreateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.request.CoreGoalCreateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.request.CoreGoalUpdateRequest;
+import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalAiListResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalCreateResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalIdsResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalsResponse;
@@ -92,6 +95,21 @@ public class CoreGoalController {
         coreGoalCommandService.deleteCoreGoal(userId, coreGoalId);
 
         return ResponseEntity.ok(ApiResponse.ok(CORE_GOAL_ONBOARDING_DELETED_SUCCESS));
+    }
+
+    @PostMapping("/mandalarts/{mandalartId}/core-goals/ai")
+    public ResponseEntity<ApiResponse<CoreGoalAiListResponse, Void>> createAiCoreGoals(
+        @PathVariable Long mandalartId,
+        @Valid @RequestBody CoreGoalAiCreateRequest aiCreateRequest
+    ) {
+        Long userId = 1L;
+        CoreGoalAiListResponse response = coreGoalCommandService.createAiCoreGoals(
+            userId,
+            mandalartId,
+            aiCreateRequest
+        );
+
+        return ResponseEntity.ok(ApiResponse.ok(CORE_GOAL_AI_CREATED_SUCCESS, response));
     }
 
 }
