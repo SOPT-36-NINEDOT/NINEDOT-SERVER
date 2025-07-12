@@ -69,10 +69,10 @@ public class CoreGoalController {
     }
 
     @PostMapping("/mandalarts/{mandalartId}/ai")
-    public ResponseEntity<ApiResponse<String, Void>> createAI(
+    public ResponseEntity<ApiResponse<CoreGoalAiResponse, Void>> createAI(
         @PathVariable Long mandalartId) {
         Long userId = 1L;
-        String response = aiRecommendationService.fetchAiRecommendation(mandalartId);
+        CoreGoalAiResponse response = aiRecommendationService.fetchAiRecommendation(mandalartId);
         return ResponseEntity.ok(ApiResponse.created(response, AI_RESPONSE_SUCCESS));
     }
 }

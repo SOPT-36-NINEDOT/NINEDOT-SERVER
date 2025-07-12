@@ -4,11 +4,14 @@ import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.ANSWER_NOT_FOUND
 import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.MANDALART_NOT_FOUND;
 import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.QUESTION_NOT_FOUND;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.sopt36.ninedotserver.ai.client.GeminiClient;
+import org.sopt36.ninedotserver.ai.dto.response.CoreGoalAiResponse;
 import org.sopt36.ninedotserver.ai.exception.AiException;
 import org.sopt36.ninedotserver.ai.util.AgeUtil;
 import org.sopt36.ninedotserver.ai.util.PromptBuilder;
@@ -19,7 +22,6 @@ import org.sopt36.ninedotserver.onboarding.repository.AnswerRepository;
 import org.sopt36.ninedotserver.user.domain.User;
 import org.springframework.stereotype.Service;
 
-@Slf4j
 @RequiredArgsConstructor
 @Service
 public class AiRecommendationService {
@@ -27,32 +29,68 @@ public class AiRecommendationService {
     private final MandalartRepository mandalartRepository;
     private final AnswerRepository answerRepository;
     private final GeminiClient geminiClient;
+    private final ObjectMapper objectMapper;
 
-    public String fetchAiRecommendation(Long mandalartId) {
+    public CoreGoalAiResponse fetchAiRecommendation(Long mandalartId) {
         User user = mandalartRepository.findUserById(mandalartId)
                         .orElseThrow(() -> new AiException(MANDALART_NOT_FOUND));
+
         int age = AgeUtil.calculateAgeFromString(user.getBirthday());
 
-        List<String> questions = answerRepository.findAllQuestionByUserId((user.getId())).stream()
-                                     .map(Question::getContent)
-                                     .collect(Collectors.toList());
-        isListEmpty(questions, QUESTION_NOT_FOUND);
+        List<String> questions = findQuestionByUserId(user.getId());
 
-        List<String> answers = answerRepository.findAllAnswerContentsByUserId((user.getId()));
-        isListEmpty(answers, ANSWER_NOT_FOUND);
+        List<String> answers = findAnswerContentsByUserId(user.getId());
 
         String mandalart = mandalartRepository.findTitleByMandalartId(mandalartId)
                                .orElseThrow(() -> new AiException(MANDALART_NOT_FOUND));
 
-        String prompt = PromptBuilder.buildCoreGoalPrompt(age, user.getJob().getDisplayName(),
-            questions, answers,
-            mandalart, "매일 운동하기", "3대 300찍기");
-        return geminiClient.fetchAiResponse(prompt);
+        String prompt = PromptBuilder.buildCoreGoalPrompt(age,
+            user.getJob().getDisplayName(),
+            questions,
+            answers,
+            mandalart,
+            "매일 운동하기", "3대 300찍기");
+
+        String response = geminiClient.fetchAiResponse(prompt);
+
+        return convertAiResponseToDtoResponse(response);
     }
 
-    public void isListEmpty(List<?> list, ErrorCode errorCode) {
+    private void isListEmpty(List<?> list, ErrorCode errorCode) {
         if (list == null || list.isEmpty()) {
             throw new AiException(errorCode);
+        }
+    }
+
+    private List<String> findQuestionByUserId(Long userId) {
+        List<String> questions = answerRepository.findAllQuestionByUserId((userId))
+                                     .stream()
+                                     .map(Question::getContent)
+                                     .collect(Collectors.toList());
+        isListEmpty(questions, QUESTION_NOT_FOUND);
+        return questions;
+    }
+
+    private List<String> findAnswerContentsByUserId(Long userId) {
+        List<String> answers = answerRepository.findAllAnswerContentsByUserId(userId);
+        isListEmpty(answers, ANSWER_NOT_FOUND);
+        return answers;
+    }
+
+    private CoreGoalAiResponse convertAiResponseToDtoResponse(String response) {
+        try {
+            //object mapper의 Read tree는 json 구조를 갖고 자유롭게 놀 수 있게 해주는 친구
+            JsonNode root = objectMapper.readTree(response);
+            //이걸로 ai의 전체 응답 중 우리가 원했던 응답만 쏙 빼온다.
+            String innerJson = root
+                                   .path("candidates").get(0)
+                                   .path("content").path("parts").get(0)
+                                   .path("text").asText();
+
+            //Read value는 그 json 응답을 dto랑 매칭시켜서 바로 포장해준다.
+            return objectMapper.readValue(innerJson, CoreGoalAiResponse.class);
+        } catch (JsonProcessingException e) {
+            throw new AiException(ANSWER_NOT_FOUND);
         }
     }
 

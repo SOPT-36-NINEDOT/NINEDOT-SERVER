@@ -2,6 +2,6 @@ package org.sopt36.ninedotserver.ai.dto.response;
 
 import java.util.List;
 
-public record CoreGoalAiResponse(List<CoreGoalTitleResponse> aiRecommendedList) {
+public record CoreGoalAiResponse(List<CoreGoalAiTitle> aiRecommendedList) {
 
 }

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import org.sopt36.ninedotserver.onboarding.domain.Answer;
 import org.sopt36.ninedotserver.onboarding.domain.Question;
+import org.sopt36.ninedotserver.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,4 +19,6 @@ public interface AnswerRepository extends JpaRepository<Answer, Long>, AnswerRep
 
     @Query("SELECT a.content FROM Answer a WHERE a.user.id = :userId")
     List<String> findAllAnswerContentsByUserId(@Param("userId") Long userId);
+
+    Long user(User user);
 }
