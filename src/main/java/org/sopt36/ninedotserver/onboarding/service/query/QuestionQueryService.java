@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.onboarding.domain.Choice;
+import org.sopt36.ninedotserver.onboarding.domain.Domain;
 import org.sopt36.ninedotserver.onboarding.domain.Question;
 import org.sopt36.ninedotserver.onboarding.dto.response.PersonaQuestionResponse;
 import org.sopt36.ninedotserver.onboarding.dto.response.QuestionResponse;
@@ -24,7 +25,7 @@ public class QuestionQueryService {
     private final ChoiceRepository choiceRepository;
 
     public PersonaQuestionResponse getAllActivatedQuestions() {
-        List<Question> questions = questionRepository.findAllActivated();
+        List<Question> questions = questionRepository.findAllByActivatedTrueAndDomain(Domain.PERSONA);
         List<Choice> choices = choiceRepository.findAllByActivatedTrue();
 
         if (questions.isEmpty()) {
