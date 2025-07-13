@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 public interface RefreshTokenRepository
     extends JpaRepository<RefreshToken, Long>, RefreshTokenRepositoryCustom {
 
+    void deleteByUserId(Long userId);
+
 }

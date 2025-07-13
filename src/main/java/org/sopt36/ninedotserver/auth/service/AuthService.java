@@ -7,6 +7,7 @@ import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.USER_NOT_FOU
 
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -38,6 +39,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -54,7 +57,6 @@ public class AuthService {
     private final AuthProviderRepository authProviderRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
-    private final SubGoalRepository subGoalRepository;
     private final CoreGoalRepository coreGoalRepository;
     private final MandalartRepository mandalartRepository;
     @Value("${GOOGLE_CLIENT_ID}")
@@ -93,6 +95,13 @@ public class AuthService {
             return (LoginOrSignupResponse<T>) createLoginResponse(userId, accessToken);
         }
         return (LoginOrSignupResponse<T>) createSignupResponse(googleUserInfo);
+    }
+
+    @Transactional
+    public void deleteRefreshToken() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long userId = Long.parseLong(auth.getName());
+        refreshTokenRepository.deleteByUserId(userId);
     }
 
     private GoogleTokenResponse getGoogleToken(String code) {
