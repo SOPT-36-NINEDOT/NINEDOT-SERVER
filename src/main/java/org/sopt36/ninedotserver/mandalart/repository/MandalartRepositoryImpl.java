@@ -1,13 +1,10 @@
 package org.sopt36.ninedotserver.mandalart.repository;
 
-import static org.sopt36.ninedotserver.mandalart.domain.QCoreGoal.coreGoal;
 import static org.sopt36.ninedotserver.mandalart.domain.QMandalart.mandalart;
-import static org.sopt36.ninedotserver.mandalart.domain.QSubGoal.subGoal;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.sopt36.ninedotserver.mandalart.domain.QMandalart;
 import org.sopt36.ninedotserver.user.domain.User;
 
 @RequiredArgsConstructor
@@ -24,6 +21,7 @@ public class MandalartRepositoryImpl implements MandalartRepositoryCustom {
                             .fetchFirst();
         return found != null;
     }
+
     @Override
     public Optional<User> findUserById(Long mandalartId) {
         User result = queryFactory
