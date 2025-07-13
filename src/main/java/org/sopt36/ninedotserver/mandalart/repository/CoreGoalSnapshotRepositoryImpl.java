@@ -18,10 +18,22 @@ public class CoreGoalSnapshotRepositoryImpl implements CoreGoalSnapshotRepositor
         QCoreGoal coreGoal = QCoreGoal.coreGoal;
 
         return queryFactory
-            .selectFrom(snapshot)
-            .join(snapshot.coreGoal, coreGoal).fetchJoin()
-            .where(coreGoal.mandalart.id.eq(mandalartId))
-            .orderBy(coreGoal.position.asc())
-            .fetch();
+                   .selectFrom(snapshot)
+                   .join(snapshot.coreGoal, coreGoal).fetchJoin()
+                   .where(coreGoal.mandalart.id.eq(mandalartId))
+                   .orderBy(coreGoal.position.asc())
+                   .fetch();
+    }
+
+    @Override
+    public List<String> findActiveCoreGoalTitleByMandalartId(Long mandalartId) {
+        QCoreGoalSnapshot snapshot = QCoreGoalSnapshot.coreGoalSnapshot;
+
+        return queryFactory
+                   .select(snapshot.title)
+                   .from(snapshot)
+                   .where(snapshot.coreGoal.mandalart.id.eq(mandalartId)
+                              .and(snapshot.validTo.isNull()))
+                   .fetch();
     }
 }
