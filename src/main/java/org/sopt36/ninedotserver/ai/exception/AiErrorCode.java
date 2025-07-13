@@ -11,6 +11,7 @@ public enum AiErrorCode implements ErrorCode {
     QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "질문이 존재하지 않습니다."),
     ANSWER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자의 답변이 존재하지 않습니다."),
     CORE_GOAL_NOT_FOUND(HttpStatus.NOT_FOUND, "상위목표가 존재하지 않습니다."),
+    SUB_GOAL_PROMPT_PARAMETER_NOT_FOUND(HttpStatus.NOT_FOUND, "하위 목표 프롬프트 빌딩에 필요한 필수 파라미터가 누락되었습니다."),
 
     //500
     AI_RESPONSE_PARSE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AI 응답 파싱에 실패했습니다."),
