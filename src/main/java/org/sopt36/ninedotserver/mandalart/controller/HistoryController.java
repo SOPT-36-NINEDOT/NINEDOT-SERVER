@@ -2,10 +2,12 @@ package org.sopt36.ninedotserver.mandalart.controller;
 
 import static org.sopt36.ninedotserver.mandalart.controller.message.HistoryMessage.HISTORY_CREATED_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.HistoryMessage.HISTORY_DELETED_SUCCESS;
+import static org.sopt36.ninedotserver.mandalart.controller.message.HistoryMessage.HISTORY_RETRIEVED_SUCCESS;
 
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.global.dto.response.ApiResponse;
+import org.sopt36.ninedotserver.mandalart.dto.response.StreakListResponse;
 import org.sopt36.ninedotserver.mandalart.service.command.HistoryCommandService;
 import org.sopt36.ninedotserver.mandalart.service.query.HistoryQueryService;
 import org.springframework.http.ResponseEntity;
@@ -49,12 +51,13 @@ public class HistoryController {
     }
 
     @GetMapping("/mandalarts/{mandalartId}/streaks")
-    public ResponseEntity<ApiResponse<Void, Void>> getStreaks(
+    public ResponseEntity<ApiResponse<StreakListResponse, Void>> getStreaks(
         @PathVariable Long mandalartId
     ) {
         Long userId = 1L;
+        StreakListResponse response = historyQueryService.getStreaks(userId, mandalartId);
 
-        return null;
+        return ResponseEntity.ok(ApiResponse.ok(HISTORY_RETRIEVED_SUCCESS, response));
     }
 
 }
