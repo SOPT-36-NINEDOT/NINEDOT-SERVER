@@ -1,5 +1,6 @@
 package org.sopt36.ninedotserver.mandalart.repository;
 
+import static org.sopt36.ninedotserver.mandalart.domain.QCoreGoal.coreGoal;
 import static org.sopt36.ninedotserver.mandalart.domain.QMandalart.mandalart;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -31,6 +32,18 @@ public class MandalartRepositoryImpl implements MandalartRepositoryCustom {
                            .where(mandalart.id.eq(mandalartId))
                            .fetchOne();
         return Optional.ofNullable(title);
+    }
+
+    @Override
+    public Optional<String> findTitleByCoreGoal(Long coreGoalId) {
+        return Optional.ofNullable(
+            queryFactory
+                .select(mandalart.title)
+                .from(coreGoal)
+                .join(coreGoal.mandalart, mandalart)
+                .where(coreGoal.id.eq(coreGoalId))
+                .fetchOne()
+        );
     }
 
 }
