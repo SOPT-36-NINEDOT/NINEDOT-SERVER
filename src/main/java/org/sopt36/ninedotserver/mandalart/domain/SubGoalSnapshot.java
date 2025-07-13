@@ -17,6 +17,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.sopt36.ninedotserver.global.entity.BaseEntity;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -24,7 +25,7 @@ import lombok.NoArgsConstructor;
 @Builder(access = AccessLevel.PROTECTED)
 @Table(name = "sub_goal_snapshot")
 @Entity
-public class SubGoalSnapshot {
+public class SubGoalSnapshot extends BaseEntity {
 
     private static final int MAX_TITLE_LENGTH = 30;
     private static final int MAX_CYCLE_LENGTH = 20;
@@ -73,6 +74,10 @@ public class SubGoalSnapshot {
     public void update(String title, Cycle cycle) {
         this.title = title;
         this.cycle = cycle;
+    }
+
+    public void updateValidTo(LocalDateTime now) {
+        this.validTo = now;
     }
 
 }

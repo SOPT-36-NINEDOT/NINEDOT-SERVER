@@ -11,4 +11,5 @@ public class CoreGoalMessage {
     public static final String CORE_GOAL_ONBOARDING_UPDATED_SUCCESS = "성공적으로 해당 상위 목표의 내용을 수정하였습니다.";
     public static final String CORE_GOAL_ONBOARDING_DELETED_SUCCESS = "성공적으로 해당 상위 목표를 삭제하였습니다.";
     public static final String CORE_GOAL_AI_CREATED_SUCCESS = "성공적으로 AI 추천 목표들을 만다라트의 상위 목표에 저장했습니다.";
+    public static final String CORE_GOAL_UPDATED_WITH_SUB_GOALS_SUCCESS = "성공적으로 해당 상위 목표와 하위 목표의 내용을 수정하였습니다.";
 }
