@@ -1,6 +1,7 @@
 package org.sopt36.ninedotserver.mandalart.service.command;
 
 import static org.sopt36.ninedotserver.mandalart.exception.HistoryErrorCode.HISTORY_ALREADY_COMPLETED;
+import static org.sopt36.ninedotserver.mandalart.exception.HistoryErrorCode.HISTORY_NOT_FOUND;
 import static org.sopt36.ninedotserver.mandalart.exception.SubGoalErrorCode.SUB_GOAL_NOT_FOUND;
 
 import java.time.LocalDate;
@@ -31,6 +32,18 @@ public class HistoryCommandService {
         historyRepository.save(history);
 
         return history.getId();
+    }
+
+    @Transactional
+    public void deleteHistory(Long userId, Long subGoalSnapshotId) {
+        SubGoalSnapshot subGoalSnapshot = getValidSubGoalSnapshot(subGoalSnapshotId);
+        subGoalSnapshot.verifySubGoalUser(userId);
+
+        History history = historyRepository
+            .findBySubGoalSnapshotIdAndCompletedDate(subGoalSnapshotId, LocalDate.now())
+            .orElseThrow(() -> new HistoryException(HISTORY_NOT_FOUND));
+
+        historyRepository.delete(history);
     }
 
     private SubGoalSnapshot getValidSubGoalSnapshot(Long subGoalSnapshotId) {
