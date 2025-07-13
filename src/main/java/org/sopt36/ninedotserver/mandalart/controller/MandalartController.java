@@ -63,7 +63,7 @@ public class MandalartController {
     public ResponseEntity<ApiResponse<MandalartResponse, Void>> getMandalart(
         @PathVariable Long mandalartId) {
         Long userId = 1L;
-        MandalartResponse response = mandalartQueryService.getMandalart(mandalartId);
+        MandalartResponse response = mandalartQueryService.getMandalart(userId, mandalartId);
         return ResponseEntity.ok(ApiResponse.ok(MANDALART_RETRIEVED_SUCCESS, response));
     }
 }

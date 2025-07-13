@@ -30,8 +30,8 @@ public class MandalartQueryService {
         return MandalartHistoryResponse.of(mandalart, LocalDate.now());
     }
 
-    public MandalartResponse getMandalart(Long mandalartId) {
-        return MandalartResponse.of(getExistingMandalart(mandalartId));
+    public MandalartResponse getMandalart(Long userId, Long mandalartId) {
+        return MandalartResponse.of(getExistingMandalart(userId, mandalartId));
     }
 
     private Mandalart getExistingMandalart(Long mandalartId) {
