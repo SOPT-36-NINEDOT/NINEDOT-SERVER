@@ -2,6 +2,7 @@ package org.sopt36.ninedotserver.auth.service;
 
 import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.GOOGLE_TOKEN_RETRIEVAL_FAILED;
 import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.GOOGLE_USER_INFO_RETRIEVAL_FAILED;
+import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.INVALID_REFRESH_TOKEN;
 import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.UNAUTHORIZED;
 import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.USER_NOT_FOUND;
 
@@ -25,6 +26,7 @@ import org.sopt36.ninedotserver.auth.dto.response.GoogleUserInfo;
 import org.sopt36.ninedotserver.auth.dto.response.LoginOrSignupResponse;
 import org.sopt36.ninedotserver.auth.dto.response.LoginOrSignupResponse.LoginData;
 import org.sopt36.ninedotserver.auth.dto.response.LoginOrSignupResponse.SignupData;
+import org.sopt36.ninedotserver.auth.dto.response.NewAccessTokenResponse;
 import org.sopt36.ninedotserver.auth.exception.AuthException;
 import org.sopt36.ninedotserver.auth.repository.AuthProviderRepository;
 import org.sopt36.ninedotserver.auth.repository.RefreshTokenRepository;
@@ -57,6 +59,7 @@ public class AuthService {
     private final AuthProviderRepository authProviderRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
+    private final SubGoalRepository subGoalRepository;
     private final CoreGoalRepository coreGoalRepository;
     private final MandalartRepository mandalartRepository;
     @Value("${GOOGLE_CLIENT_ID}")
@@ -85,16 +88,23 @@ public class AuthService {
             Long userId = optionalUser.get().getUser().getId();
             String accessToken = jwtProvider.createToken(userId,
                 accessTokenExpirationMilliseconds);
-            String refreshToken = jwtProvider.createToken(userId,
-                refreshTokenExpirationMilliseconds);
-            //ㄴ토큰을 만들어
-            cookieUtil.createRefreshTokenCookie(response, refreshToken);
-            //ㄴ쿠키에 담아
-            addRefreshTokenToDB(userId, refreshToken);
-            //ㄴdb에 refresh token 추가
+            generateAndStoreRefreshToken(userId, response);
             return (LoginOrSignupResponse<T>) createLoginResponse(userId, accessToken);
         }
         return (LoginOrSignupResponse<T>) createSignupResponse(googleUserInfo);
+    }
+
+    public NewAccessTokenResponse createNewAccessToken(String refreshToken,
+        HttpServletResponse response) {
+
+        RefreshToken rt = isRefreshTokenValid(refreshToken);
+
+        Long userId = rt.getUser().getId();
+        String newAccessToken = jwtProvider.createToken(userId, accessTokenExpirationMilliseconds);
+
+        refreshTokenRepository.delete(rt);
+        generateAndStoreRefreshToken(userId, response);
+        return new NewAccessTokenResponse(newAccessToken, "새로운 액세스토큰이 생성되었습니다.");
     }
 
     @Transactional
@@ -149,6 +159,22 @@ public class AuthService {
                        );
                    })
                    .body(GoogleUserInfo.class);
+    }
+
+    private void generateAndStoreRefreshToken(Long userId, HttpServletResponse response) {
+        String refreshToken = jwtProvider.createToken(userId,
+            refreshTokenExpirationMilliseconds);
+        //ㄴ토큰을 만들어
+        cookieUtil.createRefreshTokenCookie(response, refreshToken);
+        //ㄴ쿠키에 담아
+        addRefreshTokenToDB(userId, refreshToken);
+        //ㄴdb에 refresh token 추가
+    }
+
+    private RefreshToken isRefreshTokenValid(String refreshToken) {
+        return refreshTokenRepository
+                   .findByRefreshTokenAndExpiresAtAfter(refreshToken, LocalDateTime.now())
+                   .orElseThrow(() -> new AuthException(INVALID_REFRESH_TOKEN));
     }
 
     // 로그인 시 데이터베이스에 리프레시 토큰 생성
