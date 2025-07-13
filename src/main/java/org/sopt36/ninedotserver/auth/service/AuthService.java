@@ -8,6 +8,7 @@ import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.USER_NOT_FOU
 
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -33,12 +34,15 @@ import org.sopt36.ninedotserver.global.config.security.JwtProvider;
 import org.sopt36.ninedotserver.global.util.CookieUtil;
 import org.sopt36.ninedotserver.mandalart.repository.CoreGoalRepository;
 import org.sopt36.ninedotserver.mandalart.repository.MandalartRepository;
+import org.sopt36.ninedotserver.mandalart.repository.SubGoalRepository;
 import org.sopt36.ninedotserver.user.domain.User;
 import org.sopt36.ninedotserver.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -55,6 +59,7 @@ public class AuthService {
     private final AuthProviderRepository authProviderRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
+    private final SubGoalRepository subGoalRepository;
     private final CoreGoalRepository coreGoalRepository;
     private final MandalartRepository mandalartRepository;
     @Value("${GOOGLE_CLIENT_ID}")
@@ -100,6 +105,13 @@ public class AuthService {
         refreshTokenRepository.delete(rt);
         generateAndStoreRefreshToken(userId, response);
         return new NewAccessTokenResponse(newAccessToken, "새로운 액세스토큰이 생성되었습니다.");
+    }
+
+    @Transactional
+    public void deleteRefreshToken() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long userId = Long.parseLong(auth.getName());
+        refreshTokenRepository.deleteByUserId(userId);
     }
 
     private GoogleTokenResponse getGoogleToken(String code) {

@@ -2,6 +2,7 @@ package org.sopt36.ninedotserver.auth.controller;
 
 import static org.sopt36.ninedotserver.auth.controller.message.AuthMessage.ACCESS_TOKEN_REFRESH_SUCCESS;
 import static org.sopt36.ninedotserver.auth.controller.message.AuthMessage.LOGIN_SIGNUP_SUCCESS;
+import static org.sopt36.ninedotserver.auth.controller.message.AuthMessage.REFRESH_TOKEN_DELETED;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -43,5 +44,11 @@ public class AuthController {
             refreshToken, response);
         return ResponseEntity.ok(
             ApiResponse.ok(ACCESS_TOKEN_REFRESH_SUCCESS, newAccessTokenResponse));
+    }
+
+    @PostMapping("/auth/logout")
+    public ResponseEntity<ApiResponse<Void, Void>> deleteRefreshToken() {
+        authService.deleteRefreshToken();
+        return ResponseEntity.ok(ApiResponse.ok(REFRESH_TOKEN_DELETED));
     }
 }

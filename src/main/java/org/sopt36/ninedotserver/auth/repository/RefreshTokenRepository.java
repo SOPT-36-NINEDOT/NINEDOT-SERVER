@@ -12,4 +12,6 @@ public interface RefreshTokenRepository
 
     Optional<RefreshToken> findByRefreshTokenAndExpiresAtAfter(String refreshToken,
         LocalDateTime now);
+    void deleteByUserId(Long userId);
+
 }
