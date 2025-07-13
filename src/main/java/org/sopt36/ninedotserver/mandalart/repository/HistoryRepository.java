@@ -1,6 +1,8 @@
 package org.sopt36.ninedotserver.mandalart.repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import org.sopt36.ninedotserver.mandalart.domain.History;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,4 +15,11 @@ public interface HistoryRepository extends JpaRepository<History, Long>, History
 
     Optional<History> findBySubGoalSnapshotIdAndCompletedDate(Long subGoalSnapshotId,
         LocalDate now);
+
+    List<History> findBySubGoalSnapshot_SubGoal_CoreGoal_Mandalart_IdAndCompletedDateBetween(
+        Long mandalartId,
+        LocalDate start,
+        LocalDate end
+    );
+
 }
