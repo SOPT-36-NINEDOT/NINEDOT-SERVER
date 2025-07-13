@@ -25,4 +25,4 @@ gemini:
     key: ${GEMINI_API_KEY}
     url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite-preview-06-17:generateContent
     response-schema: ${GEMINI_RESPONSE_STRUCTURE:}
-    subgoal-response-schema: ${GEMINI_SUBGOAL_RESPONSE_STRUCTURE:}
+    subgoal-response-schema: ${GEMINI_SUB_GOAL_RESPONSE_STRUCTURE:}
