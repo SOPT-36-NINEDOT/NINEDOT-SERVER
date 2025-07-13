@@ -67,4 +67,8 @@ public class CoreGoalSnapshot extends BaseEntity {
     public void updateTitle(String title) {
         this.title = title;
     }
+
+    public void updateValidTo(LocalDateTime now) {
+        this.validTo = now;
+    }
 }

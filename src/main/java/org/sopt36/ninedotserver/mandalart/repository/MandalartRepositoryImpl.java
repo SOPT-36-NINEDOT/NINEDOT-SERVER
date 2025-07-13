@@ -14,6 +14,16 @@ public class MandalartRepositoryImpl implements MandalartRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
+    public boolean existsByUserId(Long userId) {
+        Integer found = queryFactory
+                            .selectOne()
+                            .from(mandalart)
+                            .where(mandalart.user.id.eq(userId))
+                            .fetchFirst();
+        return found != null;
+    }
+
+    @Override
     public Optional<User> findUserById(Long mandalartId) {
         User result = queryFactory
             .select(mandalart.user)
