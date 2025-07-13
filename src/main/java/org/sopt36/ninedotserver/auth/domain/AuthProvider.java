@@ -32,7 +32,7 @@ import org.sopt36.ninedotserver.user.domain.User;
 public class AuthProvider extends BaseEntity {
 
     private static final int MAX_PROVIDER_LENGTH = 10;
-    private static final int MAX_PROVIDER_USER_ID_LENGTH = 20;
+    private static final int MAX_PROVIDER_USER_ID_LENGTH = 255;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

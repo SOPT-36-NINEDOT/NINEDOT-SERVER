@@ -73,15 +73,12 @@ public class JwtProvider {
         Header header = jws.getHeader();
         Claims claims = jws.getPayload();
         String userId = claims.getSubject();
-        Date expiration = claims.getExpiration();
 
         validateIsUser(userId);
 
-        isTokenExpired(expiration, header, claims);
-
         return new UsernamePasswordAuthenticationToken(
             userId,
-            token,
+            null,
             Collections.emptyList());
     }
 
@@ -93,7 +90,7 @@ public class JwtProvider {
             );
         }
     }
-    
+
     private void validateIsUser(String userId) {
         if (!userRepository.existsById(Long.valueOf(userId))) {
             throw new UsernameNotFoundException("User not found: " + userId);

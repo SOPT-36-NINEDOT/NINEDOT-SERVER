@@ -1,5 +1,6 @@
 package org.sopt36.ninedotserver.auth.service;
 
+import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.GOOGLE_TOKEN_RETRIEVAL_FAILED;
 import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.GOOGLE_USER_INFO_RETRIEVAL_FAILED;
 import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.UNAUTHORIZED;
 import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.USER_NOT_FOUND;
@@ -13,6 +14,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.sopt36.ninedotserver.auth.domain.AuthProvider;
 import org.sopt36.ninedotserver.auth.domain.OnboardingPage;
 import org.sopt36.ninedotserver.auth.domain.ProviderType;
@@ -41,6 +43,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class AuthService {
@@ -65,7 +68,8 @@ public class AuthService {
     @Value("${spring.jwt.refresh-token-expiration-milliseconds}")
     long refreshTokenExpirationMilliseconds;
 
-    public LoginOrSignupResponse<?> loginOrSignupWithCode(String code,
+    @SuppressWarnings("unchecked")
+    public <T> LoginOrSignupResponse<T> loginOrSignupWithCode(String code,
         HttpServletResponse response) {
         GoogleTokenResponse tokens = getGoogleToken(code); //code로 구글에서 access token 가져와요
         GoogleUserInfo googleUserInfo = getGoogleUserInfo(
@@ -74,6 +78,7 @@ public class AuthService {
             ProviderType.GOOGLE,
             googleUserInfo.sub()); //provider user id로 AuthProvider가 db에 있는지 확인해요
 
+        log.info(googleUserInfo.sub());
         if (optionalUser.isPresent()) {
             Long userId = optionalUser.get().getUser().getId();
             String accessToken = jwtProvider.createToken(userId,
@@ -85,9 +90,9 @@ public class AuthService {
             //ㄴ쿠키에 담아
             addRefreshTokenToDB(userId, refreshToken);
             //ㄴdb에 refresh token 추가
-            return createLoginResponse(userId, accessToken);
+            return (LoginOrSignupResponse<T>) createLoginResponse(userId, accessToken);
         }
-        return createSignupResponse(googleUserInfo);
+        return (LoginOrSignupResponse<T>) createSignupResponse(googleUserInfo);
     }
 
     private GoogleTokenResponse getGoogleToken(String code) {
@@ -97,9 +102,22 @@ public class AuthService {
         form.add("client_secret", clientSecret);
         form.add("redirect_uri", redirectUri);
         form.add("grant_type", "authorization_code");
-        return restClient.post().uri("https://oauth2.googleapis.com/token")
-                   .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                   .body(form).retrieve().body(GoogleTokenResponse.class);
+        try {
+            GoogleTokenResponse response = restClient.post()
+                                               .uri("https://oauth2.googleapis.com/token")
+                                               .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                                               .body(form)
+                                               .retrieve()
+                                               .body(GoogleTokenResponse.class);
+
+            if (response == null || response.accessToken() == null) {
+                throw new AuthException(GOOGLE_TOKEN_RETRIEVAL_FAILED);
+            }
+
+            return response;
+        } catch (Exception e) {
+            throw new AuthException(GOOGLE_TOKEN_RETRIEVAL_FAILED, e.getMessage());
+        }
     }
 
     private GoogleUserInfo getGoogleUserInfo(String accessToken) {
@@ -144,14 +162,15 @@ public class AuthService {
     private LoginOrSignupResponse<LoginData> createLoginResponse(Long userId, String accessToken) {
         Boolean onboardingCompleted = findUserOnboardingCompleted(userId);
         OnboardingPage onboardingPage = findUserOnboardingPage(userId);
-        LoginData loginData = new LoginData(true, accessToken, onboardingCompleted, onboardingPage);
-        return new LoginOrSignupResponse<>(200, loginData, "성공적으로 로그인을 완료했습니다.");
+        LoginData loginData = new LoginData(true, accessToken, onboardingCompleted, onboardingPage,
+            "성공적으로 로그인을 완료했습니다.");
+        return new LoginOrSignupResponse<>(loginData);
     }
 
     private LoginOrSignupResponse<SignupData> createSignupResponse(GoogleUserInfo googleUserInfo) {
         SignupData signupData = new SignupData(false, googleUserInfo.name(),
-            googleUserInfo.email());
-        return new LoginOrSignupResponse<>(200, signupData, "회원가입이 필요한 유저입니다.");
+            googleUserInfo.email(), "회원가입이 필요한 유저입니다.");
+        return new LoginOrSignupResponse<>(signupData);
     }
 
     private String readErrorBody(ClientHttpResponse res) {

@@ -10,7 +10,6 @@ import org.sopt36.ninedotserver.auth.dto.response.LoginOrSignupResponse;
 import org.sopt36.ninedotserver.auth.service.AuthService;
 import org.sopt36.ninedotserver.global.dto.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
-@Validated
 @RestController
 public class AuthController {
 
