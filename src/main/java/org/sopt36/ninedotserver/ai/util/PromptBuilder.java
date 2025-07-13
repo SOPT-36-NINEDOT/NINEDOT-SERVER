@@ -1,7 +1,11 @@
 package org.sopt36.ninedotserver.ai.util;
 
+import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.SUB_GOAL_PROMPT_PARAMETER_NOT_FOUND;
+
 import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.sopt36.ninedotserver.ai.exception.AiException;
 
 @Slf4j
 public class PromptBuilder {
@@ -13,7 +17,7 @@ public class PromptBuilder {
         List<String> coreGoals) {
 
         if (job == null || questions == null || answers == null ||
-                mandalartTitle == null || coreGoals == null) {
+            mandalartTitle == null || coreGoals == null) {
             throw new IllegalArgumentException("필수 파라미터가 null입니다");
         }
 
@@ -31,8 +35,8 @@ public class PromptBuilder {
         }
 
         sb.append("이런 나의 특징에 기반한 만다라트 계획표를 만드려고 해. "
-                      + "만다라트에는 전체목표 하나에 8개의 상위목표가 따르고, 상위목표 각각에 하위목표 8개씩 있어. "
-                      + "이 내용들을 바탕으로 상위목표 8개를 추천해줘. 지금까지 작성한 전체목표, 상위목표는 다음과 같아.\n")
+                + "만다라트에는 전체목표 하나에 8개의 상위목표가 따르고, 상위목표 각각에 하위목표 8개씩 있어. "
+                + "이 내용들을 바탕으로 상위목표 8개를 추천해줘. 지금까지 작성한 전체목표, 상위목표는 다음과 같아.\n")
 
             .append("- 전체목표: ").append(mandalartTitle).append("\n");
 
@@ -42,5 +46,54 @@ public class PromptBuilder {
         log.info(sb.toString());
         return sb.toString();
     }
+
+    public static String buildSubGoalPrompt(int age, String job,
+        String mandalartTitle,
+        String coreGoalTitle,
+        Map<String, String> questionAnswerMap,
+        List<String> existingSubGoals
+    ) {
+        if (job == null || mandalartTitle == null || coreGoalTitle == null
+            || existingSubGoals == null) {
+            throw new AiException(SUB_GOAL_PROMPT_PARAMETER_NOT_FOUND);
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("나는 ").append(age).append("세 ").append(job).append("이고, 다음은 나를 알 수 있는 질답이야.\n\n");
+
+        // 질문/답변 매핑이 있을 경우에만 프롬프트에 추가
+        if (questionAnswerMap != null && !questionAnswerMap.isEmpty()) {
+            for (Map.Entry<String, String> entry : questionAnswerMap.entrySet()) {
+                String question = entry.getKey();
+                String answer = entry.getValue();
+
+                if (answer != null && !answer.isBlank()) {
+                    sb.append(question).append("\n");
+                    sb.append(answer).append("\n\n");
+                }
+            }
+        }
+
+        sb.append("이런 나의 특징에 기반한 만다라트 계획표를 만드려고 해.\n")
+            .append("전체 목표: ").append(mandalartTitle).append("\n")
+            .append("상위 목표: ").append(coreGoalTitle).append("\n\n");
+
+        sb.append("내가 이미 작성한 하위 목표는 다음과 같아. 이 목표들과 겹치지 않게 하위 목표 8개를 추천해줘.\n");
+        for (String goal : existingSubGoals) {
+            sb.append("- ").append(goal).append("\n");
+        }
+
+        sb.append("\n추천해줄 하위 목표는 다음 규칙을 지켜줘:\n")
+            .append("1. 각 목표는 한 줄 요약이야.\n")
+            .append("2. 내가 쓴 하위 목표들과 겹치지 않아야 해.\n")
+            .append("3. 8개의 하위 목표를 추천해줘.\n")
+            .append("4. 각 하위 목표는 30자를 넘으면 안돼.\n");
+
+        String prompt = sb.toString();
+        log.info("[SubGoalPrompt]\n{}", prompt);
+        return prompt;
+
+    }
+
 }
 
