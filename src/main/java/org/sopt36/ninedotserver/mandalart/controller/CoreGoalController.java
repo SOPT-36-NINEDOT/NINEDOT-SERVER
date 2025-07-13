@@ -1,8 +1,6 @@
 package org.sopt36.ninedotserver.mandalart.controller;
 
 import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.AI_RESPONSE_SUCCESS;
-import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CREATED_SUCCESS;
-import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.IDS_RETRIEVED_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CORE_GOAL_AI_CREATED_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CORE_GOAL_CREATED_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CORE_GOAL_IDS_RETRIEVED_SUCCESS;
