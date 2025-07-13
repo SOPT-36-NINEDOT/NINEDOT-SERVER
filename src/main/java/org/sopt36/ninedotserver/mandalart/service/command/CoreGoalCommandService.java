@@ -5,23 +5,32 @@ import static org.sopt36.ninedotserver.mandalart.exception.CoreGoalErrorCode.COR
 import static org.sopt36.ninedotserver.mandalart.exception.CoreGoalErrorCode.CORE_GOAL_LIMITED;
 import static org.sopt36.ninedotserver.mandalart.exception.CoreGoalErrorCode.CORE_GOAL_NOT_FOUND;
 import static org.sopt36.ninedotserver.mandalart.exception.MandalartErrorCode.MANDALART_NOT_FOUND;
+import static org.sopt36.ninedotserver.mandalart.exception.SubGoalErrorCode.SUB_GOAL_NOT_FOUND;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.ai.service.AiRecommendationService;
 import org.sopt36.ninedotserver.mandalart.domain.CoreGoal;
 import org.sopt36.ninedotserver.mandalart.domain.CoreGoalSnapshot;
+import org.sopt36.ninedotserver.mandalart.domain.Cycle;
 import org.sopt36.ninedotserver.mandalart.domain.Mandalart;
+import org.sopt36.ninedotserver.mandalart.domain.SubGoal;
+import org.sopt36.ninedotserver.mandalart.domain.SubGoalSnapshot;
 import org.sopt36.ninedotserver.mandalart.dto.request.CoreGoalAiCreateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.request.CoreGoalCreateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.request.CoreGoalUpdateRequest;
+import org.sopt36.ninedotserver.mandalart.dto.request.MandalartUpdateRequest;
+import org.sopt36.ninedotserver.mandalart.dto.request.SubGoalUpdateWithPositionRequest;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalAiDetailResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalAiListResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalCreateResponse;
 import org.sopt36.ninedotserver.mandalart.exception.CoreGoalException;
 import org.sopt36.ninedotserver.mandalart.exception.MandalartException;
+import org.sopt36.ninedotserver.mandalart.exception.SubGoalException;
 import org.sopt36.ninedotserver.mandalart.repository.CoreGoalRepository;
 import org.sopt36.ninedotserver.mandalart.repository.CoreGoalSnapshotRepository;
 import org.sopt36.ninedotserver.mandalart.repository.MandalartRepository;
@@ -119,6 +128,57 @@ public class CoreGoalCommandService {
         return CoreGoalAiListResponse.of(toDetailResponses(coreGoals, snapshots));
     }
 
+    @Transactional
+    public void updateMandalart(
+        Long userId,
+        Long mandalartId,
+        MandalartUpdateRequest updateRequest
+    ) {
+        Mandalart mandalart = getExistingAndValidate(mandalartId, userId);
+
+        int position = updateRequest.coreGoal().position();
+        CoreGoal coreGoal = coreGoalRepository.findByMandalartIdAndPosition(mandalartId, position)
+            .orElseGet(() -> {
+                CoreGoal newGoal = CoreGoal.create(mandalart, position, false);
+                coreGoalRepository.save(newGoal);
+                return newGoal;
+            });
+
+        Optional<CoreGoalSnapshot> optionalLatest = coreGoalSnapshotRepository
+            .findTopByCoreGoal_IdOrderByCreatedAtDesc(coreGoal.getId());
+        if (optionalLatest.isEmpty()) {
+            CoreGoalSnapshot initialSnapshot = CoreGoalSnapshot.create(
+                coreGoal,
+                updateRequest.coreGoal().title(),
+                LocalDateTime.now(),
+                null
+            );
+            coreGoalSnapshotRepository.save(initialSnapshot);
+            updateSubgoals(updateRequest, coreGoal);
+            return;
+        }
+
+        CoreGoalSnapshot latestSnapshot = optionalLatest.get();
+        boolean isCreatedToday = latestSnapshot.getValidFrom().toLocalDate()
+            .equals(LocalDate.now());
+        if (isCreatedToday) {
+            latestSnapshot.updateTitle(updateRequest.coreGoal().title());
+            coreGoalSnapshotRepository.save(latestSnapshot);
+            updateSubgoals(updateRequest, coreGoal);
+            return;
+        }
+
+        latestSnapshot.updateValidTo(LocalDateTime.now());
+        CoreGoalSnapshot newSnapshot = CoreGoalSnapshot.create(
+            coreGoal,
+            updateRequest.coreGoal().title(),
+            LocalDateTime.now(),
+            null
+        );
+        coreGoalSnapshotRepository.saveAll(List.of(latestSnapshot, newSnapshot));
+        updateSubgoals(updateRequest, coreGoal);
+    }
+
     private void validateCoreGoalCounts(Long mandalartId, CoreGoalAiCreateRequest createRequest) {
         int existingCoreGoals = coreGoalRepository.countCoreGoalByMandalartId(mandalartId);
         int requestCoreGoals = createRequest.goals().size();
@@ -204,5 +264,55 @@ public class CoreGoalCommandService {
         return IntStream.range(0, coreGoals.size())
             .mapToObj(i -> CoreGoalAiDetailResponse.of(coreGoals.get(i), snapshots.get(i)))
             .toList();
+    }
+
+    private void updateSubgoals(MandalartUpdateRequest updateRequest, CoreGoal coreGoal) {
+        for (SubGoalUpdateWithPositionRequest request : updateRequest.subGoals()) {
+            subGoalRepository.findByCoreGoalIdAndPosition(coreGoal.getId(), request.position())
+                .ifPresentOrElse(
+                    subGoal -> updateExistingSubGoalSnapshot(subGoal, request),
+                    () -> createSubGoalWithSnapshot(coreGoal, request)
+                );
+        }
+    }
+
+    private void createSubGoalWithSnapshot(CoreGoal coreGoal,
+        SubGoalUpdateWithPositionRequest req) {
+        SubGoal subGoal = SubGoal.create(coreGoal, req.position());
+        subGoalRepository.save(subGoal);
+        SubGoalSnapshot snapshot = SubGoalSnapshot.create(
+            subGoal,
+            req.title(),
+            req.cycle(),
+            LocalDateTime.now(),
+            null
+        );
+        subGoalSnapshotRepository.save(snapshot);
+    }
+
+    private void updateExistingSubGoalSnapshot(SubGoal subGoal,
+        SubGoalUpdateWithPositionRequest request) {
+        SubGoalSnapshot latest = subGoalSnapshotRepository
+            .findTopBySubGoal_IdOrderByCreatedAtDesc(subGoal.getId())
+            .orElseThrow(() -> new SubGoalException(SUB_GOAL_NOT_FOUND));
+        handleSubGoalSnapshot(latest, request.title(), request.cycle());
+    }
+
+    private void handleSubGoalSnapshot(SubGoalSnapshot latest, String title, Cycle cycle) {
+        LocalDate today = LocalDate.now();
+        if (latest.getValidFrom().toLocalDate().equals(today)) {
+            latest.update(title, cycle);
+            subGoalSnapshotRepository.save(latest);
+            return;
+        }
+        latest.updateValidTo(LocalDateTime.now());
+        SubGoalSnapshot newSnapshot = SubGoalSnapshot.create(
+            latest.getSubGoal(),
+            title,
+            cycle,
+            LocalDateTime.now(),
+            null
+        );
+        subGoalSnapshotRepository.saveAll(List.of(latest, newSnapshot));
     }
 }
