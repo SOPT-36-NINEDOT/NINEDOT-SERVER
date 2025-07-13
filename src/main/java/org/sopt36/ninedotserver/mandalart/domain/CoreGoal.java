@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.sopt36.ninedotserver.global.entity.BaseEntity;
+import org.sopt36.ninedotserver.user.domain.User;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -27,8 +28,6 @@ import org.sopt36.ninedotserver.global.entity.BaseEntity;
 @Entity
 public class CoreGoal extends BaseEntity {
 
-    private static final int MAX_TITLE_LENGTH = 30;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -37,9 +36,6 @@ public class CoreGoal extends BaseEntity {
     @JoinColumn(name = "mandalart_id", nullable = false)
     private Mandalart mandalart;
 
-    @Column(name = "title", length = MAX_TITLE_LENGTH, nullable = false)
-    private String title;
-
     @Column(name = "position", nullable = false)
     private int position;
 
@@ -47,14 +43,13 @@ public class CoreGoal extends BaseEntity {
     @ColumnDefault(value = "true")
     private boolean aiGeneratable;
 
-    public static CoreGoal create(Mandalart mandalart,
-        String title,
+    public static CoreGoal create(
+        Mandalart mandalart,
         int position,
         boolean aiGeneratable
     ) {
         return CoreGoal.builder()
             .mandalart(mandalart)
-            .title(title)
             .position(position)
             .aiGeneratable(aiGeneratable)
             .build();
@@ -62,6 +57,10 @@ public class CoreGoal extends BaseEntity {
 
     public void verifyUser(Long userId) {
         mandalart.ensureOwnedBy(userId);
+    }
+
+    public User getUser() {
+        return this.getMandalart().getUser();
     }
 
 }
