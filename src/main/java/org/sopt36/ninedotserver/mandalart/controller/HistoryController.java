@@ -10,6 +10,7 @@ import org.sopt36.ninedotserver.mandalart.service.command.HistoryCommandService;
 import org.sopt36.ninedotserver.mandalart.service.query.HistoryQueryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,6 +46,15 @@ public class HistoryController {
         historyCommandService.deleteHistory(userId, subGoalId);
 
         return ResponseEntity.ok(ApiResponse.ok(HISTORY_DELETED_SUCCESS));
+    }
+
+    @GetMapping("/mandalarts/{mandalartId}/streaks")
+    public ResponseEntity<ApiResponse<Void, Void>> getStreaks(
+        @PathVariable Long mandalartId
+    ) {
+        Long userId = 1L;
+
+        return null;
     }
 
 }

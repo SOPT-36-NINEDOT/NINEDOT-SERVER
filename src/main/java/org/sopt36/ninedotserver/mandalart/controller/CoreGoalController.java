@@ -1,6 +1,7 @@
 package org.sopt36.ninedotserver.mandalart.controller;
 
 import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.AI_RESPONSE_SUCCESS;
+import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CORE_GOAL_UPDATED_WITH_SUB_GOALS_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CORE_GOAL_AI_CREATED_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CORE_GOAL_CREATED_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMessage.CORE_GOAL_IDS_RETRIEVED_SUCCESS;
@@ -17,6 +18,7 @@ import org.sopt36.ninedotserver.global.dto.response.ApiResponse;
 import org.sopt36.ninedotserver.mandalart.dto.request.CoreGoalAiCreateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.request.CoreGoalCreateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.request.CoreGoalUpdateRequest;
+import org.sopt36.ninedotserver.mandalart.dto.request.MandalartUpdateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalAiListResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalCreateResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalIdsResponse;
@@ -130,5 +132,16 @@ public class CoreGoalController {
         Long userId = 1L;
         CoreGoalAiResponse response = aiRecommendationService.fetchAiRecommendation(mandalartId);
         return ResponseEntity.ok(ApiResponse.created(response, AI_RESPONSE_SUCCESS));
+    }
+
+    @PatchMapping("/mandalarts/{mandalartId}/core-goals")
+    public ResponseEntity<ApiResponse<Void, Void>> updateMandalart(
+        @PathVariable Long mandalartId,
+        @Valid @RequestBody MandalartUpdateRequest updateRequest
+    ) {
+        Long userId = 1L;
+        coreGoalCommandService.updateMandalart(userId, mandalartId, updateRequest);
+
+        return ResponseEntity.ok(ApiResponse.ok(CORE_GOAL_UPDATED_WITH_SUB_GOALS_SUCCESS));
     }
 }
