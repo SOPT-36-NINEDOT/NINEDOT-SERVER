@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.mandalart.domain.Mandalart;
 import org.sopt36.ninedotserver.mandalart.dto.response.MandalartHistoryResponse;
+import org.sopt36.ninedotserver.mandalart.dto.response.MandalartResponse;
 import org.sopt36.ninedotserver.mandalart.exception.MandalartException;
 import org.sopt36.ninedotserver.mandalart.repository.CoreGoalRepository;
 import org.sopt36.ninedotserver.mandalart.repository.MandalartRepository;
@@ -29,9 +30,12 @@ public class MandalartQueryService {
         return MandalartHistoryResponse.of(mandalart, LocalDate.now());
     }
 
-    private Mandalart getExistingMandalart(Long mandalartId) {
-        return mandalartRepository.findById(mandalartId)
-            .orElseThrow(() -> new MandalartException(MANDALART_NOT_FOUND));
+    public MandalartResponse getMandalart(Long mandalartId) {
+        return MandalartResponse.of(getExistingMandalart(mandalartId));
     }
 
+    private Mandalart getExistingMandalart(Long mandalartId) {
+        return mandalartRepository.findById(mandalartId)
+                   .orElseThrow(() -> new MandalartException(MANDALART_NOT_FOUND));
+    }
 }

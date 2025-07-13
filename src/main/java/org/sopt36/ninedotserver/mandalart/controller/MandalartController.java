@@ -1,6 +1,7 @@
 package org.sopt36.ninedotserver.mandalart.controller;
 
 import static org.sopt36.ninedotserver.mandalart.controller.message.MandalartMessage.CREATED_SUCCESS;
+import static org.sopt36.ninedotserver.mandalart.controller.message.MandalartMessage.MANDALART_RETRIEVED_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.MandalartMessage.PROGRESS_HISTORY_RETRIEVED_SUCCESS;
 
 import jakarta.validation.Valid;
@@ -10,6 +11,7 @@ import org.sopt36.ninedotserver.global.dto.response.ApiResponse;
 import org.sopt36.ninedotserver.mandalart.dto.request.MandalartCreateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.response.MandalartCreateResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.MandalartHistoryResponse;
+import org.sopt36.ninedotserver.mandalart.dto.response.MandalartResponse;
 import org.sopt36.ninedotserver.mandalart.service.command.MandalartCommandService;
 import org.sopt36.ninedotserver.mandalart.service.query.MandalartQueryService;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +43,7 @@ public class MandalartController {
         URI location = URI.create("/api/v1/mandalarts/" + mandalartId);
 
         return ResponseEntity.created(location)
-            .body(ApiResponse.created(response, CREATED_SUCCESS));
+                   .body(ApiResponse.created(response, CREATED_SUCCESS));
     }
 
     @GetMapping("/mandalarts/{mandalartId}/histories")
@@ -55,5 +57,13 @@ public class MandalartController {
         );
 
         return ResponseEntity.ok(ApiResponse.ok(PROGRESS_HISTORY_RETRIEVED_SUCCESS, response));
+    }
+
+    @GetMapping("/mandalarts/{mandalartId}")
+    public ResponseEntity<ApiResponse<MandalartResponse, Void>> getMandalart(
+        @PathVariable Long mandalartId) {
+        Long userId = 1L;
+        MandalartResponse response = mandalartQueryService.getMandalart(mandalartId);
+        return ResponseEntity.ok(ApiResponse.ok(MANDALART_RETRIEVED_SUCCESS, response));
     }
 }
