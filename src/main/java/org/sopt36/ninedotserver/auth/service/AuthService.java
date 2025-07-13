@@ -190,7 +190,9 @@ public class AuthService {
     }
 
     private OnboardingPage findUserOnboardingPage(Long userId) {
-        if (subGoalRepository.existsByUserId(userId)) {
+        User user = userRepository.findById(userId)
+                        .orElseThrow(() -> new AuthException(USER_NOT_FOUND));
+        if (user.getOnboardingCompleted()) {
             return OnboardingPage.ONBOARDING_COMPLETED;
         }
         if (coreGoalRepository.existsByUserId(userId)) {
