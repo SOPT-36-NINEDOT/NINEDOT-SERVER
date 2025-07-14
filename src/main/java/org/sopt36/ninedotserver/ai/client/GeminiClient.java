@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt36.ninedotserver.ai.dto.response.GenerateContentRequest;
 import org.sopt36.ninedotserver.ai.dto.response.GenerationConfig;
@@ -26,14 +25,14 @@ public class GeminiClient implements AiClient {
 
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
+    @Value("${gemini.api.response-schema}")
+    private String responseSchema;
 
-    public GeminiClient(@Qualifier("geminiRestClient") RestClient restClient, ObjectMapper objectMapper) {
+    public GeminiClient(@Qualifier("geminiRestClient") RestClient restClient,
+        ObjectMapper objectMapper) {
         this.restClient = restClient;
         this.objectMapper = objectMapper;
     }
-
-    @Value("${gemini.api.response-schema}")
-    private String responseSchema;
 
     @Override
     public String fetchAiResponse(String prompt) {
@@ -91,7 +90,6 @@ public class GeminiClient implements AiClient {
 
         return new GenerateContentRequest(contents, config);
     }
-
 
 
 }

@@ -45,7 +45,7 @@ public class AiSubGoalRecommendationService {
         SubGoalAiRequest request) {
 
         CoreGoal coreGoal = coreGoalRepository.findById(coreGoalId)
-            .orElseThrow(() -> new AiException(CORE_GOAL_NOT_FOUND));
+                                .orElseThrow(() -> new AiException(CORE_GOAL_NOT_FOUND));
 
         if (request.subGoal().size() >= 8) {
             throw new AiException(SUB_GOAL_IS_FULL);
@@ -56,10 +56,10 @@ public class AiSubGoalRecommendationService {
         }
 
         String mandalartTitle = mandalartRepository.findTitleByCoreGoalId(coreGoalId)
-            .orElseThrow(() -> new AiException(MANDALART_NOT_FOUND));
+                                    .orElseThrow(() -> new AiException(MANDALART_NOT_FOUND));
 
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new AiException(USER_NOT_FOUND));
+                        .orElseThrow(() -> new AiException(USER_NOT_FOUND));
 
         int age = AgeUtil.calculateAgeFromString(user.getBirthday());
 
@@ -67,12 +67,12 @@ public class AiSubGoalRecommendationService {
 
         String coreGoalTitle = request.coreGoal();
         List<String> existingSubGoals = request.subGoal().stream()
-            .map(SubGoalRecommendationRequest::title)
-            .toList();
+                                            .map(SubGoalRecommendationRequest::title)
+                                            .toList();
 
         String prompt = PromptBuilder.buildSubGoalPrompt(
             age,
-            user.getJob().getDisplayName(),
+            user.getJob(),
             mandalartTitle,
             coreGoalTitle,
             questionAnswerMap,
@@ -94,9 +94,9 @@ public class AiSubGoalRecommendationService {
 
             // 2. text 필드의 실제 값 추출 (JSON 형식의 문자열)
             String innerJsonString = root
-                .path("candidates").get(0)
-                .path("content").path("parts").get(0)
-                .path("text").asText();
+                                         .path("candidates").get(0)
+                                         .path("content").path("parts").get(0)
+                                         .path("text").asText();
 
             // 3. innerJsonString은 JSON string → JsonNode로 다시 파싱
             JsonNode fixedNode = objectMapper.readTree(innerJsonString);
