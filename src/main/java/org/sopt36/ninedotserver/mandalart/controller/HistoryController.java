@@ -59,5 +59,4 @@ public class HistoryController {
 
         return ResponseEntity.ok(ApiResponse.ok(HISTORY_RETRIEVED_SUCCESS, response));
     }
-
 }
