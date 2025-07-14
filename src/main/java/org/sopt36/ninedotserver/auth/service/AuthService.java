@@ -82,6 +82,7 @@ public class AuthService {
     long accessTokenExpirationMilliseconds;
     @Value("${spring.jwt.refresh-token-expiration-milliseconds}")
     long refreshTokenExpirationMilliseconds;
+
     public AuthService(
         @Qualifier("authRestClient") RestClient restClient,
         JwtProvider jwtProvider,
