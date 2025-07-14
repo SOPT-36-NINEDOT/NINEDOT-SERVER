@@ -103,4 +103,19 @@ public class SubGoalSnapshotRepositoryImpl implements SubGoalSnapshotRepositoryC
                 .and(subGoalSnapshot.validTo.isNull()))
             .fetch();
     }
+
+    @Override
+    public List<SubGoalSnapshot> findActiveSubGoalSnapshotFollowingCoreGoalOrderByPosition(
+        Long mandalartId, Long coreGoalSnapshotId) {
+        return queryFactory
+            .selectFrom(subGoalSnapshot)
+            .join(subGoalSnapshot.subGoal, subGoal)
+            .join(subGoal.coreGoal, coreGoal)
+            .join(coreGoalSnapshot).on(coreGoalSnapshot.coreGoal.eq(coreGoal))
+            .where(coreGoal.mandalart.id.eq(mandalartId)
+                .and(coreGoalSnapshot.id.eq(coreGoalSnapshotId))
+                .and(subGoalSnapshot.validTo.isNull()))
+            .orderBy(subGoal.position.asc())
+            .fetch();
+    }
 }
