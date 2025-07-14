@@ -19,4 +19,9 @@ public interface SubGoalSnapshotRepositoryCustom {
 
     List<SubGoalSnapshot> findActiveSubGoalSnapshotFollowingCycleAndCoreGoal(Long mandalartId,
         Long coreGoalSnapshotId, Cycle cycle);
+
+    List<SubGoalSnapshot> findActiveSubGoalSnapshotFollowingCoreGoalOrderByPosition(
+        Long mandalartId,
+        Long coreGoalSnapshotId
+    );
 }
