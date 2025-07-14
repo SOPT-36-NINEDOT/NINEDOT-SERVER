@@ -32,4 +32,18 @@ public class SubGoalSnapshotRepositoryImpl implements SubGoalSnapshotRepositoryC
             .orderBy(subGoalSnapshot.subGoal.position.asc())
             .fetch();
     }
+
+    @Override
+    public List<SubGoalSnapshot> findAllByMandalartId(Long mandalartId) {
+        QSubGoalSnapshot s = QSubGoalSnapshot.subGoalSnapshot;
+        QSubGoal sg = QSubGoal.subGoal;
+        QCoreGoal cg = QCoreGoal.coreGoal;
+
+        return queryFactory
+            .selectFrom(s)
+            .join(s.subGoal, sg)
+            .join(sg.coreGoal, cg)
+            .where(cg.mandalart.id.eq(mandalartId))
+            .fetch();
+    }
 }

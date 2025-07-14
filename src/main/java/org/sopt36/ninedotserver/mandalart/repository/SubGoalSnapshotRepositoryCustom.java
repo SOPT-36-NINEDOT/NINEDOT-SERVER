@@ -7,4 +7,5 @@ public interface SubGoalSnapshotRepositoryCustom {
 
     List<SubGoalSnapshot> findByCoreGoalSnapshotIdOrderByPosition(Long coreGoalId);
 
+    List<SubGoalSnapshot> findAllByMandalartId(Long mandalartId);
 }
