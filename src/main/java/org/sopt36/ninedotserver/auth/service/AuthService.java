@@ -5,6 +5,7 @@ import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.GOOGLE_USER_
 import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.INVALID_REFRESH_TOKEN;
 import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.UNAUTHORIZED;
 import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.USER_NOT_FOUND;
+import static org.sopt36.ninedotserver.onboarding.exception.QuestionErrorCode.QUESTION_NOT_FOUND;
 
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,7 +15,9 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt36.ninedotserver.auth.domain.AuthProvider;
@@ -34,7 +37,15 @@ import org.sopt36.ninedotserver.global.config.security.JwtProvider;
 import org.sopt36.ninedotserver.global.util.CookieUtil;
 import org.sopt36.ninedotserver.mandalart.repository.CoreGoalRepository;
 import org.sopt36.ninedotserver.mandalart.repository.MandalartRepository;
+import org.sopt36.ninedotserver.onboarding.domain.Answer;
+import org.sopt36.ninedotserver.onboarding.domain.ChoiceInfo;
+import org.sopt36.ninedotserver.onboarding.domain.Question;
+import org.sopt36.ninedotserver.onboarding.exception.QuestionException;
+import org.sopt36.ninedotserver.onboarding.repository.AnswerRepository;
+import org.sopt36.ninedotserver.onboarding.repository.QuestionRepository;
 import org.sopt36.ninedotserver.user.domain.User;
+import org.sopt36.ninedotserver.user.dto.request.SignupRequest;
+import org.sopt36.ninedotserver.user.dto.response.SignupResponse;
 import org.sopt36.ninedotserver.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
@@ -60,6 +71,9 @@ public class AuthService {
     private final UserRepository userRepository;
     private final CoreGoalRepository coreGoalRepository;
     private final MandalartRepository mandalartRepository;
+    private final AnswerRepository answerRepository;
+    private final QuestionRepository questionRepository;
+
     @Value("${GOOGLE_CLIENT_ID}")
     String clientId;
     @Value("${GOOGLE_CLIENT_SECRET}")
@@ -110,6 +124,30 @@ public class AuthService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Long userId = Long.parseLong(auth.getName());
         refreshTokenRepository.deleteByUserId(userId);
+    }
+
+    @Transactional
+    public SignupResponse registerUser(SignupRequest request) {
+        User user = User.create(
+            request.name(),
+            request.email(),
+            request.profileImageUrl(),
+            request.birthday(),
+            request.job()
+        );
+        userRepository.save(user);
+
+        List<Answer> answers = getAnswers(request, user);
+        answerRepository.saveAll(answers);
+
+        AuthProvider authProvider = AuthProvider.create(
+            user,
+            ProviderType.valueOf(request.socialProvider().toUpperCase()),
+            request.socialToken()
+        );
+        authProviderRepository.save(authProvider);
+
+        return SignupResponse.of(user);
     }
 
     private GoogleTokenResponse getGoogleToken(String code) {
@@ -236,5 +274,23 @@ public class AuthService {
             return OnboardingPage.CORE_GOAL;
         }
         return OnboardingPage.MANDALART;
+    }
+
+
+    private List<Answer> getAnswers(SignupRequest request, User user) {
+        return request.answers().stream()
+                   .map(answer -> {
+                       Question question = questionRepository.
+                                               findById(answer.questionId())
+                                               .orElseThrow(
+                                                   () -> new QuestionException(
+                                                       QUESTION_NOT_FOUND
+                                                   ));
+                       String content = ChoiceInfo.getShortSentenceById(
+                           answer.choiceId());
+
+                       return Answer.create(question, user, content);
+                   })
+                   .collect(Collectors.toList());
     }
 }
