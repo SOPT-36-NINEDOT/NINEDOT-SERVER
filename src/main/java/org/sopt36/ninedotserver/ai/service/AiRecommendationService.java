@@ -53,7 +53,7 @@ public class AiRecommendationService {
 
         String prompt = PromptBuilder.buildCoreGoalPrompt(
             age,
-            user.getJob().getDisplayName(),
+            user.getJob(),
             questions,
             answers,
             mandalart,
