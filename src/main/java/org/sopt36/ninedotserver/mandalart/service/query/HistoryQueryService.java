@@ -80,5 +80,4 @@ public class HistoryQueryService {
             .orElseThrow(() -> new MandalartException(MANDALART_NOT_FOUND));
     }
 
-
 }
