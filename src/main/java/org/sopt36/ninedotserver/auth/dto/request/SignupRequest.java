@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.user.dto.request;
+package org.sopt36.ninedotserver.auth.dto.request;
 
 import java.util.List;
 
