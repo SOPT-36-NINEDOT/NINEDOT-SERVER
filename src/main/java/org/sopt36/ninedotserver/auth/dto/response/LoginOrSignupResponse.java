@@ -18,6 +18,8 @@ public record LoginOrSignupResponse<T>(
     }
 
     public record SignupData(
+        String socialProvider,
+        String socialToken,
         boolean exists,
         String name,
         String email,
