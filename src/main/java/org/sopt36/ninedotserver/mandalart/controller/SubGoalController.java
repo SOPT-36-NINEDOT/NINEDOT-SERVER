@@ -3,6 +3,7 @@ package org.sopt36.ninedotserver.mandalart.controller;
 import static org.sopt36.ninedotserver.mandalart.controller.message.SubGoalMessage.SUB_GOAL_CREATE_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.SubGoalMessage.SUB_GOAL_DELETE_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.SubGoalMessage.SUB_GOAL_ID_LIST_FETCH_SUCCESS;
+import static org.sopt36.ninedotserver.mandalart.controller.message.SubGoalMessage.SUB_GOAL_READ_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.SubGoalMessage.SUB_GOAL_UPDATE_SUCCESS;
 
 import jakarta.validation.Valid;
@@ -10,11 +11,13 @@ import java.net.URI;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.global.dto.response.ApiResponse;
+import org.sopt36.ninedotserver.mandalart.domain.Cycle;
 import org.sopt36.ninedotserver.mandalart.dto.request.SubGoalCreateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.request.SubGoalUpdateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalCreateResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalIdListResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalIdResponse;
+import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalListResponse;
 import org.sopt36.ninedotserver.mandalart.service.command.SubGoalCommandService;
 import org.sopt36.ninedotserver.mandalart.service.query.SubGoalQueryService;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +28,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping("/api/v1")
@@ -89,6 +93,18 @@ public class SubGoalController {
         return ResponseEntity.ok()
             .body(ApiResponse.ok(SUB_GOAL_DELETE_SUCCESS));
 
+    }
+
+    @GetMapping("/mandalarts/{mandalartId}/sub-goals")
+    public ResponseEntity<ApiResponse<SubGoalListResponse, Void>> getSubGoal(
+        @PathVariable Long mandalartId,
+        @RequestParam(required = false) Long coreGoalId,
+        @RequestParam(required = false) Cycle cycle
+    ) {
+        Long userId = 1L;
+        SubGoalListResponse response = subGoalQueryService.getSubGoalWithFilter(userId, mandalartId,
+            coreGoalId, cycle);
+        return ResponseEntity.ok(ApiResponse.ok(SUB_GOAL_READ_SUCCESS, response));
     }
 
 }
