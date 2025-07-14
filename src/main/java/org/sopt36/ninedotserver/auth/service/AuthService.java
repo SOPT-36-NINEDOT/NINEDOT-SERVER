@@ -34,7 +34,6 @@ import org.sopt36.ninedotserver.global.config.security.JwtProvider;
 import org.sopt36.ninedotserver.global.util.CookieUtil;
 import org.sopt36.ninedotserver.mandalart.repository.CoreGoalRepository;
 import org.sopt36.ninedotserver.mandalart.repository.MandalartRepository;
-import org.sopt36.ninedotserver.mandalart.repository.SubGoalRepository;
 import org.sopt36.ninedotserver.user.domain.User;
 import org.sopt36.ninedotserver.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -59,7 +58,6 @@ public class AuthService {
     private final AuthProviderRepository authProviderRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
-    private final SubGoalRepository subGoalRepository;
     private final CoreGoalRepository coreGoalRepository;
     private final MandalartRepository mandalartRepository;
     @Value("${GOOGLE_CLIENT_ID}")
@@ -203,7 +201,8 @@ public class AuthService {
     }
 
     private LoginOrSignupResponse<SignupData> createSignupResponse(GoogleUserInfo googleUserInfo) {
-        SignupData signupData = new SignupData(false, googleUserInfo.name(),
+        SignupData signupData = new SignupData(ProviderType.GOOGLE.toString(), googleUserInfo.sub(),
+            false, googleUserInfo.name(),
             googleUserInfo.email(), "회원가입이 필요한 유저입니다.");
         return new LoginOrSignupResponse<>(signupData);
     }
