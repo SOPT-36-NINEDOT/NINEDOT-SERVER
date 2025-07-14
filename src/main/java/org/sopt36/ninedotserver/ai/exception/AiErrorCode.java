@@ -6,6 +6,12 @@ import org.springframework.http.HttpStatus;
 
 @RequiredArgsConstructor
 public enum AiErrorCode implements ErrorCode {
+    //400
+    SUB_GOAL_IS_FULL(HttpStatus.BAD_REQUEST, "하위 목표가 이미 모두 작성되어 있어 ai 추천이 불가능합니다."),
+
+    //403
+    SUB_GOAL_AI_FEATURE_NOT_AVAILABLE(HttpStatus.FORBIDDEN, "해당 목표에 대한 ai 추천기능을 이미 사용했습니다."),
+
     //404
     MANDALART_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 만다라트입니다."),
     QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "질문이 존재하지 않습니다."),
