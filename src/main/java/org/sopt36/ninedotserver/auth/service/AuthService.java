@@ -18,18 +18,19 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt36.ninedotserver.auth.domain.AuthProvider;
 import org.sopt36.ninedotserver.auth.domain.OnboardingPage;
 import org.sopt36.ninedotserver.auth.domain.ProviderType;
 import org.sopt36.ninedotserver.auth.domain.RefreshToken;
+import org.sopt36.ninedotserver.auth.dto.request.SignupRequest;
 import org.sopt36.ninedotserver.auth.dto.response.GoogleTokenResponse;
 import org.sopt36.ninedotserver.auth.dto.response.GoogleUserInfo;
 import org.sopt36.ninedotserver.auth.dto.response.LoginOrSignupResponse;
 import org.sopt36.ninedotserver.auth.dto.response.LoginOrSignupResponse.LoginData;
 import org.sopt36.ninedotserver.auth.dto.response.LoginOrSignupResponse.SignupData;
 import org.sopt36.ninedotserver.auth.dto.response.NewAccessTokenResponse;
+import org.sopt36.ninedotserver.auth.dto.response.SignupResponse;
 import org.sopt36.ninedotserver.auth.exception.AuthException;
 import org.sopt36.ninedotserver.auth.repository.AuthProviderRepository;
 import org.sopt36.ninedotserver.auth.repository.RefreshTokenRepository;
@@ -44,9 +45,8 @@ import org.sopt36.ninedotserver.onboarding.exception.QuestionException;
 import org.sopt36.ninedotserver.onboarding.repository.AnswerRepository;
 import org.sopt36.ninedotserver.onboarding.repository.QuestionRepository;
 import org.sopt36.ninedotserver.user.domain.User;
-import org.sopt36.ninedotserver.auth.dto.request.SignupRequest;
-import org.sopt36.ninedotserver.auth.dto.response.SignupResponse;
 import org.sopt36.ninedotserver.user.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -59,7 +59,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
 @Slf4j
-@RequiredArgsConstructor
 @Service
 public class AuthService {
 
@@ -73,7 +72,6 @@ public class AuthService {
     private final MandalartRepository mandalartRepository;
     private final AnswerRepository answerRepository;
     private final QuestionRepository questionRepository;
-
     @Value("${GOOGLE_CLIENT_ID}")
     String clientId;
     @Value("${GOOGLE_CLIENT_SECRET}")
@@ -84,6 +82,29 @@ public class AuthService {
     long accessTokenExpirationMilliseconds;
     @Value("${spring.jwt.refresh-token-expiration-milliseconds}")
     long refreshTokenExpirationMilliseconds;
+    public AuthService(
+        @Qualifier("authRestClient") RestClient restClient,
+        JwtProvider jwtProvider,
+        CookieUtil cookieUtil,
+        AuthProviderRepository authProviderRepository,
+        RefreshTokenRepository refreshTokenRepository,
+        UserRepository userRepository,
+        CoreGoalRepository coreGoalRepository,
+        MandalartRepository mandalartRepository,
+        AnswerRepository answerRepository,
+        QuestionRepository questionRepository
+    ) {
+        this.restClient = restClient;
+        this.jwtProvider = jwtProvider;
+        this.cookieUtil = cookieUtil;
+        this.authProviderRepository = authProviderRepository;
+        this.refreshTokenRepository = refreshTokenRepository;
+        this.userRepository = userRepository;
+        this.coreGoalRepository = coreGoalRepository;
+        this.mandalartRepository = mandalartRepository;
+        this.answerRepository = answerRepository;
+        this.questionRepository = questionRepository;
+    }
 
     @SuppressWarnings("unchecked")
     public <T> LoginOrSignupResponse<T> loginOrSignupWithCode(String code,
@@ -243,8 +264,8 @@ public class AuthService {
     }
 
     private LoginOrSignupResponse<SignupData> createSignupResponse(GoogleUserInfo googleUserInfo) {
-        SignupData signupData = new SignupData(ProviderType.GOOGLE.toString(), googleUserInfo.sub(),
-            false, googleUserInfo.name(),
+        SignupData signupData = new SignupData("GOOGLE", googleUserInfo.sub(), false,
+            googleUserInfo.name(),
             googleUserInfo.email(), "회원가입이 필요한 유저입니다.");
         return new LoginOrSignupResponse<>(signupData);
     }
