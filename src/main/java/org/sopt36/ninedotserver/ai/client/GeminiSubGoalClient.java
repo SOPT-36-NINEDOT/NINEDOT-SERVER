@@ -6,30 +6,46 @@ import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.AI_API_ERROR;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt36.ninedotserver.ai.dto.response.GenerateContentRequest;
 import org.sopt36.ninedotserver.ai.dto.response.GenerateContentRequest.Content;
 import org.sopt36.ninedotserver.ai.dto.response.GenerationConfig;
 import org.sopt36.ninedotserver.ai.exception.AiException;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
-public class GeminiSubGoalClient {
+public class GeminiSubGoalClient implements AiClient {
 
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
 
-    @Value("${gemini.api.response-schema.sub-goal}")
     private String subGoalResponseSchema;
+
+    public GeminiSubGoalClient(@Qualifier("geminiRestClient") RestClient restClient,
+        ObjectMapper objectMapper) {
+        this.restClient = restClient;
+        this.objectMapper = objectMapper;
+    }
+
+    @PostConstruct
+    public void init() {
+        this.subGoalResponseSchema = new String(
+            Base64.getDecoder().decode(subGoalResponseSchemaBase64), StandardCharsets.UTF_8);
+    }
+
+    @Value("${gemini.api.subgoal-response-schema}")
+    private String subGoalResponseSchemaBase64;
+
 
     public String fetchAiResponse(String prompt) {
         GenerateContentRequest request = buildGeminiRequest(prompt);
