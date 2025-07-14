@@ -78,16 +78,23 @@ public class PromptBuilder {
             .append("전체 목표: ").append(mandalartTitle).append("\n")
             .append("상위 목표: ").append(coreGoalTitle).append("\n\n");
 
-        sb.append("내가 이미 작성한 하위 목표는 다음과 같아. 이 목표들과 겹치지 않게 하위 목표 8개를 추천해줘.\n");
+        sb.append("내가 이미 작성한 하위 목표는 다음과 같아. 이 목표들과 겹치지 않게 상위 목표에 대한 하위 목표 8개를 추천해줘.\n");
         for (String goal : existingSubGoals) {
             sb.append("- ").append(goal).append("\n");
         }
 
         sb.append("\n추천해줄 하위 목표는 다음 규칙을 지켜줘:\n")
-            .append("1. 각 목표는 한 줄 요약이야.\n")
-            .append("2. 내가 쓴 하위 목표들과 겹치지 않아야 해.\n")
-            .append("3. 8개의 하위 목표를 추천해줘.\n")
-            .append("4. 각 하위 목표는 30자를 넘으면 안돼.\n");
+            .append("1. 반드시 JSON 배열 형식으로 출력해줘.\n")
+            .append("2. 각 하위 목표는 반드시 다음 형식을 따라야 해: { \"title\": \"...\", \"cycle\": \"...\" }\n")
+            .append("3. title은 한 줄 요약으로 30자를 넘지 않아야 해.\n")
+            .append("4. cycle은 반드시 아래 중 하나로만 설정해줘:\n")
+            .append("   - \"매일\"\n")
+            .append("   - \"매주\"\n")
+            .append("   - \"한 번만\"\n")
+            .append("5. 8개의 추천 목록들에 해당하는 cycle의 빈도수는 매일 3개, 매주 2개, 한 번만 3개야.")
+            .append("6. 내가 이미 쓴 하위 목표들과 겹치지 않아야 해.\n")
+            .append("7. 총 8개의 하위 목표를 추천해줘.\n")
+            .append("8. 다른 텍스트는 절대 포함하지 말고 JSON 배열만 응답해줘.\n");
 
         String prompt = sb.toString();
         log.info("[SubGoalPrompt]\n{}", prompt);
