@@ -5,7 +5,6 @@ import static org.sopt36.ninedotserver.user.controller.message.UserMessage.USER_
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.global.dto.response.ApiResponse;
 import org.sopt36.ninedotserver.user.dto.response.UserInfoResponse;
-import org.sopt36.ninedotserver.user.service.command.UserCommandService;
 import org.sopt36.ninedotserver.user.service.query.UserQueryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class UserController {
 
-    private final UserCommandService userCommandService;
     private final UserQueryService userQueryService;
 
     @GetMapping("/users/info")
