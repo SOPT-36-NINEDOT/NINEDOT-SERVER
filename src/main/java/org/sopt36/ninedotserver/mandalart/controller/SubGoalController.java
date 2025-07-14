@@ -98,7 +98,7 @@ public class SubGoalController {
 
     @PostMapping("/{coreGoalId}/sub-goals/ai")
     public ResponseEntity<ApiResponse<SubGoalAiResponse, Void>> generateSubGoalByAi(
-        @PathVariable Long coreGoalId,
+        @PathVariable("coreGoalId") Long coreGoalId,
         @RequestBody @Valid SubGoalAiRequest request
     ) {
         Long userId = 1L; // TODO: 로그인 구현되면 로직 추가
