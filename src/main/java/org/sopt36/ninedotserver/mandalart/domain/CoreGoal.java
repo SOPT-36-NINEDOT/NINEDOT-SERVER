@@ -63,4 +63,8 @@ public class CoreGoal extends BaseEntity {
         return this.getMandalart().getUser();
     }
 
+    public void disableAiGeneration() {
+        this.aiGeneratable = false;
+    }
+
 }

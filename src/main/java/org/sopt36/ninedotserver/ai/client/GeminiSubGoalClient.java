@@ -6,13 +6,15 @@ import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.AI_API_ERROR;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt36.ninedotserver.ai.dto.response.GenerateContentRequest;
+import org.sopt36.ninedotserver.ai.dto.response.GenerateContentRequest.Content;
 import org.sopt36.ninedotserver.ai.dto.response.GenerationConfig;
 import org.sopt36.ninedotserver.ai.exception.AiException;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -22,42 +24,52 @@ import org.springframework.web.client.RestClient;
 
 @Slf4j
 @Component
-public class GeminiClient implements AiClient {
+public class GeminiSubGoalClient implements AiClient {
 
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
 
-    public GeminiClient(@Qualifier("geminiRestClient") RestClient restClient, ObjectMapper objectMapper) {
+    private String subGoalResponseSchema;
+
+    public GeminiSubGoalClient(@Qualifier("geminiRestClient") RestClient restClient,
+        ObjectMapper objectMapper) {
         this.restClient = restClient;
         this.objectMapper = objectMapper;
     }
 
-    @Value("${gemini.api.response-schema}")
-    private String responseSchema;
+    @PostConstruct
+    public void init() {
+        this.subGoalResponseSchema = new String(
+            Base64.getDecoder().decode(subGoalResponseSchemaBase64), StandardCharsets.UTF_8);
+    }
 
-    @Override
+    @Value("${gemini.api.subgoal-response-schema}")
+    private String subGoalResponseSchemaBase64;
+
+
     public String fetchAiResponse(String prompt) {
         GenerateContentRequest request = buildGeminiRequest(prompt);
+
         try {
             return restClient.post()
-                       .body(request)
-                       .retrieve()
-                       .onStatus(
-                           status -> status.is4xxClientError() || status.is5xxServerError(),
-                           (req, res) -> {
-                               String bodyText;
-                               try (InputStream is = res.getBody()) {
-                                   bodyText = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-                               } catch (IOException io) {
-                                   log.error("Gemini API error reading body", io);
-                                   bodyText = "<unreadable>";
-                               }
-                               log.error("Gemini API error: status={}, body={}",
-                                   res.getStatusCode(), bodyText);
-                               throw new AiException(AI_API_ERROR);
-                           }
-                       )
-                       .body(String.class);
+                .body(request)
+                .retrieve()
+                .onStatus(
+                    status -> status.is4xxClientError() || status.is5xxServerError(),
+                    (req, res) -> {
+                        String bodyText;
+                        try (InputStream is = res.getBody()) {
+                            bodyText = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                        } catch (IOException io) {
+                            log.error("Gemini API error reading body", io);
+                            bodyText = "<unreadable>";
+                        }
+                        log.error("Gemini API error: status={}, body={}", res.getStatusCode(),
+                            bodyText);
+                        throw new AiException(AI_API_ERROR);
+                    }
+                )
+                .body(String.class);
         } catch (Exception e) {
             log.error("Failed to fetch AI response", e);
             if (e instanceof AiException) {
@@ -68,18 +80,15 @@ public class GeminiClient implements AiClient {
     }
 
     private GenerateContentRequest buildGeminiRequest(String prompt) {
-        //ai에 보낼 request 만들어주는 부분
-        var contents = List.of(
-            new GenerateContentRequest.Content(
-                List.of(new GenerateContentRequest.Part(prompt))
-            )
+        List<Content> contents = List.of(
+            new Content(List.of(new GenerateContentRequest.Part(prompt)))
         );
 
         JsonNode schemaNode;
         try {
-            schemaNode = objectMapper.readTree(responseSchema);
+            schemaNode = objectMapper.readTree(subGoalResponseSchema);
         } catch (JsonProcessingException e) {
-            log.error("responseSchema JSON parsing error", e);
+            log.error("subGoalResponseSchema JSON parsing error", e);
             throw new RuntimeException("Invalid response schema JSON", e);
         }
 
@@ -91,7 +100,4 @@ public class GeminiClient implements AiClient {
 
         return new GenerateContentRequest(contents, config);
     }
-
-
-
 }

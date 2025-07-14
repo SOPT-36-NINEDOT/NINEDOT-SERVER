@@ -1,5 +1,6 @@
 package org.sopt36.ninedotserver.mandalart.controller;
 
+import static org.sopt36.ninedotserver.mandalart.controller.message.SubGoalMessage.SUB_GOAL_AI_RECOMMENDATION_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.SubGoalMessage.SUB_GOAL_CREATE_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.SubGoalMessage.SUB_GOAL_DELETE_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.SubGoalMessage.SUB_GOAL_ID_LIST_FETCH_SUCCESS;
@@ -9,6 +10,9 @@ import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.sopt36.ninedotserver.ai.dto.request.SubGoalAiRequest;
+import org.sopt36.ninedotserver.ai.dto.response.SubGoalAiResponse;
+import org.sopt36.ninedotserver.ai.service.AiSubGoalRecommendationService;
 import org.sopt36.ninedotserver.global.dto.response.ApiResponse;
 import org.sopt36.ninedotserver.mandalart.dto.request.SubGoalCreateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.request.SubGoalUpdateRequest;
@@ -34,6 +38,7 @@ public class SubGoalController {
 
     private final SubGoalCommandService subGoalCommandService;
     private final SubGoalQueryService subGoalQueryService;
+    private final AiSubGoalRecommendationService aiSubGoalService;
 
     @GetMapping("/core-goals/{coreGoalId}/sub-goals")
     public ResponseEntity<ApiResponse<SubGoalIdListResponse, Void>> getSubGoalIds(
@@ -91,4 +96,14 @@ public class SubGoalController {
 
     }
 
+    @PostMapping("/{coreGoalId}/sub-goals/ai")
+    public ResponseEntity<ApiResponse<SubGoalAiResponse, Void>> generateSubGoalByAi(
+        @PathVariable("coreGoalId") Long coreGoalId,
+        @RequestBody @Valid SubGoalAiRequest request
+    ) {
+        Long userId = 1L; // TODO: 로그인 구현되면 로직 추가
+        SubGoalAiResponse response = aiSubGoalService.fetchAiSubGoalRecommendation(userId, coreGoalId,
+            request);
+        return ResponseEntity.ok(ApiResponse.ok(SUB_GOAL_AI_RECOMMENDATION_SUCCESS, response));
+    }
 }
