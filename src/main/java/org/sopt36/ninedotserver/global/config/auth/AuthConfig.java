@@ -8,7 +8,7 @@ import org.springframework.web.client.RestClient;
 @Configuration
 public class AuthConfig {
 
-    @Bean
+    @Bean(name = "authRestClient")
     public RestClient restClient() {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(5000); // 연결 타임아웃 5초 (5000ms) - 서버랑 연결하는데 5초 준다.

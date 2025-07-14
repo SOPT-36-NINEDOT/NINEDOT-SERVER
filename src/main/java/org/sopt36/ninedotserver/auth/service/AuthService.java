@@ -37,6 +37,7 @@ import org.sopt36.ninedotserver.mandalart.repository.MandalartRepository;
 import org.sopt36.ninedotserver.mandalart.repository.SubGoalRepository;
 import org.sopt36.ninedotserver.user.domain.User;
 import org.sopt36.ninedotserver.user.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -49,7 +50,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
 @Slf4j
-@RequiredArgsConstructor
 @Service
 public class AuthService {
 
@@ -62,6 +62,29 @@ public class AuthService {
     private final SubGoalRepository subGoalRepository;
     private final CoreGoalRepository coreGoalRepository;
     private final MandalartRepository mandalartRepository;
+
+    public AuthService(
+        @Qualifier("authRestClient") RestClient restClient,
+        JwtProvider jwtProvider,
+        CookieUtil cookieUtil,
+        AuthProviderRepository authProviderRepository,
+        RefreshTokenRepository refreshTokenRepository,
+        UserRepository userRepository,
+        SubGoalRepository subGoalRepository,
+        CoreGoalRepository coreGoalRepository,
+        MandalartRepository mandalartRepository
+    ) {
+        this.restClient = restClient;
+        this.jwtProvider = jwtProvider;
+        this.cookieUtil = cookieUtil;
+        this.authProviderRepository = authProviderRepository;
+        this.refreshTokenRepository = refreshTokenRepository;
+        this.userRepository = userRepository;
+        this.subGoalRepository = subGoalRepository;
+        this.coreGoalRepository = coreGoalRepository;
+        this.mandalartRepository = mandalartRepository;
+    }
+
     @Value("${GOOGLE_CLIENT_ID}")
     String clientId;
     @Value("${GOOGLE_CLIENT_SECRET}")

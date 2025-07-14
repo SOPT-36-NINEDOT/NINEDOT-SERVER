@@ -15,17 +15,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.sopt36.ninedotserver.ai.dto.response.GenerateContentRequest;
 import org.sopt36.ninedotserver.ai.dto.response.GenerationConfig;
 import org.sopt36.ninedotserver.ai.exception.AiException;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class GeminiClient implements AiClient {
 
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
+
+    public GeminiClient(@Qualifier("geminiRestClient") RestClient restClient, ObjectMapper objectMapper) {
+        this.restClient = restClient;
+        this.objectMapper = objectMapper;
+    }
 
     @Value("${gemini.api.response-schema}")
     private String responseSchema;
@@ -86,5 +91,7 @@ public class GeminiClient implements AiClient {
 
         return new GenerateContentRequest(contents, config);
     }
+
+
 
 }
