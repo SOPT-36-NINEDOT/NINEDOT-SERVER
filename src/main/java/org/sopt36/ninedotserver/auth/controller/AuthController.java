@@ -3,6 +3,7 @@ package org.sopt36.ninedotserver.auth.controller;
 import static org.sopt36.ninedotserver.auth.controller.message.AuthMessage.ACCESS_TOKEN_REFRESH_SUCCESS;
 import static org.sopt36.ninedotserver.auth.controller.message.AuthMessage.LOGIN_SIGNUP_SUCCESS;
 import static org.sopt36.ninedotserver.auth.controller.message.AuthMessage.REFRESH_TOKEN_DELETED;
+import static org.sopt36.ninedotserver.auth.controller.message.AuthMessage.SIGNUP_SUCCESS;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -12,6 +13,8 @@ import org.sopt36.ninedotserver.auth.dto.response.LoginOrSignupResponse;
 import org.sopt36.ninedotserver.auth.dto.response.NewAccessTokenResponse;
 import org.sopt36.ninedotserver.auth.service.AuthService;
 import org.sopt36.ninedotserver.global.dto.response.ApiResponse;
+import org.sopt36.ninedotserver.auth.dto.request.SignupRequest;
+import org.sopt36.ninedotserver.auth.dto.response.SignupResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -50,5 +53,15 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Void, Void>> deleteRefreshToken() {
         authService.deleteRefreshToken();
         return ResponseEntity.ok(ApiResponse.ok(REFRESH_TOKEN_DELETED));
+    }
+
+    @PostMapping("/auth/signup")
+    public ResponseEntity<ApiResponse<SignupResponse, Void>> registerUser(
+        @RequestBody @Valid SignupRequest request,
+        HttpServletResponse response
+    ) {
+        SignupResponse signupResponse = authService.registerUser(request, response);
+
+        return ResponseEntity.ok(ApiResponse.ok(SIGNUP_SUCCESS, signupResponse));
     }
 }

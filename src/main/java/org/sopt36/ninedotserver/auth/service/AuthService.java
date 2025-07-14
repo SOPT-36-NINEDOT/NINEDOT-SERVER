@@ -5,6 +5,7 @@ import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.GOOGLE_USER_
 import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.INVALID_REFRESH_TOKEN;
 import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.UNAUTHORIZED;
 import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.USER_NOT_FOUND;
+import static org.sopt36.ninedotserver.onboarding.exception.QuestionErrorCode.QUESTION_NOT_FOUND;
 
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,19 +15,22 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt36.ninedotserver.auth.domain.AuthProvider;
 import org.sopt36.ninedotserver.auth.domain.OnboardingPage;
 import org.sopt36.ninedotserver.auth.domain.ProviderType;
 import org.sopt36.ninedotserver.auth.domain.RefreshToken;
+import org.sopt36.ninedotserver.auth.dto.request.SignupRequest;
 import org.sopt36.ninedotserver.auth.dto.response.GoogleTokenResponse;
 import org.sopt36.ninedotserver.auth.dto.response.GoogleUserInfo;
 import org.sopt36.ninedotserver.auth.dto.response.LoginOrSignupResponse;
 import org.sopt36.ninedotserver.auth.dto.response.LoginOrSignupResponse.LoginData;
 import org.sopt36.ninedotserver.auth.dto.response.LoginOrSignupResponse.SignupData;
 import org.sopt36.ninedotserver.auth.dto.response.NewAccessTokenResponse;
+import org.sopt36.ninedotserver.auth.dto.response.SignupResponse;
 import org.sopt36.ninedotserver.auth.exception.AuthException;
 import org.sopt36.ninedotserver.auth.repository.AuthProviderRepository;
 import org.sopt36.ninedotserver.auth.repository.RefreshTokenRepository;
@@ -34,9 +38,15 @@ import org.sopt36.ninedotserver.global.config.security.JwtProvider;
 import org.sopt36.ninedotserver.global.util.CookieUtil;
 import org.sopt36.ninedotserver.mandalart.repository.CoreGoalRepository;
 import org.sopt36.ninedotserver.mandalart.repository.MandalartRepository;
-import org.sopt36.ninedotserver.mandalart.repository.SubGoalRepository;
+import org.sopt36.ninedotserver.onboarding.domain.Answer;
+import org.sopt36.ninedotserver.onboarding.domain.ChoiceInfo;
+import org.sopt36.ninedotserver.onboarding.domain.Question;
+import org.sopt36.ninedotserver.onboarding.exception.QuestionException;
+import org.sopt36.ninedotserver.onboarding.repository.AnswerRepository;
+import org.sopt36.ninedotserver.onboarding.repository.QuestionRepository;
 import org.sopt36.ninedotserver.user.domain.User;
 import org.sopt36.ninedotserver.user.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -49,7 +59,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
 @Slf4j
-@RequiredArgsConstructor
 @Service
 public class AuthService {
 
@@ -59,9 +68,10 @@ public class AuthService {
     private final AuthProviderRepository authProviderRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
-    private final SubGoalRepository subGoalRepository;
     private final CoreGoalRepository coreGoalRepository;
     private final MandalartRepository mandalartRepository;
+    private final AnswerRepository answerRepository;
+    private final QuestionRepository questionRepository;
     @Value("${GOOGLE_CLIENT_ID}")
     String clientId;
     @Value("${GOOGLE_CLIENT_SECRET}")
@@ -72,6 +82,30 @@ public class AuthService {
     long accessTokenExpirationMilliseconds;
     @Value("${spring.jwt.refresh-token-expiration-milliseconds}")
     long refreshTokenExpirationMilliseconds;
+
+    public AuthService(
+        @Qualifier("authRestClient") RestClient restClient,
+        JwtProvider jwtProvider,
+        CookieUtil cookieUtil,
+        AuthProviderRepository authProviderRepository,
+        RefreshTokenRepository refreshTokenRepository,
+        UserRepository userRepository,
+        CoreGoalRepository coreGoalRepository,
+        MandalartRepository mandalartRepository,
+        AnswerRepository answerRepository,
+        QuestionRepository questionRepository
+    ) {
+        this.restClient = restClient;
+        this.jwtProvider = jwtProvider;
+        this.cookieUtil = cookieUtil;
+        this.authProviderRepository = authProviderRepository;
+        this.refreshTokenRepository = refreshTokenRepository;
+        this.userRepository = userRepository;
+        this.coreGoalRepository = coreGoalRepository;
+        this.mandalartRepository = mandalartRepository;
+        this.answerRepository = answerRepository;
+        this.questionRepository = questionRepository;
+    }
 
     @SuppressWarnings("unchecked")
     public <T> LoginOrSignupResponse<T> loginOrSignupWithCode(String code,
@@ -112,6 +146,34 @@ public class AuthService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Long userId = Long.parseLong(auth.getName());
         refreshTokenRepository.deleteByUserId(userId);
+    }
+
+    @Transactional
+    public SignupResponse registerUser(SignupRequest request, HttpServletResponse response) {
+        User user = User.create(
+            request.name(),
+            request.email(),
+            request.profileImageUrl(),
+            request.birthday(),
+            request.job()
+        );
+        userRepository.save(user);
+
+        List<Answer> answers = getAnswers(request, user);
+        answerRepository.saveAll(answers);
+
+        AuthProvider authProvider = AuthProvider.create(
+            user,
+            ProviderType.valueOf(request.socialProvider().toUpperCase()),
+            request.socialToken()
+        );
+        authProviderRepository.save(authProvider);
+
+        String accessToken = jwtProvider
+                                 .createToken(user.getId(), accessTokenExpirationMilliseconds);
+        generateAndStoreRefreshToken(user.getId(), response);
+
+        return SignupResponse.of(accessToken, user);
     }
 
     private GoogleTokenResponse getGoogleToken(String code) {
@@ -203,7 +265,8 @@ public class AuthService {
     }
 
     private LoginOrSignupResponse<SignupData> createSignupResponse(GoogleUserInfo googleUserInfo) {
-        SignupData signupData = new SignupData(false, googleUserInfo.name(),
+        SignupData signupData = new SignupData("GOOGLE", googleUserInfo.sub(), false,
+            googleUserInfo.name(),
             googleUserInfo.email(), "회원가입이 필요한 유저입니다.");
         return new LoginOrSignupResponse<>(signupData);
     }
@@ -237,5 +300,23 @@ public class AuthService {
             return OnboardingPage.CORE_GOAL;
         }
         return OnboardingPage.MANDALART;
+    }
+
+
+    private List<Answer> getAnswers(SignupRequest request, User user) {
+        return request.answers().stream()
+                   .map(answer -> {
+                       Question question = questionRepository.
+                                               findById(answer.questionId())
+                                               .orElseThrow(
+                                                   () -> new QuestionException(
+                                                       QUESTION_NOT_FOUND
+                                                   ));
+                       String content = ChoiceInfo.getShortSentenceById(
+                           answer.choiceId());
+
+                       return Answer.create(question, user, content);
+                   })
+                   .collect(Collectors.toList());
     }
 }

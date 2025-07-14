@@ -9,7 +9,7 @@ public record SubGoalAiRequest(
     String coreGoal,
 
     @NotEmpty
-    List<SubGoalTitleRequest> subGoal
+    List<SubGoalRecommendationRequest> subGoal
 
 ) {
 
