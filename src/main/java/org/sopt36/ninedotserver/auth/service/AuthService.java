@@ -44,8 +44,8 @@ import org.sopt36.ninedotserver.onboarding.exception.QuestionException;
 import org.sopt36.ninedotserver.onboarding.repository.AnswerRepository;
 import org.sopt36.ninedotserver.onboarding.repository.QuestionRepository;
 import org.sopt36.ninedotserver.user.domain.User;
-import org.sopt36.ninedotserver.user.dto.request.SignupRequest;
-import org.sopt36.ninedotserver.user.dto.response.SignupResponse;
+import org.sopt36.ninedotserver.auth.dto.request.SignupRequest;
+import org.sopt36.ninedotserver.auth.dto.response.SignupResponse;
 import org.sopt36.ninedotserver.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
@@ -127,7 +127,7 @@ public class AuthService {
     }
 
     @Transactional
-    public SignupResponse registerUser(SignupRequest request) {
+    public SignupResponse registerUser(SignupRequest request, HttpServletResponse response) {
         User user = User.create(
             request.name(),
             request.email(),
@@ -147,7 +147,11 @@ public class AuthService {
         );
         authProviderRepository.save(authProvider);
 
-        return SignupResponse.of(user);
+        String accessToken = jwtProvider
+                                 .createToken(user.getId(), accessTokenExpirationMilliseconds);
+        generateAndStoreRefreshToken(user.getId(), response);
+
+        return SignupResponse.of(accessToken, user);
     }
 
     private GoogleTokenResponse getGoogleToken(String code) {
