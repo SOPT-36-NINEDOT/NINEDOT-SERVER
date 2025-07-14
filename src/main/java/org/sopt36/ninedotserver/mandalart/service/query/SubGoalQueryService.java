@@ -1,12 +1,18 @@
 package org.sopt36.ninedotserver.mandalart.service.query;
 
+import static org.sopt36.ninedotserver.mandalart.exception.MandalartErrorCode.MANDALART_NOT_FOUND;
 import static org.sopt36.ninedotserver.mandalart.exception.SubGoalErrorCode.CORE_GOAL_NOT_FOUND;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.mandalart.domain.CoreGoalSnapshot;
+import org.sopt36.ninedotserver.mandalart.domain.Cycle;
+import org.sopt36.ninedotserver.mandalart.domain.Mandalart;
 import org.sopt36.ninedotserver.mandalart.domain.SubGoalSnapshot;
+import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalDetailResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalIdResponse;
+import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalListResponse;
+import org.sopt36.ninedotserver.mandalart.exception.MandalartException;
 import org.sopt36.ninedotserver.mandalart.exception.SubGoalException;
 import org.sopt36.ninedotserver.mandalart.repository.CoreGoalRepository;
 import org.sopt36.ninedotserver.mandalart.repository.CoreGoalSnapshotRepository;
@@ -39,9 +45,79 @@ public class SubGoalQueryService {
             .toList();
     }
 
+    public SubGoalListResponse getSubGoalWithFilter(
+        Long userId,
+        Long mandalartId,
+        Long coreGoalSnapshotId,
+        Cycle cycle
+    ) {
+        if (coreGoalSnapshotId == null && cycle == null) {
+            return filterNothing(userId, mandalartId);
+        }
+
+        if (coreGoalSnapshotId == null) {
+            return filterByCycle(userId, mandalartId, cycle);
+        }
+
+        if (cycle == null) {
+            return filterByCoreGoalSnapshot(userId, mandalartId, coreGoalSnapshotId);
+        }
+
+        return filterByCoreGoalSnapshotAndCycle(userId, mandalartId, coreGoalSnapshotId, cycle);
+    }
+
     private CoreGoalSnapshot findCoreGoalOrThrow(Long coreGoalSnapshotId) {
         return coreGoalSnapshotRepository.findById(coreGoalSnapshotId)
             .orElseThrow(() -> new SubGoalException(CORE_GOAL_NOT_FOUND));
     }
 
+    private SubGoalListResponse filterNothing(Long userId, Long mandalartId) {
+        verifyMandalartByUser(userId, mandalartId);
+        return SubGoalListResponse.of(
+            subGoalSnapshotRepository.findAllActiveSubGoalSnapshot(mandalartId).stream()
+                .map(SubGoalDetailResponse::from).filter(subGoal -> !subGoal.title().isEmpty())
+                .toList());
+    }
+
+    private SubGoalListResponse filterByCycle(Long userId, Long mandalartId, Cycle cycle) {
+        verifyMandalartByUser(userId, mandalartId);
+        return SubGoalListResponse.of(
+            subGoalSnapshotRepository.findActiveSubGoalSnapshotByCycle(mandalartId, cycle)
+                .stream()
+                .map(SubGoalDetailResponse::from).filter(subGoal -> !subGoal.title().isEmpty())
+                .toList());
+    }
+
+    private SubGoalListResponse filterByCoreGoalSnapshot(Long userId, Long mandalartId,
+        Long coreGoalSnapshotId) {
+        verifyMandalartByUser(userId, mandalartId);
+        verifyCoreGoalByUser(userId, coreGoalSnapshotId);
+        return SubGoalListResponse.of(
+            subGoalSnapshotRepository.findActiveSubGoalSnapshotFollowingCoreGoal(mandalartId,
+                    coreGoalSnapshotId).stream()
+                .map(SubGoalDetailResponse::from).filter(subGoal -> !subGoal.title().isEmpty())
+                .toList());
+    }
+
+    private SubGoalListResponse filterByCoreGoalSnapshotAndCycle(Long userId, Long mandalartId,
+        Long coreGoalSnapshotId, Cycle cycle) {
+        verifyMandalartByUser(userId, mandalartId);
+        verifyCoreGoalByUser(userId, coreGoalSnapshotId);
+        return SubGoalListResponse.of(
+            subGoalSnapshotRepository.findActiveSubGoalSnapshotFollowingCycleAndCoreGoal(
+                    mandalartId, coreGoalSnapshotId, cycle).stream()
+                .map(SubGoalDetailResponse::from).filter(subGoal -> !subGoal.title().isEmpty())
+                .toList());
+    }
+
+    private void verifyMandalartByUser(Long userId, Long mandalartId) {
+        Mandalart mandalart = mandalartRepository.findById(mandalartId)
+            .orElseThrow(() -> new MandalartException(MANDALART_NOT_FOUND));
+        mandalart.ensureOwnedBy(userId);
+    }
+
+    private void verifyCoreGoalByUser(Long userId, Long coreGoalSnapshotId) {
+        CoreGoalSnapshot coreGoalSnapshot = findCoreGoalOrThrow(coreGoalSnapshotId);
+        coreGoalSnapshot.verifyCoreGoalUser(userId);
+    }
 }
