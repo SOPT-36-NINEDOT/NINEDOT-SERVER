@@ -177,7 +177,7 @@ public class SubGoalCommandService {
             .mapToObj(i -> SubGoalSnapshot.create(
                 subGoals.get(i),
                 createRequest.goals().get(i).title(),
-                Cycle.valueOf(createRequest.goals().get(i).cycle()),
+                createRequest.goals().get(i).cycle(),
                 now,
                 null))
             .toList();

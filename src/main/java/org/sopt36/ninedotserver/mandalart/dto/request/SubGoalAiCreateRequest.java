@@ -3,6 +3,7 @@ package org.sopt36.ninedotserver.mandalart.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.sopt36.ninedotserver.mandalart.domain.Cycle;
 
 public record SubGoalAiCreateRequest(
     @NotBlank(message = "title은 필수 항목입니다.")
@@ -10,7 +11,7 @@ public record SubGoalAiCreateRequest(
     String title,
 
     @NotNull(message = "cycle은 필수 입력값입니다.")
-    String cycle
+    Cycle cycle
 ) {
 
 }
