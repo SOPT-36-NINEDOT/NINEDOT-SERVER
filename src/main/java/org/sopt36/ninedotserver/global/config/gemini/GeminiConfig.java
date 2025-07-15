@@ -12,15 +12,16 @@ public class GeminiConfig {
 
     @Value("${gemini.api.url}")
     private String apiUrl;
+
     @Value("${gemini.api.key}")
     private String apiKey;
 
     @Bean
     public RestClient geminiRestClient(RestClient.Builder builder) {
         return builder
-                   .baseUrl(apiUrl)
-                   .defaultHeader("x-goog-api-key", apiKey)
-                   .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                   .build();
+            .baseUrl(apiUrl)
+            .defaultHeader("x-goog-api-key", apiKey)
+            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .build();
     }
 }

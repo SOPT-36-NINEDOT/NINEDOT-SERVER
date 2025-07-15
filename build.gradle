@@ -41,6 +41,12 @@ dependencies {
     // JPA
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
+    // JWT (jjwt)
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
+
     // OpenFeign QueryDSL
     implementation 'io.github.openfeign.querydsl:querydsl-jpa:6.11'
     annotationProcessor 'io.github.openfeign.querydsl:querydsl-apt:6.11:jpa'
@@ -66,6 +72,11 @@ dependencies {
     //Gemini
     implementation 'com.google.genai:google-genai:1.8.0'
     implementation 'org.springframework.ai:spring-ai-starter-model-vertex-ai-gemini'
+
+    // Spring batch
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
 }
 
 dependencyManagement {

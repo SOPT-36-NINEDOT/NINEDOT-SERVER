@@ -5,8 +5,10 @@ import org.sopt36.ninedotserver.user.domain.User;
 
 public interface MandalartRepositoryCustom {
 
+    boolean existsByUserId(Long userId);
     Optional<User> findUserById(Long mandalartId);
 
     Optional<String> findTitleByMandalartId(Long mandalartId);
 
+    Optional<String> findTitleByCoreGoalId(Long coreGoalId);
 }

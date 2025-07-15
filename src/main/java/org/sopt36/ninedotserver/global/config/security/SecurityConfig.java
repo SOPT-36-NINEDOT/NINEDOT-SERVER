@@ -22,10 +22,11 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html",
-                    "/api/v1/auth/**")
-                .permitAll()
-                .anyRequest().permitAll()
+                                               .requestMatchers("/swagger-ui/**", "/v3/api-docs/**",
+                                                   "/swagger-ui.html",
+                                                   "/api/v1/auth/**")
+                                               .permitAll()
+                                               .anyRequest().permitAll()
             )
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -53,7 +54,7 @@ public class SecurityConfig {
         // 모든 헤더 명시적으로 허용
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
 
-        config.setAllowCredentials(false);
+        config.setAllowCredentials(true);
         config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

@@ -3,16 +3,23 @@ package org.sopt36.ninedotserver.mandalart.service.command;
 import static org.sopt36.ninedotserver.mandalart.exception.SubGoalErrorCode.CORE_GOAL_NOT_FOUND;
 import static org.sopt36.ninedotserver.mandalart.exception.SubGoalErrorCode.SUB_GOAL_COMPLETED;
 import static org.sopt36.ninedotserver.mandalart.exception.SubGoalErrorCode.SUB_GOAL_CONFLICT;
+import static org.sopt36.ninedotserver.mandalart.exception.SubGoalErrorCode.SUB_GOAL_LIMITED;
 import static org.sopt36.ninedotserver.mandalart.exception.SubGoalErrorCode.SUB_GOAL_NOT_FOUND;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.ai.service.AiRecommendationService;
+import org.sopt36.ninedotserver.mandalart.domain.CoreGoal;
 import org.sopt36.ninedotserver.mandalart.domain.CoreGoalSnapshot;
+import org.sopt36.ninedotserver.mandalart.domain.Cycle;
 import org.sopt36.ninedotserver.mandalart.domain.SubGoal;
 import org.sopt36.ninedotserver.mandalart.domain.SubGoalSnapshot;
+import org.sopt36.ninedotserver.mandalart.dto.request.SubGoalAiListCreateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.request.SubGoalCreateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.request.SubGoalUpdateRequest;
+import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalAiListResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalCreateResponse;
 import org.sopt36.ninedotserver.mandalart.exception.SubGoalException;
 import org.sopt36.ninedotserver.mandalart.repository.CoreGoalRepository;
@@ -80,14 +87,37 @@ public class SubGoalCommandService {
         subGoalRepository.delete(subGoal);
     }
 
+    @Transactional
+    public SubGoalAiListResponse createAiSubGoals(
+        Long userId,
+        Long coreGoalSnapshotId,
+        SubGoalAiListCreateRequest createRequest
+    ) {
+        CoreGoalSnapshot coreGoalSnapshot = getExistingCoreGoal(coreGoalSnapshotId);
+        coreGoalSnapshot.verifyCoreGoalUser(userId);
+        validateSubGoalCounts(coreGoalSnapshot.getCoreGoal().getId(), createRequest);
+
+        List<Integer> freePositions = findFreePositions(
+            coreGoalSnapshot.getCoreGoal().getId(),
+            createRequest.goals().size()
+        );
+        List<SubGoal> subGoals = buildSubGoals(coreGoalSnapshot.getCoreGoal(), freePositions);
+        List<SubGoalSnapshot> snapshots = buildSnapshots(subGoals, createRequest);
+
+        subGoalRepository.saveAll(subGoals);
+        subGoalSnapshotRepository.saveAll(snapshots);
+
+        return SubGoalAiListResponse.of(snapshots);
+    }
+
     private void validateCreate(CoreGoalSnapshot coreGoalSnapshot, Long userId,
         SubGoalCreateRequest request) {
         validateSubGoalLimitNotExceeded(coreGoalSnapshot.getId());
         validateAlreadyExists(coreGoalSnapshot.getId(), request.position());
     }
 
-    private CoreGoalSnapshot getExistingCoreGoal(Long coreGoalId) {
-        return coreGoalSnapshotRepository.findById(coreGoalId)
+    private CoreGoalSnapshot getExistingCoreGoal(Long coreGoalSnapshotId) {
+        return coreGoalSnapshotRepository.findById(coreGoalSnapshotId)
             .orElseThrow(() -> new SubGoalException(CORE_GOAL_NOT_FOUND));
     }
 
@@ -103,10 +133,54 @@ public class SubGoalCommandService {
         }
     }
 
-    private SubGoalSnapshot getExistingSubGoal(Long subGoalSnapShotId) {
-        return subGoalSnapshotRepository.findById(subGoalSnapShotId)
+    private SubGoalSnapshot getExistingSubGoal(Long subGoalSnapshotId) {
+        return subGoalSnapshotRepository.findById(subGoalSnapshotId)
             .orElseThrow(() -> new SubGoalException(SUB_GOAL_NOT_FOUND));
     }
 
+    private void validateSubGoalCounts(
+        Long coreGoalId,
+        SubGoalAiListCreateRequest createRequest
+    ) {
+        int existingSubGoals = subGoalSnapshotRepository
+            .countActiveSubGoalSnapshotByCoreGoal(coreGoalId);
+        int requestSubGoals = createRequest.goals().size();
+        if (existingSubGoals + requestSubGoals > MAX_SUB_GOALS) {
+            throw new SubGoalException(SUB_GOAL_LIMITED);
+        }
+    }
+
+    private List<Integer> findFreePositions(Long coreGoalId, int requiredCount) {
+        List<Integer> occupied = subGoalSnapshotRepository.findActiveSubGoalPositionsByCoreGoal(
+            coreGoalId);
+
+        return IntStream.rangeClosed(1, MAX_SUB_GOALS)
+            .filter(pos -> !occupied.contains(pos))
+            .limit(requiredCount)
+            .boxed()
+            .toList();
+    }
+
+    private List<SubGoal> buildSubGoals(CoreGoal coreGoal, List<Integer> positions) {
+        return positions.stream()
+            .map(position -> SubGoal.create(coreGoal, position))
+            .toList();
+    }
+
+    private List<SubGoalSnapshot> buildSnapshots(
+        List<SubGoal> subGoals,
+        SubGoalAiListCreateRequest createRequest
+    ) {
+        LocalDateTime now = LocalDateTime.now();
+
+        return IntStream.range(0, subGoals.size())
+            .mapToObj(i -> SubGoalSnapshot.create(
+                subGoals.get(i),
+                createRequest.goals().get(i).title(),
+                createRequest.goals().get(i).cycle(),
+                now,
+                null))
+            .toList();
+    }
 
 }

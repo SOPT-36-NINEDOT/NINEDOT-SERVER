@@ -2,8 +2,6 @@ package org.sopt36.ninedotserver.user.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -46,23 +44,22 @@ public class User extends BaseEntity {
     @Column(name = "birthday", length = MAX_BIRTHDAY_LENGTH, nullable = false)
     private String birthday;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "job", length = MAX_JOB_LENGTH)
-    private JobType job;
+    private String job;
 
     @Column(name = "onboarding_completed", nullable = false)
     @ColumnDefault(value = "false")
     private Boolean onboardingCompleted;
 
     public static User create(String name, String email, String profileImageUrl, String birthday,
-        JobType job) {
+        String job) {
         return User.builder()
-            .name(name)
-            .email(email)
-            .profileImageUrl(profileImageUrl)
-            .birthday(birthday)
-            .job(job)
-            .build();
+                   .name(name)
+                   .email(email)
+                   .profileImageUrl(profileImageUrl)
+                   .birthday(birthday)
+                   .job(job)
+                   .build();
     }
 
     public boolean isSameId(Long id) {
