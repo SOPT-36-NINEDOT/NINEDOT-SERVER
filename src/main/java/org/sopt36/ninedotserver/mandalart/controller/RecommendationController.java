@@ -9,7 +9,6 @@ import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalListResponse;
 import org.sopt36.ninedotserver.mandalart.service.query.RecommendationQueryService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,17 +24,16 @@ public class RecommendationController {
 
     @GetMapping("/mandalarts/{mandalartId}/histories/recommendation")
     public ResponseEntity<ApiResponse<SubGoalListResponse, Void>> getRecommendations(
-        Authentication authentiction,
         @PathVariable Long mandalartId,
         @RequestParam(value = "date", required = false)
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
-        Long userId = Long.parseLong(authentiction.getName());
+        Long userId = 1L;
         LocalDate recommendationDate = (date != null ? date : LocalDate.now());
 
         SubGoalListResponse response = recommendationQueryService
-                                           .getRecommendations(userId, mandalartId,
-                                               recommendationDate);
+            .getRecommendations(userId, mandalartId,
+                recommendationDate);
 
         return ResponseEntity.ok(ApiResponse.ok(RECOMMENDATION_RETRIEVED_SUCCESS, response));
     }

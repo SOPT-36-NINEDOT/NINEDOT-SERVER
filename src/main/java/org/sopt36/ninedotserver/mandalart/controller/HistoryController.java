@@ -11,7 +11,6 @@ import org.sopt36.ninedotserver.mandalart.dto.response.StreakListResponse;
 import org.sopt36.ninedotserver.mandalart.service.command.HistoryCommandService;
 import org.sopt36.ninedotserver.mandalart.service.query.HistoryQueryService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,10 +28,9 @@ public class HistoryController {
 
     @PostMapping("/sub-goals/{subGoalId}/histories")
     public ResponseEntity<ApiResponse<Void, Void>> createHistory(
-        Authentication authentication,
         @PathVariable Long subGoalId
     ) {
-        Long userId = Long.parseLong(authentication.getName());
+        Long userId = 1L;
         Long historyId = historyCommandService.createHistory(userId, subGoalId);
         URI location = URI.create(
             "/api/v1/sub-goals/" + subGoalId + "/histories/" + historyId);
@@ -43,10 +41,9 @@ public class HistoryController {
 
     @DeleteMapping("/sub-goals/{subGoalId}/histories")
     public ResponseEntity<ApiResponse<Void, Void>> deleteHistory(
-        Authentication authentication,
         @PathVariable Long subGoalId
     ) {
-        Long userId = Long.parseLong(authentication.getName());
+        Long userId = 1L;
         historyCommandService.deleteHistory(userId, subGoalId);
 
         return ResponseEntity.ok(ApiResponse.ok(HISTORY_DELETED_SUCCESS));
@@ -54,10 +51,9 @@ public class HistoryController {
 
     @GetMapping("/mandalarts/{mandalartId}/streaks")
     public ResponseEntity<ApiResponse<StreakListResponse, Void>> getStreaks(
-        Authentication authentication,
         @PathVariable Long mandalartId
     ) {
-        Long userId = Long.parseLong(authentication.getName());
+        Long userId = 1L;
         StreakListResponse response = historyQueryService.getStreaks(userId, mandalartId);
 
         return ResponseEntity.ok(ApiResponse.ok(HISTORY_RETRIEVED_SUCCESS, response));
