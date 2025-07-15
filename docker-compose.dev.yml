@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   app:
-    image: "${DOCKER_HUB_USERNAME}/ninedot-be-app-dev:1.3.0"
+    image: "${DOCKER_HUB_USERNAME}/ninedot-be-app-dev:latest"
     container_name: ninedot-be-app-dev
     restart: always
     ports:
