@@ -19,6 +19,7 @@ import org.sopt36.ninedotserver.global.dto.response.ApiResponse;
 import org.sopt36.ninedotserver.mandalart.dto.request.CoreGoalAiCreateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.request.CoreGoalCreateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.request.CoreGoalUpdateRequest;
+import org.sopt36.ninedotserver.mandalart.dto.request.GenerateCoreGoalRequest;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalAiListResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalCreateResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalIdsResponse;
@@ -67,7 +68,7 @@ public class CoreGoalController {
             "/api/v1/mandalarts/" + mandalartId + "/core-goals/" + coreGoalId);
 
         return ResponseEntity.created(location)
-            .body(ApiResponse.created(response, CORE_GOAL_CREATED_SUCCESS));
+                   .body(ApiResponse.created(response, CORE_GOAL_CREATED_SUCCESS));
     }
 
     @GetMapping("/mandalarts/{mandalartId}/core-goals/id-positions")
@@ -128,7 +129,8 @@ public class CoreGoalController {
 
     @PostMapping("/mandalarts/{mandalartId}/ai")
     public ResponseEntity<ApiResponse<CoreGoalAiResponse, Void>> createAI(
-        @PathVariable Long mandalartId) {
+        @PathVariable Long mandalartId,
+        @RequestBody GenerateCoreGoalRequest generateRequest) {
         Long userId = 1L;
         CoreGoalAiResponse response = aiRecommendationService.fetchAiRecommendation(mandalartId);
         return ResponseEntity.ok(ApiResponse.created(response, AI_RESPONSE_SUCCESS));
