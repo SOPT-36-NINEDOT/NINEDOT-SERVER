@@ -17,6 +17,7 @@ import org.sopt36.ninedotserver.mandalart.dto.response.MandalartResponse;
 import org.sopt36.ninedotserver.mandalart.service.command.MandalartCommandService;
 import org.sopt36.ninedotserver.mandalart.service.query.MandalartQueryService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,11 +35,12 @@ public class MandalartController {
 
     @PostMapping("/mandalarts")
     public ResponseEntity<ApiResponse<MandalartCreateResponse, Void>> createMandalart(
+        Authentication authentication,
         @Valid @RequestBody MandalartCreateRequest createRequest
     ) {
-        // TODO: 로그인 구현 완료 후 토큰에서 userId 획득
+        Long userId = Long.parseLong(authentication.getName());
         MandalartCreateResponse response = mandalartCommandService.createMandalart(
-            1L,
+            userId,
             createRequest
         );
         Long mandalartId = response.id();
@@ -50,9 +52,10 @@ public class MandalartController {
 
     @GetMapping("/mandalarts/{mandalartId}/histories")
     public ResponseEntity<ApiResponse<MandalartHistoryResponse, Void>> getMandalartProgressHistory(
+        Authentication authentication,
         @PathVariable Long mandalartId
     ) {
-        Long userId = 1L; // TODO 로그인 구현 완료 후 변경 필요
+        Long userId = Long.parseLong(authentication.getName());
         MandalartHistoryResponse response = mandalartQueryService.getMandalartHistory(
             userId,
             mandalartId
@@ -63,17 +66,21 @@ public class MandalartController {
 
     @GetMapping("/mandalarts/{mandalartId}")
     public ResponseEntity<ApiResponse<MandalartResponse, Void>> getMandalart(
-        @PathVariable Long mandalartId) {
-        Long userId = 1L;
+        Authentication authentication,
+        @PathVariable Long mandalartId
+    ) {
+        Long userId = Long.parseLong(authentication.getName());
         MandalartResponse response = mandalartQueryService.getMandalart(userId, mandalartId);
+
         return ResponseEntity.ok(ApiResponse.ok(MANDALART_RETRIEVED_SUCCESS, response));
     }
 
     @GetMapping("/mandalarts/{mandalartId}/board")
     public ResponseEntity<ApiResponse<MandalartBoardResponse, Void>> getMandalartBoard(
+        Authentication authentication,
         @PathVariable Long mandalartId
     ) {
-        Long userId = 1L;
+        Long userId = Long.parseLong(authentication.getName());
         MandalartBoardResponse response = mandalartQueryService
             .getMandalartBoard(userId, mandalartId);
 
