@@ -19,11 +19,7 @@ public class UserQueryService {
 
     private final UserRepository userRepository;
 
-    public UserInfoResponse getUserInfo() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        Long userId = Long.parseLong(auth.getName());
-
+    public UserInfoResponse getUserInfo(Long userId) {
         User user = userRepository.findById(userId)
                         .orElseThrow(() -> new UserException(USER_NOT_FOUND));
 
