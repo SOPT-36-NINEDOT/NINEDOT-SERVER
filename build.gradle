@@ -71,7 +71,6 @@ dependencies {
 
     //Gemini
     implementation 'com.google.genai:google-genai:1.8.0'
-    implementation 'org.springframework.ai:spring-ai-starter-model-vertex-ai-gemini'
 
     // Spring batch
     implementation 'org.springframework.boot:spring-boot-starter'
