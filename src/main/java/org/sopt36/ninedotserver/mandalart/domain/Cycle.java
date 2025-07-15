@@ -1,5 +1,8 @@
 package org.sopt36.ninedotserver.mandalart.domain;
 
+import lombok.Getter;
+
+@Getter
 public enum Cycle {
     DAILY("매일"),
     WEEKLY("매주"),
@@ -9,9 +12,5 @@ public enum Cycle {
 
     Cycle(String label) {
         this.label = label;
-    }
-
-    public String getLabel() {
-        return label;
     }
 }

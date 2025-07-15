@@ -1,5 +1,6 @@
 package org.sopt36.ninedotserver.mandalart.controller;
 
+import static org.sopt36.ninedotserver.mandalart.controller.message.SubGoalMessage.SUB_GOAL_AI_CREATED_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.SubGoalMessage.SUB_GOAL_AI_RECOMMENDATION_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.SubGoalMessage.SUB_GOAL_CREATE_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.controller.message.SubGoalMessage.SUB_GOAL_DELETE_SUCCESS;
@@ -16,8 +17,10 @@ import org.sopt36.ninedotserver.ai.dto.response.SubGoalAiResponse;
 import org.sopt36.ninedotserver.ai.service.AiSubGoalRecommendationService;
 import org.sopt36.ninedotserver.global.dto.response.ApiResponse;
 import org.sopt36.ninedotserver.mandalart.domain.Cycle;
+import org.sopt36.ninedotserver.mandalart.dto.request.SubGoalAiListCreateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.request.SubGoalCreateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.request.SubGoalUpdateRequest;
+import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalAiListResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalCreateResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalIdListResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalIdResponse;
@@ -106,10 +109,12 @@ public class SubGoalController {
         @RequestBody @Valid SubGoalAiRequest request
     ) {
         Long userId = 1L; // TODO: 로그인 구현되면 로직 추가
-        SubGoalAiResponse response = aiSubGoalService.fetchAiSubGoalRecommendation(userId, coreGoalId,
+        SubGoalAiResponse response = aiSubGoalService.fetchAiSubGoalRecommendation(userId,
+            coreGoalId,
             request);
         return ResponseEntity.ok(ApiResponse.ok(SUB_GOAL_AI_RECOMMENDATION_SUCCESS, response));
     }
+
     @GetMapping("/mandalarts/{mandalartId}/sub-goals")
     public ResponseEntity<ApiResponse<SubGoalListResponse, Void>> getSubGoal(
         @PathVariable Long mandalartId,
@@ -120,6 +125,18 @@ public class SubGoalController {
         SubGoalListResponse response = subGoalQueryService.getSubGoalWithFilter(userId, mandalartId,
             coreGoalId, cycle);
         return ResponseEntity.ok(ApiResponse.ok(SUB_GOAL_READ_SUCCESS, response));
+    }
+
+    @PostMapping("/core-goals/{coreGoalId}/sub-goals/ai")
+    public ResponseEntity<ApiResponse<SubGoalAiListResponse, Void>> addAiSubGoals(
+        @PathVariable Long coreGoalId,
+        @Valid @RequestBody SubGoalAiListCreateRequest aiCreateRequest
+    ) {
+        Long userId = 1L;
+        SubGoalAiListResponse response = subGoalCommandService
+            .createAiSubGoals(userId, coreGoalId, aiCreateRequest);
+
+        return ResponseEntity.ok(ApiResponse.ok(SUB_GOAL_AI_CREATED_SUCCESS, response));
     }
 
 }

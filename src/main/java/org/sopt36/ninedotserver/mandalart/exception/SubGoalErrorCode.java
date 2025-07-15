@@ -20,7 +20,8 @@ public enum SubGoalErrorCode implements ErrorCode {
 
     // 409 Conflict
     SUB_GOAL_COMPLETED(HttpStatus.CONFLICT, "이미 해당 상위 목표의 하위 목표 8개를 모두 작성하였습니다."),
-    SUB_GOAL_CONFLICT(HttpStatus.CONFLICT, "이미 해당 위치에 하위 목표가 존재합니다.");
+    SUB_GOAL_CONFLICT(HttpStatus.CONFLICT, "이미 해당 위치에 하위 목표가 존재합니다."),
+    SUB_GOAL_LIMITED(HttpStatus.CONFLICT, "하위 목표는 최대 8개까지 저장할 수 있습니다.");
 
     private final HttpStatus status;
     private final String message;

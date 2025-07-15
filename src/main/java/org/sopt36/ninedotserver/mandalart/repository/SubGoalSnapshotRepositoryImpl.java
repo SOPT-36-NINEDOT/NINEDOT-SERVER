@@ -5,7 +5,6 @@ import static org.sopt36.ninedotserver.mandalart.domain.QCoreGoalSnapshot.coreGo
 import static org.sopt36.ninedotserver.mandalart.domain.QSubGoal.subGoal;
 import static org.sopt36.ninedotserver.mandalart.domain.QSubGoalSnapshot.subGoalSnapshot;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -116,6 +115,35 @@ public class SubGoalSnapshotRepositoryImpl implements SubGoalSnapshotRepositoryC
                 .and(coreGoalSnapshot.id.eq(coreGoalSnapshotId))
                 .and(subGoalSnapshot.validTo.isNull()))
             .orderBy(subGoal.position.asc())
+            .fetch();
+    }
+
+    @Override
+    public int countActiveSubGoalSnapshotByCoreGoal(Long coreGoalId) {
+        Long count = queryFactory
+            .select(subGoalSnapshot.count())
+            .from(subGoalSnapshot)
+            .join(subGoalSnapshot.subGoal, subGoal)
+            .join(subGoal.coreGoal, coreGoal)
+            .where(
+                coreGoal.id.eq(coreGoalId)
+                    .and(subGoalSnapshot.validTo.isNull())
+            )
+            .fetchOne();
+
+        return Math.toIntExact(count != null ? count : 0L);
+    }
+
+    @Override
+    public List<Integer> findActiveSubGoalPositionsByCoreGoal(Long coreGoalId) {
+        return queryFactory
+            .select(subGoal.position)
+            .from(subGoalSnapshot)
+            .join(subGoalSnapshot.subGoal, subGoal)
+            .join(subGoal.coreGoal, coreGoal)
+            .join(coreGoalSnapshot).on(coreGoalSnapshot.coreGoal.eq(coreGoal))
+            .where(coreGoal.id.eq(coreGoalId)
+                .and(subGoalSnapshot.validTo.isNull()))
             .fetch();
     }
 }

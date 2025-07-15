@@ -24,4 +24,8 @@ public interface SubGoalSnapshotRepositoryCustom {
         Long mandalartId,
         Long coreGoalSnapshotId
     );
+
+    int countActiveSubGoalSnapshotByCoreGoal(Long coreGoalId);
+
+    List<Integer> findActiveSubGoalPositionsByCoreGoal(Long coreGoalId);
 }
