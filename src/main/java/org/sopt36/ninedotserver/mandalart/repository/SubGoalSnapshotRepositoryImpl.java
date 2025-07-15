@@ -142,7 +142,7 @@ public class SubGoalSnapshotRepositoryImpl implements SubGoalSnapshotRepositoryC
             .join(subGoalSnapshot.subGoal, subGoal)
             .join(subGoal.coreGoal, coreGoal)
             .join(coreGoalSnapshot).on(coreGoalSnapshot.coreGoal.eq(coreGoal))
-            .where(coreGoalSnapshot.id.eq(coreGoalId)
+            .where(coreGoal.id.eq(coreGoalId)
                 .and(subGoalSnapshot.validTo.isNull()))
             .fetch();
     }
