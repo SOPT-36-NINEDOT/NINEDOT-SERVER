@@ -46,7 +46,7 @@ jobs:
           echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
           echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> .env
           echo "GEMINI_RESPONSE_STRUCTURE=${{ secrets.GEMINI_RESPONSE_STRUCTURE }}" >> .env
-          echo "GEMINI_SUB_GOAL_RESPONSE_STRUCTURE=${{ secrets.GEMINI_SUB_GOAL_RESPONSE_STRUCTURE}} >> .env
+          echo "GEMINI_SUB_GOAL_RESPONSE_STRUCTURE=${{ secrets.GEMINI_SUB_GOAL_RESPONSE_STRUCTURE}}" >> .env
           
           zip -r deploy.zip .env docker-compose.prod.yml deploy.sh appspec.yml
 
