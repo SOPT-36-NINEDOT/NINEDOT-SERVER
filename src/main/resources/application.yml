@@ -1,0 +1,3 @@
+spring:
+  profiles:
+    active: local  # 기본값 지정
