@@ -45,7 +45,7 @@ jobs:
           echo "GOOGLE_REDIRECT_URI=${{ secrets.GOOGLE_REDIRECT_URI }}" >> .env
           echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
           
-          zip -r deploy.zip .env docker-compose.dev.yml deploy.sh appspec.yml
+          zip -r deploy.zip .env docker-compose.prod.yml deploy.sh appspec.yml
 
 
       - name: Configure AWS credentials
