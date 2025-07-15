@@ -22,11 +22,13 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                                               .requestMatchers("/swagger-ui/**", "/v3/api-docs/**",
-                                                   "/swagger-ui.html",
-                                                   "/api/v1/auth/**")
-                                               .permitAll()
-                                               .anyRequest().permitAll()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**",
+                    "/swagger-ui.html",
+                    "/api/v1/auth/**",
+                    "/api/v1/personas",
+                    "/api/v1/jobs")
+                .permitAll()
+                .anyRequest().permitAll()
             )
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
