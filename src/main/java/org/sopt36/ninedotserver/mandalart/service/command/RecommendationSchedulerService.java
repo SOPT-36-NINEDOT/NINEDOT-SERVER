@@ -39,7 +39,7 @@ public class RecommendationSchedulerService {
     private final MandalartRepository mandalartRepository;
     private final HistoryRepository historyRepository;
 
-    @Scheduled(cron = "0 22 3 * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 30 3 * * *", zone = "Asia/Seoul")
     @Transactional
     public void generateDailyRecommendations() {
         LocalDate today = LocalDate.now();
