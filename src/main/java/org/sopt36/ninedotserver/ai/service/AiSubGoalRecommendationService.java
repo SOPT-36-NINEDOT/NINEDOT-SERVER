@@ -41,7 +41,7 @@ public class AiSubGoalRecommendationService {
     private final ObjectMapper objectMapper;
 
     @Transactional
-    public SubGoalAiResponse fetchAiSubGoalRecommendation(Long coreGoalId, Long userId,
+    public SubGoalAiResponse fetchAiSubGoalRecommendation(Long userId, Long coreGoalId,
         SubGoalAiRequest request) {
 
         CoreGoal coreGoal = coreGoalRepository.findById(coreGoalId)
