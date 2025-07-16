@@ -35,4 +35,4 @@ export $(grep -v '^#' .env | xargs)
 docker pull ${DOCKER_HUB_USERNAME}/ninedot-be-app:latest
 
 # 컨테이너 실행
-docker-compose --env-file .env up -d
+docker-compose -f docker-compose.prod.yml --env-file .env up -d
