@@ -177,6 +177,7 @@ public class AuthService {
     }
 
     private GoogleTokenResponse getGoogleToken(String code) {
+        log.info("Google 토큰 요청 시작: code={}, redirectUri={}", code, redirectUri);
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
         form.add("code", code);
         form.add("client_id", clientId);
@@ -190,13 +191,18 @@ public class AuthService {
                                                .body(form)
                                                .retrieve()
                                                .body(GoogleTokenResponse.class);
-
-            if (response == null || response.accessToken() == null) {
+            log.info("Google 응답 수신: {}", response);
+            if (response == null) {
+                log.warn("Google 응답이 null입니다.");
                 throw new AuthException(GOOGLE_TOKEN_RETRIEVAL_FAILED);
             }
-
+            if (response.accessToken() == null) {
+                log.warn("Google 응답에서 accessToken이 null입니다: {}", response);
+                throw new AuthException(GOOGLE_TOKEN_RETRIEVAL_FAILED);
+            }
             return response;
         } catch (Exception e) {
+            log.error("Google 토큰 요청 실패", e);
             throw new AuthException(GOOGLE_TOKEN_RETRIEVAL_FAILED, e.getMessage());
         }
     }
