@@ -59,8 +59,8 @@ public class Mandalart extends BaseEntity {
                    .build();
     }
 
-    public void setAiGeneratable(boolean aiGeneratable) {
-        this.aiGeneratable = aiGeneratable;
+    public void disableAiGeneration() {
+        this.aiGeneratable = false;
     }
 
     public void ensureOwnedBy(Long userId) {

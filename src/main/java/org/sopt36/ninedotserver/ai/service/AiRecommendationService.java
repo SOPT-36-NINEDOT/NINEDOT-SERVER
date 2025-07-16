@@ -70,7 +70,7 @@ public class AiRecommendationService {
 
         String response = geminiClient.fetchAiResponse(prompt);
 
-        mandalart.setAiGeneratable(false);
+        mandalart.disableAiGeneration();
 
         return convertAiResponseToDtoResponse(response);
     }
