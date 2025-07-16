@@ -29,7 +29,9 @@ spring:
     domain: localhost # .
     secure: false
     path: /
-
+  task:
+    scheduling:
+      time-zone: Asia/Seoul
   ai:
     model:
       chat: none

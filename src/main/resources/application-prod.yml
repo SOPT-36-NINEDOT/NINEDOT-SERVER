@@ -27,6 +27,9 @@ spring:
     domain: .ninedot.p-e.kr
     secure: true
     path: /
+  task:
+    scheduling:
+      time-zone: Asia/Seoul
   ai:
     model:
       chat: none
