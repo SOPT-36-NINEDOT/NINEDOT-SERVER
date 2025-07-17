@@ -12,6 +12,10 @@ services:
       SPRING_DATASOURCE_URL: "jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}"
       SPRING_DATASOURCE_USERNAME: "${DB_USERNAME}"
       SPRING_DATASOURCE_PASSWORD: "${DB_PASSWORD}"
+      TZ: Asia/Seoul
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     env_file:
       - .env
 

@@ -11,6 +11,9 @@ RUN cp $(ls /app/ninedot36/build/libs/*.jar | head -n 1) /app/ninedot36/build/li
 FROM openjdk:17-jdk-slim
 WORKDIR /app
 
-COPY --from=build /app/ninedot36/build/libs/app.jar app.jar
+ENV TZ=Asia/Seoul
+RUN apt-get update && apt-get install -y tzdata && \
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+COPY --from=build /app/ninedot36/build/libs/app.jar app.jar
+ENTRYPOINT ["java", "-Duser.timezone=Asia/Seoul", "-jar", "app.jar"]
