@@ -55,10 +55,10 @@ public class SubGoalController {
         List<SubGoalIdResponse> subGoalIds = subGoalQueryService.getSubGoalIds(userId, coreGoalId);
 
         return ResponseEntity.ok()
-            .body(
-                ApiResponse.ok(SUB_GOAL_ID_LIST_FETCH_SUCCESS,
-                    SubGoalIdListResponse.from(subGoalIds))
-            );
+                   .body(
+                       ApiResponse.ok(SUB_GOAL_ID_LIST_FETCH_SUCCESS,
+                           SubGoalIdListResponse.from(subGoalIds))
+                   );
     }
 
     @PostMapping("/core-goals/{coreGoalId}/sub-goals")
@@ -76,7 +76,7 @@ public class SubGoalController {
             "/api/v1/core-goals/" + coreGoalId + "/sub-goals/" + response.id());
 
         return ResponseEntity.created(location)
-            .body(ApiResponse.created(response, SUB_GOAL_CREATE_SUCCESS));
+                   .body(ApiResponse.created(response, SUB_GOAL_CREATE_SUCCESS));
     }
 
     @PatchMapping("/sub-goals/{subGoalId}")
@@ -88,7 +88,7 @@ public class SubGoalController {
         subGoalCommandService.updateSubGoal(userId, subGoalId, request);
 
         return ResponseEntity.ok()
-            .body(ApiResponse.ok(SUB_GOAL_UPDATE_SUCCESS));
+                   .body(ApiResponse.ok(SUB_GOAL_UPDATE_SUCCESS));
     }
 
     @DeleteMapping("/sub-goals/{subGoalId}")
@@ -99,7 +99,7 @@ public class SubGoalController {
         subGoalCommandService.deleteSubGoal(userId, subGoalId);
 
         return ResponseEntity.ok()
-            .body(ApiResponse.ok(SUB_GOAL_DELETE_SUCCESS));
+                   .body(ApiResponse.ok(SUB_GOAL_DELETE_SUCCESS));
 
     }
 
@@ -134,7 +134,7 @@ public class SubGoalController {
     ) {
         Long userId = 1L;
         SubGoalAiListResponse response = subGoalCommandService
-            .createAiSubGoals(userId, coreGoalId, aiCreateRequest);
+                                             .createAiSubGoals(userId, coreGoalId, aiCreateRequest);
 
         return ResponseEntity.ok(ApiResponse.ok(SUB_GOAL_AI_CREATED_SUCCESS, response));
     }

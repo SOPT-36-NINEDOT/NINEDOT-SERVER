@@ -38,11 +38,12 @@ public class SubGoalQueryService {
         coreGoalSnapshot.verifyCoreGoalUser(userId);
 
         List<SubGoalSnapshot> subGoals = subGoalSnapshotRepository
-            .findByCoreGoalSnapshotIdOrderByPosition(coreGoalSnapshotId);
+                                             .findByCoreGoalSnapshotIdOrderByPosition(
+                                                 coreGoalSnapshotId);
 
         return subGoals.stream()
-            .map(SubGoalIdResponse::from)
-            .toList();
+                   .map(SubGoalIdResponse::from)
+                   .toList();
     }
 
     public SubGoalListResponse getSubGoalWithFilter(
@@ -68,13 +69,14 @@ public class SubGoalQueryService {
 
     private CoreGoalSnapshot findCoreGoalOrThrow(Long coreGoalSnapshotId) {
         return coreGoalSnapshotRepository.findById(coreGoalSnapshotId)
-            .orElseThrow(() -> new SubGoalException(CORE_GOAL_NOT_FOUND));
+                   .orElseThrow(() -> new SubGoalException(CORE_GOAL_NOT_FOUND));
     }
 
     private SubGoalListResponse filterNothing(Long userId, Long mandalartId) {
         verifyMandalartByUser(userId, mandalartId);
         return SubGoalListResponse.of(
-            subGoalSnapshotRepository.findAllActiveSubGoalSnapshot(mandalartId).stream()
+            subGoalSnapshotRepository.findAllActiveSubGoalSnapshotOrderByPosition(mandalartId)
+                .stream()
                 .map(SubGoalDetailResponse::from).filter(subGoal -> !subGoal.title().isEmpty())
                 .toList());
     }
@@ -82,7 +84,8 @@ public class SubGoalQueryService {
     private SubGoalListResponse filterByCycle(Long userId, Long mandalartId, Cycle cycle) {
         verifyMandalartByUser(userId, mandalartId);
         return SubGoalListResponse.of(
-            subGoalSnapshotRepository.findActiveSubGoalSnapshotByCycle(mandalartId, cycle)
+            subGoalSnapshotRepository.findActiveSubGoalSnapshotByCycleOrderByPosition(mandalartId,
+                    cycle)
                 .stream()
                 .map(SubGoalDetailResponse::from).filter(subGoal -> !subGoal.title().isEmpty())
                 .toList());
@@ -93,7 +96,8 @@ public class SubGoalQueryService {
         verifyMandalartByUser(userId, mandalartId);
         verifyCoreGoalByUser(userId, coreGoalSnapshotId);
         return SubGoalListResponse.of(
-            subGoalSnapshotRepository.findActiveSubGoalSnapshotFollowingCoreGoal(mandalartId,
+            subGoalSnapshotRepository.findActiveSubGoalSnapshotFollowingCoreGoalOrderByPosition(
+                    mandalartId,
                     coreGoalSnapshotId).stream()
                 .map(SubGoalDetailResponse::from).filter(subGoal -> !subGoal.title().isEmpty())
                 .toList());
@@ -104,7 +108,7 @@ public class SubGoalQueryService {
         verifyMandalartByUser(userId, mandalartId);
         verifyCoreGoalByUser(userId, coreGoalSnapshotId);
         return SubGoalListResponse.of(
-            subGoalSnapshotRepository.findActiveSubGoalSnapshotFollowingCycleAndCoreGoal(
+            subGoalSnapshotRepository.findActiveSubGoalSnapshotFollowingCycleAndCoreGoalOrderByPosition(
                     mandalartId, coreGoalSnapshotId, cycle).stream()
                 .map(SubGoalDetailResponse::from).filter(subGoal -> !subGoal.title().isEmpty())
                 .toList());
@@ -112,7 +116,7 @@ public class SubGoalQueryService {
 
     private void verifyMandalartByUser(Long userId, Long mandalartId) {
         Mandalart mandalart = mandalartRepository.findById(mandalartId)
-            .orElseThrow(() -> new MandalartException(MANDALART_NOT_FOUND));
+                                  .orElseThrow(() -> new MandalartException(MANDALART_NOT_FOUND));
         mandalart.ensureOwnedBy(userId);
     }
 

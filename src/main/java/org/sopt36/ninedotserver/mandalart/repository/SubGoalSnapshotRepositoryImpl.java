@@ -26,16 +26,16 @@ public class SubGoalSnapshotRepositoryImpl implements SubGoalSnapshotRepositoryC
         QCoreGoal coreGoal = QCoreGoal.coreGoal;
 
         return queryFactory
-            .selectFrom(subGoalSnapshot)
-            .join(subGoalSnapshot.subGoal, subGoal).fetchJoin()
-            .join(subGoal.coreGoal, coreGoal).fetchJoin()
-            .where(coreGoal.id.eq(
-                queryFactory.select(coreGoalSnapshot.coreGoal.id)
-                    .from(coreGoalSnapshot)
-                    .where(coreGoalSnapshot.id.eq(coreGoalSnapshotId))
-            ))
-            .orderBy(subGoalSnapshot.subGoal.position.asc())
-            .fetch();
+                   .selectFrom(subGoalSnapshot)
+                   .join(subGoalSnapshot.subGoal, subGoal).fetchJoin()
+                   .join(subGoal.coreGoal, coreGoal).fetchJoin()
+                   .where(coreGoal.id.eq(
+                       queryFactory.select(coreGoalSnapshot.coreGoal.id)
+                           .from(coreGoalSnapshot)
+                           .where(coreGoalSnapshot.id.eq(coreGoalSnapshotId))
+                   ))
+                   .orderBy(subGoalSnapshot.subGoal.position.asc())
+                   .fetch();
     }
 
     @Override
@@ -45,91 +45,83 @@ public class SubGoalSnapshotRepositoryImpl implements SubGoalSnapshotRepositoryC
         QCoreGoal cg = coreGoal;
 
         return queryFactory
-            .selectFrom(s)
-            .join(s.subGoal, sg)
-            .join(sg.coreGoal, cg)
-            .where(cg.mandalart.id.eq(mandalartId))
-            .fetch();
+                   .selectFrom(s)
+                   .join(s.subGoal, sg)
+                   .join(sg.coreGoal, cg)
+                   .where(cg.mandalart.id.eq(mandalartId))
+                   .fetch();
     }
 
     @Override
-    public List<SubGoalSnapshot> findAllActiveSubGoalSnapshot(Long mandalartId) {
+    public List<SubGoalSnapshot> findAllActiveSubGoalSnapshotOrderByPosition(Long mandalartId) {
         return queryFactory
-            .selectFrom(subGoalSnapshot)
-            .join(subGoalSnapshot.subGoal, subGoal)
-            .join(subGoal.coreGoal, coreGoal)
-            .where(coreGoal.mandalart.id.eq(mandalartId).and(subGoalSnapshot.validTo.isNull()))
-            .fetch();
+                   .selectFrom(subGoalSnapshot)
+                   .join(subGoalSnapshot.subGoal, subGoal)
+                   .join(subGoal.coreGoal, coreGoal)
+                   .where(coreGoal.mandalart.id.eq(mandalartId)
+                              .and(subGoalSnapshot.validTo.isNull()))
+                   .orderBy(coreGoal.position.asc(), subGoal.position.asc())
+                   .fetch();
     }
 
     @Override
-    public List<SubGoalSnapshot> findActiveSubGoalSnapshotByCycle(Long mandalartId, Cycle cycle) {
+    public List<SubGoalSnapshot> findActiveSubGoalSnapshotByCycleOrderByPosition(Long mandalartId,
+        Cycle cycle) {
         return queryFactory
-            .selectFrom(subGoalSnapshot)
-            .join(subGoalSnapshot.subGoal, subGoal)
-            .join(subGoal.coreGoal, coreGoal)
-            .where(coreGoal.mandalart.id.eq(mandalartId)
-                .and(subGoalSnapshot.validTo.isNull())
-                .and(subGoalSnapshot.cycle.eq(cycle)))
-            .fetch();
-    }
-
-    @Override
-    public List<SubGoalSnapshot> findActiveSubGoalSnapshotFollowingCoreGoal(Long mandalartId,
-        Long coreGoalSnapshotId) {
-        return queryFactory
-            .selectFrom(subGoalSnapshot)
-            .join(subGoalSnapshot.subGoal, subGoal)
-            .join(subGoal.coreGoal, coreGoal)
-            .join(coreGoalSnapshot).on(coreGoalSnapshot.coreGoal.eq(coreGoal))
-            .where(coreGoal.mandalart.id.eq(mandalartId)
-                .and(coreGoalSnapshot.id.eq(coreGoalSnapshotId))
-                .and(subGoalSnapshot.validTo.isNull()))
-            .fetch();
-    }
-
-    @Override
-    public List<SubGoalSnapshot> findActiveSubGoalSnapshotFollowingCycleAndCoreGoal(
-        Long mandalartId, Long coreGoalSnapshotId, Cycle cycle) {
-        return queryFactory
-            .selectFrom(subGoalSnapshot)
-            .join(subGoalSnapshot.subGoal, subGoal)
-            .join(subGoal.coreGoal, coreGoal)
-            .join(coreGoalSnapshot).on(coreGoalSnapshot.coreGoal.eq(coreGoal))
-            .where(coreGoal.mandalart.id.eq(mandalartId)
-                .and(coreGoalSnapshot.id.eq(coreGoalSnapshotId))
-                .and(subGoalSnapshot.cycle.eq(cycle))
-                .and(subGoalSnapshot.validTo.isNull()))
-            .fetch();
+                   .selectFrom(subGoalSnapshot)
+                   .join(subGoalSnapshot.subGoal, subGoal)
+                   .join(subGoal.coreGoal, coreGoal)
+                   .where(coreGoal.mandalart.id.eq(mandalartId)
+                              .and(subGoalSnapshot.validTo.isNull())
+                              .and(subGoalSnapshot.cycle.eq(cycle)))
+                   .orderBy(coreGoal.position.asc(), subGoal.position.asc())
+                   .fetch();
     }
 
     @Override
     public List<SubGoalSnapshot> findActiveSubGoalSnapshotFollowingCoreGoalOrderByPosition(
-        Long mandalartId, Long coreGoalSnapshotId) {
+        Long mandalartId,
+        Long coreGoalSnapshotId) {
         return queryFactory
-            .selectFrom(subGoalSnapshot)
-            .join(subGoalSnapshot.subGoal, subGoal)
-            .join(subGoal.coreGoal, coreGoal)
-            .join(coreGoalSnapshot).on(coreGoalSnapshot.coreGoal.eq(coreGoal))
-            .where(coreGoal.mandalart.id.eq(mandalartId)
-                .and(coreGoalSnapshot.id.eq(coreGoalSnapshotId))
-                .and(subGoalSnapshot.validTo.isNull()))
-            .orderBy(subGoal.position.asc())
-            .fetch();
+                   .selectFrom(subGoalSnapshot)
+                   .join(subGoalSnapshot.subGoal, subGoal)
+                   .join(subGoal.coreGoal, coreGoal)
+                   .join(coreGoalSnapshot).on(coreGoalSnapshot.coreGoal.eq(coreGoal))
+                   .where(coreGoal.mandalart.id.eq(mandalartId)
+                              .and(coreGoalSnapshot.id.eq(coreGoalSnapshotId))
+                              .and(subGoalSnapshot.validTo.isNull()))
+                   .orderBy(subGoal.position.asc())
+                   .fetch();
+    }
+
+    @Override
+    public List<SubGoalSnapshot> findActiveSubGoalSnapshotFollowingCycleAndCoreGoalOrderByPosition(
+        Long mandalartId, Long coreGoalSnapshotId, Cycle cycle) {
+        return queryFactory
+                   .selectFrom(subGoalSnapshot)
+                   .join(subGoalSnapshot.subGoal, subGoal)
+                   .join(subGoal.coreGoal, coreGoal)
+                   .join(coreGoalSnapshot).on(coreGoalSnapshot.coreGoal.eq(coreGoal))
+                   .where(coreGoal.mandalart.id.eq(mandalartId)
+                              .and(coreGoalSnapshot.id.eq(coreGoalSnapshotId))
+                              .and(subGoalSnapshot.cycle.eq(cycle))
+                              .and(subGoalSnapshot.validTo.isNull()))
+                   .orderBy(subGoal.position.asc())
+                   .fetch();
     }
 
     @Override
     public int countActiveSubGoalSnapshotByCoreGoal(Long coreGoalId) {
         Long count = queryFactory
-            .select(subGoalSnapshot.count())
-            .from(subGoalSnapshot)
-            .join(subGoalSnapshot.subGoal, subGoal)
-            .join(subGoal.coreGoal, coreGoal)
-            .where(
-                coreGoal.id.eq(coreGoalId)
-                    .and(subGoalSnapshot.validTo.isNull())
-            )
-            .fetchOne();
+                         .select(subGoalSnapshot.count())
+                         .from(subGoalSnapshot)
+                         .join(subGoalSnapshot.subGoal, subGoal)
+                         .join(subGoal.coreGoal, coreGoal)
+                         .where(
+                             coreGoal.id.eq(coreGoalId)
+                                 .and(subGoalSnapshot.validTo.isNull())
+                         )
+                         .fetchOne();
 
         return Math.toIntExact(count != null ? count : 0L);
     }
@@ -137,13 +129,13 @@ public class SubGoalSnapshotRepositoryImpl implements SubGoalSnapshotRepositoryC
     @Override
     public List<Integer> findActiveSubGoalPositionsByCoreGoal(Long coreGoalId) {
         return queryFactory
-            .select(subGoal.position)
-            .from(subGoalSnapshot)
-            .join(subGoalSnapshot.subGoal, subGoal)
-            .join(subGoal.coreGoal, coreGoal)
-            .join(coreGoalSnapshot).on(coreGoalSnapshot.coreGoal.eq(coreGoal))
-            .where(coreGoal.id.eq(coreGoalId)
-                .and(subGoalSnapshot.validTo.isNull()))
-            .fetch();
+                   .select(subGoal.position)
+                   .from(subGoalSnapshot)
+                   .join(subGoalSnapshot.subGoal, subGoal)
+                   .join(subGoal.coreGoal, coreGoal)
+                   .join(coreGoalSnapshot).on(coreGoalSnapshot.coreGoal.eq(coreGoal))
+                   .where(coreGoal.id.eq(coreGoalId)
+                              .and(subGoalSnapshot.validTo.isNull()))
+                   .fetch();
     }
 }
