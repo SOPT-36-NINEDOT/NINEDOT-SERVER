@@ -32,8 +32,7 @@ public class RecommendationController {
         LocalDate recommendationDate = (date != null ? date : LocalDate.now());
 
         SubGoalListResponse response = recommendationQueryService
-            .getRecommendations(userId, mandalartId,
-                recommendationDate);
+            .getRecommendations(userId, mandalartId, recommendationDate);
 
         return ResponseEntity.ok(ApiResponse.ok(RECOMMENDATION_RETRIEVED_SUCCESS, response));
     }
