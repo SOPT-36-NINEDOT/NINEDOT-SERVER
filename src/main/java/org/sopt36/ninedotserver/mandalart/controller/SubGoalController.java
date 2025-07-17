@@ -125,8 +125,10 @@ public class SubGoalController {
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
         Long userId = 1L;
-        SubGoalListResponse response = subGoalQueryService.getSubGoalWithFilter(userId, mandalartId,
-            coreGoalId, cycle, date);
+        LocalDate targetDate = (date != null ? date : LocalDate.now());
+
+        SubGoalListResponse response = subGoalQueryService
+            .getSubGoalWithFilter(userId, mandalartId, coreGoalId, cycle, targetDate);
         return ResponseEntity.ok(ApiResponse.ok(SUB_GOAL_READ_SUCCESS, response));
     }
 
