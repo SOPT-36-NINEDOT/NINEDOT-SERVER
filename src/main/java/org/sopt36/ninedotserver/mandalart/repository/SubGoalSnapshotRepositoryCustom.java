@@ -1,5 +1,6 @@
 package org.sopt36.ninedotserver.mandalart.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import org.sopt36.ninedotserver.mandalart.domain.Cycle;
 import org.sopt36.ninedotserver.mandalart.domain.SubGoalSnapshot;
@@ -10,7 +11,8 @@ public interface SubGoalSnapshotRepositoryCustom {
 
     List<SubGoalSnapshot> findAllByMandalartId(Long mandalartId);
 
-    List<SubGoalSnapshot> findAllActiveSubGoalSnapshotOrderByPosition(Long mandalartId);
+    List<SubGoalSnapshot> findAllActiveSubGoalSnapshotOrderByPosition(Long mandalartId,
+        LocalDate date);
 
     List<SubGoalSnapshot> findActiveSubGoalSnapshotByCycleOrderByPosition(Long mandalartId,
         Cycle cycle);
