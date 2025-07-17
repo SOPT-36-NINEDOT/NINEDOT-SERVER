@@ -1,7 +1,6 @@
 package org.sopt36.ninedotserver.ai.service;
 
 import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.AI_RESPONSE_PARSE_ERROR;
-import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.CORE_GOAL_NOT_FOUND;
 import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.MANDALART_NOT_FOUND;
 import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.SUB_GOAL_AI_FEATURE_NOT_AVAILABLE;
 import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.SUB_GOAL_IS_FULL;
@@ -20,8 +19,10 @@ import org.sopt36.ninedotserver.ai.dto.response.SubGoalAiResponse;
 import org.sopt36.ninedotserver.ai.exception.AiException;
 import org.sopt36.ninedotserver.ai.util.AgeUtil;
 import org.sopt36.ninedotserver.ai.util.PromptBuilder;
-import org.sopt36.ninedotserver.mandalart.domain.CoreGoal;
-import org.sopt36.ninedotserver.mandalart.repository.CoreGoalRepository;
+import org.sopt36.ninedotserver.mandalart.domain.CoreGoalSnapshot;
+import org.sopt36.ninedotserver.mandalart.exception.CoreGoalErrorCode;
+import org.sopt36.ninedotserver.mandalart.exception.CoreGoalException;
+import org.sopt36.ninedotserver.mandalart.repository.CoreGoalSnapshotRepository;
 import org.sopt36.ninedotserver.mandalart.repository.MandalartRepository;
 import org.sopt36.ninedotserver.onboarding.repository.AnswerRepository;
 import org.sopt36.ninedotserver.user.domain.User;
@@ -37,29 +38,29 @@ public class AiSubGoalRecommendationService {
     private final UserRepository userRepository;
     private final AnswerRepository answerRepository;
     private final GeminiSubGoalClient geminiSubGoalClient;
-    private final CoreGoalRepository coreGoalRepository;
+    private final CoreGoalSnapshotRepository coreGoalSnapshotRepository;
     private final ObjectMapper objectMapper;
 
     @Transactional
-    public SubGoalAiResponse fetchAiSubGoalRecommendation(Long coreGoalId, Long userId,
+    public SubGoalAiResponse fetchAiSubGoalRecommendation(Long coreGoalSnapshotId, Long userId,
         SubGoalAiRequest request) {
 
-        CoreGoal coreGoal = coreGoalRepository.findById(coreGoalId)
-                                .orElseThrow(() -> new AiException(CORE_GOAL_NOT_FOUND));
+        //
+        CoreGoalSnapshot coreGoalSnapshot = getExistingCoreGoal(coreGoalSnapshotId);
 
         if (request.subGoal().size() >= 8) {
             throw new AiException(SUB_GOAL_IS_FULL);
         }
 
-        if (!coreGoal.isAiGeneratable()) {
+        if (!coreGoalSnapshot.getCoreGoal().isAiGeneratable()) {
             throw new AiException(SUB_GOAL_AI_FEATURE_NOT_AVAILABLE);
         }
 
-        String mandalartTitle = mandalartRepository.findTitleByCoreGoalId(coreGoalId)
-                                    .orElseThrow(() -> new AiException(MANDALART_NOT_FOUND));
+        String mandalartTitle = mandalartRepository.findTitleByCoreGoalId(coreGoalSnapshotId)
+            .orElseThrow(() -> new AiException(MANDALART_NOT_FOUND));
 
         User user = userRepository.findById(userId)
-                        .orElseThrow(() -> new AiException(USER_NOT_FOUND));
+            .orElseThrow(() -> new AiException(USER_NOT_FOUND));
 
         int age = AgeUtil.calculateAgeFromString(user.getBirthday());
 
@@ -67,8 +68,8 @@ public class AiSubGoalRecommendationService {
 
         String coreGoalTitle = request.coreGoal();
         List<String> existingSubGoals = request.subGoal().stream()
-                                            .map(SubGoalRecommendationRequest::title)
-                                            .toList();
+            .map(SubGoalRecommendationRequest::title)
+            .toList();
 
         String prompt = PromptBuilder.buildSubGoalPrompt(
             age,
@@ -81,7 +82,7 @@ public class AiSubGoalRecommendationService {
 
         String response = geminiSubGoalClient.fetchAiResponse(prompt);
 
-        coreGoal.disableAiGeneration();
+        coreGoalSnapshot.getCoreGoal().disableAiGeneration();
 
         return convertToSubGoalResponse(response);
 
@@ -94,9 +95,9 @@ public class AiSubGoalRecommendationService {
 
             // 2. text 필드의 실제 값 추출 (JSON 형식의 문자열)
             String innerJsonString = root
-                                         .path("candidates").get(0)
-                                         .path("content").path("parts").get(0)
-                                         .path("text").asText();
+                .path("candidates").get(0)
+                .path("content").path("parts").get(0)
+                .path("text").asText();
 
             // 3. innerJsonString은 JSON string → JsonNode로 다시 파싱
             JsonNode fixedNode = objectMapper.readTree(innerJsonString);
@@ -109,4 +110,8 @@ public class AiSubGoalRecommendationService {
         }
     }
 
+    private CoreGoalSnapshot getExistingCoreGoal(Long coreGoalId) {
+        return coreGoalSnapshotRepository.findById(coreGoalId)
+            .orElseThrow(() -> new CoreGoalException(CoreGoalErrorCode.CORE_GOAL_NOT_FOUND));
+    }
 }
