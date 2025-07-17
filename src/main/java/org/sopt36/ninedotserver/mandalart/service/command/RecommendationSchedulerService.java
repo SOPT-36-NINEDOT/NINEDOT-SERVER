@@ -1,12 +1,10 @@
 package org.sopt36.ninedotserver.mandalart.service.command;
 
-import static org.sopt36.ninedotserver.mandalart.exception.SubGoalErrorCode.SUB_GOAL_NOT_FOUND;
 import static org.sopt36.ninedotserver.user.exception.UserErrorCode.USER_NOT_FOUND;
 
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,8 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sopt36.ninedotserver.mandalart.domain.Recommendation;
 import org.sopt36.ninedotserver.mandalart.domain.SubGoalSnapshot;
-import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalDetailResponse;
-import org.sopt36.ninedotserver.mandalart.exception.SubGoalException;
 import org.sopt36.ninedotserver.mandalart.repository.HistoryRepository;
 import org.sopt36.ninedotserver.mandalart.repository.MandalartRepository;
 import org.sopt36.ninedotserver.mandalart.repository.RecommendationRepository;
@@ -39,11 +35,9 @@ public class RecommendationSchedulerService {
     private final MandalartRepository mandalartRepository;
     private final HistoryRepository historyRepository;
 
-    @Scheduled(cron = "0 35 3 * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 0 2 * * *", zone = "Asia/Seoul")
     @Transactional
     public void generateDailyRecommendations() {
-        LocalDate today = LocalDate.now();
-
         userRepository.findAll().forEach(user -> {
             log.info("Executing generateDailyRecommendations()");
 
@@ -51,22 +45,13 @@ public class RecommendationSchedulerService {
             List<Long> mandalartIds = mandalartRepository.findIdByUserId(userId);
 
             for (Long mandalartId : mandalartIds) {
-                List<SubGoalDetailResponse> recs = computeRecommendations(userId, mandalartId);
-
-                recs.forEach(dto -> {
-                    SubGoalSnapshot snap =
-                        subGoalSnapshotRepository.findById(dto.id())
-                            .orElseThrow(() -> new SubGoalException(SUB_GOAL_NOT_FOUND));
-
-                    Recommendation rec = Recommendation.create(user, snap, today);
-                    recommendationRepository.save(rec);
-                });
+                computeRecommendations(userId, mandalartId);
             }
         });
     }
 
     @Transactional
-    public List<SubGoalDetailResponse> computeRecommendations(Long userId, Long mandalartId) {
+    public void computeRecommendations(Long userId, Long mandalartId) {
         LocalDate today = LocalDate.now();
 
         // 1) 가입일 기준으로 filterDays 계산
@@ -100,11 +85,9 @@ public class RecommendationSchedulerService {
             .toList();
 
         // 5) Recommendation에 저장 & DTO 변환
-        List<SubGoalDetailResponse> result = new ArrayList<>();
         for (SubGoalSnapshot snapshot : picked) {
-            result.add(SubGoalDetailResponse.from(snapshot));
+            Recommendation rec = Recommendation.create(user, snapshot, today);
+            recommendationRepository.save(rec);
         }
-
-        return result;
     }
 }
