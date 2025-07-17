@@ -1,4 +1,6 @@
 spring:
+  jackson:
+    time-zone: Asia/Seoul
   datasource:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
@@ -15,3 +17,27 @@ spring:
   web:
     resources:
       add-mappings: false
+  google:
+    client-id: ${GOOGLE_CLIENT_ID}
+    client-secret: ${GOOGLE_CLIENT_SECRET}
+    redirect-uri: ${GOOGLE_REDIRECT_URI}
+  jwt:
+    secret: ${JWT_SECRET_KEY}
+    access-token-expiration-milliseconds: 1800000
+    refresh-token-expiration-milliseconds: 1209600000
+  cookie:
+    domain: .ninedot.p-e.kr
+    secure: true
+    path: /
+  task:
+    scheduling:
+      time-zone: Asia/Seoul
+  ai:
+    model:
+      chat: none
+gemini:
+  api:
+    key: ${GEMINI_API_KEY}
+    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite-preview-06-17:generateContent
+    response-schema: ${GEMINI_RESPONSE_STRUCTURE:}
+    subgoal-response-schema: ${GEMINI_SUB_GOAL_RESPONSE_STRUCTURE:}
