@@ -35,12 +35,12 @@ public class HistoryCommandService {
     }
 
     @Transactional
-    public void deleteHistory(Long userId, Long subGoalSnapshotId) {
+    public void deleteHistory(Long userId, Long subGoalSnapshotId, LocalDate completedDate) {
         SubGoalSnapshot subGoalSnapshot = getValidSubGoalSnapshot(subGoalSnapshotId);
         subGoalSnapshot.verifySubGoalUser(userId);
 
         History history = historyRepository
-            .findBySubGoalSnapshotIdAndCompletedDate(subGoalSnapshotId, LocalDate.now())
+            .findBySubGoalSnapshotIdAndCompletedDate(subGoalSnapshotId, completedDate)
             .orElseThrow(() -> new HistoryException(HISTORY_NOT_FOUND));
 
         historyRepository.delete(history);

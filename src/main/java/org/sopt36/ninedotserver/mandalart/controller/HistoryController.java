@@ -45,10 +45,12 @@ public class HistoryController {
 
     @DeleteMapping("/sub-goals/{subGoalId}/histories")
     public ResponseEntity<ApiResponse<Void, Void>> deleteHistory(
-        @PathVariable Long subGoalId
+        @PathVariable Long subGoalId,
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
         Long userId = 1L;
-        historyCommandService.deleteHistory(userId, subGoalId);
+        LocalDate completedDate = (date != null) ? date : LocalDate.now();
+        historyCommandService.deleteHistory(userId, subGoalId, completedDate);
 
         return ResponseEntity.ok(ApiResponse.ok(HISTORY_DELETED_SUCCESS));
     }
