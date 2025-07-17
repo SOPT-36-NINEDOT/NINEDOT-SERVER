@@ -13,19 +13,19 @@ public class AgeUtil {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd");
 
-    public static int calculateAgeFromString(String birthDateString) {
-        if (birthDateString == null || birthDateString.trim().isEmpty()) {
+    public static int calculateAgeFromString(String birthdayString) {
+        if (birthdayString == null || birthdayString.trim().isEmpty()) {
             throw new UserException(BIRTHDAY_NOT_BLANK);
         }
         try {
-            LocalDate birthDate = LocalDate.parse(birthDateString, FORMATTER);
+            LocalDate birthDate = LocalDate.parse(birthdayString, FORMATTER);
             return calculateAge(birthDate);
         } catch (DateTimeParseException e) {
             throw new UserException(INVALID_BIRTHDAY_TYPE);
         }
     }
 
-    public static int calculateAge(LocalDate birthDate) {
+    private static int calculateAge(LocalDate birthDate) {
         LocalDate today = LocalDate.now();
         return Period.between(birthDate, today).getYears();
     }
