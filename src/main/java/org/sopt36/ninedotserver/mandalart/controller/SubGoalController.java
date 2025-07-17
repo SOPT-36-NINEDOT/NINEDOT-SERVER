@@ -103,7 +103,7 @@ public class SubGoalController {
 
     }
 
-    @PostMapping("/{coreGoalId}/sub-goals/ai")
+    @PostMapping("/core-goals/{coreGoalId}/ai")
     public ResponseEntity<ApiResponse<SubGoalAiResponse, Void>> generateSubGoalByAi(
         @PathVariable("coreGoalId") Long coreGoalId,
         @RequestBody @Valid SubGoalAiRequest request
