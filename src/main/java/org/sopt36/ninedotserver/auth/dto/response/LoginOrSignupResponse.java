@@ -23,6 +23,7 @@ public record LoginOrSignupResponse<T>(
         boolean exists,
         String name,
         String email,
+        String profileImageUrl,
         String message
     ) {
 

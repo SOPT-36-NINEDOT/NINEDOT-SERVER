@@ -12,7 +12,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AnswerRepository extends JpaRepository<Answer, Long>, AnswerRepositoryCustom {
 
-    @Query("SELECT a.content FROM Answer a WHERE a.user.id = :userId")
-    List<String> findAllAnswerContentsByUserId(@Param("userId") Long userId);
+    @Query("SELECT a.content FROM Answer a WHERE a.user.id = :userId AND a.question.domain = :domain")
+    List<String> findAllAnswerContentsByUserId(@Param("userId") Long userId,
+        @Param("domain") Domain domain);
 
 }
