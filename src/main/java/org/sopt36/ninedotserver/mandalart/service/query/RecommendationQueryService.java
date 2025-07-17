@@ -11,6 +11,7 @@ import org.sopt36.ninedotserver.mandalart.domain.Recommendation;
 import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalDetailResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalListResponse;
 import org.sopt36.ninedotserver.mandalart.exception.MandalartException;
+import org.sopt36.ninedotserver.mandalart.repository.HistoryRepository;
 import org.sopt36.ninedotserver.mandalart.repository.MandalartRepository;
 import org.sopt36.ninedotserver.mandalart.repository.RecommendationRepository;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class RecommendationQueryService {
 
     private final RecommendationRepository recommendationRepository;
     private final MandalartRepository mandalartRepository;
+    private final HistoryRepository historyRepository;
 
     public SubGoalListResponse getRecommendations(Long userId, Long mandalartId, LocalDate date) {
         Mandalart mandalart = getExistingMandalart(mandalartId);
@@ -36,7 +38,11 @@ public class RecommendationQueryService {
 
         List<SubGoalDetailResponse> subGoals = recommendations.stream()
             .map(Recommendation::getSubGoalSnapshot)
-            .map(SubGoalDetailResponse::from)
+            .map(subGoalSnapshot -> {
+                boolean isCompleted = historyRepository
+                    .existsBySubGoalSnapshotIdAndCompletedDate(subGoalSnapshot.getId(), date);
+                return SubGoalDetailResponse.of(subGoalSnapshot, isCompleted);
+            })
             .collect(Collectors.toList());
 
         return SubGoalListResponse.of(subGoals);

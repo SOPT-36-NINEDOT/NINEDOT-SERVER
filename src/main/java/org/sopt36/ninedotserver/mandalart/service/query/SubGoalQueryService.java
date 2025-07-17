@@ -3,6 +3,7 @@ package org.sopt36.ninedotserver.mandalart.service.query;
 import static org.sopt36.ninedotserver.mandalart.exception.MandalartErrorCode.MANDALART_NOT_FOUND;
 import static org.sopt36.ninedotserver.mandalart.exception.SubGoalErrorCode.CORE_GOAL_NOT_FOUND;
 
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.mandalart.domain.CoreGoalSnapshot;
@@ -16,6 +17,7 @@ import org.sopt36.ninedotserver.mandalart.exception.MandalartException;
 import org.sopt36.ninedotserver.mandalart.exception.SubGoalException;
 import org.sopt36.ninedotserver.mandalart.repository.CoreGoalRepository;
 import org.sopt36.ninedotserver.mandalart.repository.CoreGoalSnapshotRepository;
+import org.sopt36.ninedotserver.mandalart.repository.HistoryRepository;
 import org.sopt36.ninedotserver.mandalart.repository.MandalartRepository;
 import org.sopt36.ninedotserver.mandalart.repository.SubGoalRepository;
 import org.sopt36.ninedotserver.mandalart.repository.SubGoalSnapshotRepository;
@@ -32,13 +34,15 @@ public class SubGoalQueryService {
     private final MandalartRepository mandalartRepository;
     private final CoreGoalSnapshotRepository coreGoalSnapshotRepository;
     private final SubGoalSnapshotRepository subGoalSnapshotRepository;
+    private final HistoryRepository historyRepository;
 
     public List<SubGoalIdResponse> getSubGoalIds(Long userId, Long coreGoalSnapshotId) {
         CoreGoalSnapshot coreGoalSnapshot = findCoreGoalOrThrow(coreGoalSnapshotId);
         coreGoalSnapshot.verifyCoreGoalUser(userId);
 
         List<SubGoalSnapshot> subGoals = subGoalSnapshotRepository
-            .findByCoreGoalSnapshotIdOrderByPosition(coreGoalSnapshotId);
+            .findByCoreGoalSnapshotIdOrderByPosition(
+                coreGoalSnapshotId);
 
         return subGoals.stream()
             .map(SubGoalIdResponse::from)
@@ -49,21 +53,23 @@ public class SubGoalQueryService {
         Long userId,
         Long mandalartId,
         Long coreGoalSnapshotId,
-        Cycle cycle
+        Cycle cycle,
+        LocalDate date
     ) {
         if (coreGoalSnapshotId == null && cycle == null) {
-            return filterNothing(userId, mandalartId);
+            return filterNothing(userId, mandalartId, date);
         }
 
         if (coreGoalSnapshotId == null) {
-            return filterByCycle(userId, mandalartId, cycle);
+            return filterByCycle(userId, mandalartId, cycle, date);
         }
 
         if (cycle == null) {
-            return filterByCoreGoalSnapshot(userId, mandalartId, coreGoalSnapshotId);
+            return filterByCoreGoalSnapshot(userId, mandalartId, coreGoalSnapshotId, date);
         }
 
-        return filterByCoreGoalSnapshotAndCycle(userId, mandalartId, coreGoalSnapshotId, cycle);
+        return filterByCoreGoalSnapshotAndCycle(userId, mandalartId, coreGoalSnapshotId, cycle,
+            date);
     }
 
     private CoreGoalSnapshot findCoreGoalOrThrow(Long coreGoalSnapshotId) {
@@ -71,42 +77,66 @@ public class SubGoalQueryService {
             .orElseThrow(() -> new SubGoalException(CORE_GOAL_NOT_FOUND));
     }
 
-    private SubGoalListResponse filterNothing(Long userId, Long mandalartId) {
+    private SubGoalListResponse filterNothing(Long userId, Long mandalartId, LocalDate date) {
         verifyMandalartByUser(userId, mandalartId);
         return SubGoalListResponse.of(
-            subGoalSnapshotRepository.findAllActiveSubGoalSnapshot(mandalartId).stream()
-                .map(SubGoalDetailResponse::from).filter(subGoal -> !subGoal.title().isEmpty())
+            subGoalSnapshotRepository.findAllActiveSubGoalSnapshotOrderByPosition(mandalartId, date)
+                .stream()
+                .map(subGoalSnapshot -> {
+                        boolean isCompleted = historyRepository
+                            .existsBySubGoalSnapshotIdAndCompletedDate(subGoalSnapshot.getId(), date);
+                        return SubGoalDetailResponse.of(subGoalSnapshot, isCompleted);
+                    }
+                ).filter(subGoal -> !subGoal.title().isEmpty())
                 .toList());
     }
 
-    private SubGoalListResponse filterByCycle(Long userId, Long mandalartId, Cycle cycle) {
+    private SubGoalListResponse filterByCycle(Long userId, Long mandalartId, Cycle cycle,
+        LocalDate date) {
         verifyMandalartByUser(userId, mandalartId);
         return SubGoalListResponse.of(
-            subGoalSnapshotRepository.findActiveSubGoalSnapshotByCycle(mandalartId, cycle)
+            subGoalSnapshotRepository.findActiveSubGoalSnapshotByCycleOrderByPosition(mandalartId,
+                    cycle)
                 .stream()
-                .map(SubGoalDetailResponse::from).filter(subGoal -> !subGoal.title().isEmpty())
+                .map(subGoalSnapshot -> {
+                        boolean isCompleted = historyRepository
+                            .existsBySubGoalSnapshotIdAndCompletedDate(subGoalSnapshot.getId(), date);
+                        return SubGoalDetailResponse.of(subGoalSnapshot, isCompleted);
+                    }
+                ).filter(subGoal -> !subGoal.title().isEmpty())
                 .toList());
     }
 
     private SubGoalListResponse filterByCoreGoalSnapshot(Long userId, Long mandalartId,
-        Long coreGoalSnapshotId) {
+        Long coreGoalSnapshotId, LocalDate date) {
         verifyMandalartByUser(userId, mandalartId);
         verifyCoreGoalByUser(userId, coreGoalSnapshotId);
         return SubGoalListResponse.of(
-            subGoalSnapshotRepository.findActiveSubGoalSnapshotFollowingCoreGoal(mandalartId,
+            subGoalSnapshotRepository.findActiveSubGoalSnapshotFollowingCoreGoalOrderByPosition(
+                    mandalartId,
                     coreGoalSnapshotId).stream()
-                .map(SubGoalDetailResponse::from).filter(subGoal -> !subGoal.title().isEmpty())
+                .map(subGoalSnapshot -> {
+                        boolean isCompleted = historyRepository
+                            .existsBySubGoalSnapshotIdAndCompletedDate(subGoalSnapshot.getId(), date);
+                        return SubGoalDetailResponse.of(subGoalSnapshot, isCompleted);
+                    }
+                ).filter(subGoal -> !subGoal.title().isEmpty())
                 .toList());
     }
 
     private SubGoalListResponse filterByCoreGoalSnapshotAndCycle(Long userId, Long mandalartId,
-        Long coreGoalSnapshotId, Cycle cycle) {
+        Long coreGoalSnapshotId, Cycle cycle, LocalDate date) {
         verifyMandalartByUser(userId, mandalartId);
         verifyCoreGoalByUser(userId, coreGoalSnapshotId);
         return SubGoalListResponse.of(
-            subGoalSnapshotRepository.findActiveSubGoalSnapshotFollowingCycleAndCoreGoal(
+            subGoalSnapshotRepository.findActiveSubGoalSnapshotFollowingCycleAndCoreGoalOrderByPosition(
                     mandalartId, coreGoalSnapshotId, cycle).stream()
-                .map(SubGoalDetailResponse::from).filter(subGoal -> !subGoal.title().isEmpty())
+                .map(subGoalSnapshot -> {
+                        boolean isCompleted = historyRepository
+                            .existsBySubGoalSnapshotIdAndCompletedDate(subGoalSnapshot.getId(), date);
+                        return SubGoalDetailResponse.of(subGoalSnapshot, isCompleted);
+                    }
+                ).filter(subGoal -> !subGoal.title().isEmpty())
                 .toList());
     }
 
