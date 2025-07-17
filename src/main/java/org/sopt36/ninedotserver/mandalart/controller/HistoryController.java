@@ -5,11 +5,13 @@ import static org.sopt36.ninedotserver.mandalart.controller.message.HistoryMessa
 import static org.sopt36.ninedotserver.mandalart.controller.message.HistoryMessage.HISTORY_RETRIEVED_SUCCESS;
 
 import java.net.URI;
+import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.global.dto.response.ApiResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.StreakListResponse;
 import org.sopt36.ninedotserver.mandalart.service.command.HistoryCommandService;
 import org.sopt36.ninedotserver.mandalart.service.query.HistoryQueryService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,10 +30,12 @@ public class HistoryController {
 
     @PostMapping("/sub-goals/{subGoalId}/histories")
     public ResponseEntity<ApiResponse<Void, Void>> createHistory(
-        @PathVariable Long subGoalId
+        @PathVariable Long subGoalId,
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
         Long userId = 1L;
-        Long historyId = historyCommandService.createHistory(userId, subGoalId);
+        LocalDate completedDate = (date != null) ? date : LocalDate.now();
+        Long historyId = historyCommandService.createHistory(userId, subGoalId, completedDate);
         URI location = URI.create(
             "/api/v1/sub-goals/" + subGoalId + "/histories/" + historyId);
 
@@ -41,10 +45,12 @@ public class HistoryController {
 
     @DeleteMapping("/sub-goals/{subGoalId}/histories")
     public ResponseEntity<ApiResponse<Void, Void>> deleteHistory(
-        @PathVariable Long subGoalId
+        @PathVariable Long subGoalId,
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
         Long userId = 1L;
-        historyCommandService.deleteHistory(userId, subGoalId);
+        LocalDate completedDate = (date != null) ? date : LocalDate.now();
+        historyCommandService.deleteHistory(userId, subGoalId, completedDate);
 
         return ResponseEntity.ok(ApiResponse.ok(HISTORY_DELETED_SUCCESS));
     }
