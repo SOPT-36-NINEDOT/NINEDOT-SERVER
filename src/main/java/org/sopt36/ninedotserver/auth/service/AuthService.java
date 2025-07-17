@@ -273,7 +273,9 @@ public class AuthService {
     private LoginOrSignupResponse<SignupData> createSignupResponse(GoogleUserInfo googleUserInfo) {
         SignupData signupData = new SignupData("GOOGLE", googleUserInfo.sub(), false,
             googleUserInfo.name(),
-            googleUserInfo.email(), "회원가입이 필요한 유저입니다.");
+            googleUserInfo.email(),
+            googleUserInfo.profileImageUrl(),
+            "회원가입이 필요한 유저입니다.");
         return new LoginOrSignupResponse<>(signupData);
     }
 
