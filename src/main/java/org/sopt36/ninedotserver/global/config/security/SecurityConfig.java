@@ -46,7 +46,8 @@ public class SecurityConfig {
             "http://localhost:3000",
             "http://localhost:5173",
             "https://ninedot.p-e.kr",
-            "https://www.ninedot.p-e.kr"
+            "https://www.ninedot.p-e.kr",
+            "https://ninedot-client.vercel.app"
         ));
 
         // 모든 HTTP 메서드 명시적으로 허용
