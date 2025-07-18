@@ -1,6 +1,7 @@
 package org.sopt36.ninedotserver.mandalart.repository;
 
 import static org.sopt36.ninedotserver.mandalart.domain.QCoreGoal.coreGoal;
+import static org.sopt36.ninedotserver.mandalart.domain.QCoreGoalSnapshot.coreGoalSnapshot;
 import static org.sopt36.ninedotserver.mandalart.domain.QMandalart.mandalart;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -16,10 +17,10 @@ public class MandalartRepositoryImpl implements MandalartRepositoryCustom {
     @Override
     public boolean existsByUserId(Long userId) {
         Integer found = queryFactory
-                            .selectOne()
-                            .from(mandalart)
-                            .where(mandalart.user.id.eq(userId))
-                            .fetchFirst();
+            .selectOne()
+            .from(mandalart)
+            .where(mandalart.user.id.eq(userId))
+            .fetchFirst();
         return found != null;
     }
 
@@ -44,13 +45,14 @@ public class MandalartRepositoryImpl implements MandalartRepositoryCustom {
     }
 
     @Override
-    public Optional<String> findTitleByCoreGoalId(Long coreGoalId) {
+    public Optional<String> findTitleByCoreGoalId(Long coreGoalSnapshotId) {
         return Optional.ofNullable(
             queryFactory
                 .select(mandalart.title)
                 .from(coreGoal)
                 .join(coreGoal.mandalart, mandalart)
-                .where(coreGoal.id.eq(coreGoalId))
+                .join(coreGoalSnapshot).on(coreGoalSnapshot.coreGoal.eq(coreGoal))
+                .where(coreGoalSnapshot.id.eq(coreGoalSnapshotId))
                 .fetchOne()
         );
     }
