@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt36.ninedotserver.ai.dto.response.GenerateContentRequest;
@@ -76,7 +77,9 @@ public class GeminiClient implements AiClient {
 
         JsonNode schemaNode;
         try {
-            schemaNode = objectMapper.readTree(responseSchema);
+            byte[] decodedBytes = Base64.getDecoder().decode(responseSchema);
+            String jsonSchema = new String(decodedBytes, StandardCharsets.UTF_8);
+            schemaNode = objectMapper.readTree(jsonSchema);
         } catch (JsonProcessingException e) {
             log.error("responseSchema JSON parsing error", e);
             throw new RuntimeException("Invalid response schema JSON", e);

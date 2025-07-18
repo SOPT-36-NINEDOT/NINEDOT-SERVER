@@ -10,6 +10,7 @@ import static org.sopt36.ninedotserver.mandalart.controller.message.SubGoalMessa
 
 import jakarta.validation.Valid;
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.ai.dto.request.SubGoalAiRequest;
@@ -27,6 +28,7 @@ import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalIdResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalListResponse;
 import org.sopt36.ninedotserver.mandalart.service.command.SubGoalCommandService;
 import org.sopt36.ninedotserver.mandalart.service.query.SubGoalQueryService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -103,7 +105,7 @@ public class SubGoalController {
 
     }
 
-    @PostMapping("/{coreGoalId}/sub-goals/ai")
+    @PostMapping("/core-goals/{coreGoalId}/ai")
     public ResponseEntity<ApiResponse<SubGoalAiResponse, Void>> generateSubGoalByAi(
         @PathVariable("coreGoalId") Long coreGoalId,
         @RequestBody @Valid SubGoalAiRequest request
@@ -119,11 +121,14 @@ public class SubGoalController {
     public ResponseEntity<ApiResponse<SubGoalListResponse, Void>> getSubGoal(
         @PathVariable Long mandalartId,
         @RequestParam(required = false) Long coreGoalId,
-        @RequestParam(required = false) Cycle cycle
+        @RequestParam(required = false) Cycle cycle,
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
         Long userId = 1L;
-        SubGoalListResponse response = subGoalQueryService.getSubGoalWithFilter(userId, mandalartId,
-            coreGoalId, cycle);
+        LocalDate targetDate = (date != null ? date : LocalDate.now());
+
+        SubGoalListResponse response = subGoalQueryService
+            .getSubGoalWithFilter(userId, mandalartId, coreGoalId, cycle, targetDate);
         return ResponseEntity.ok(ApiResponse.ok(SUB_GOAL_READ_SUCCESS, response));
     }
 

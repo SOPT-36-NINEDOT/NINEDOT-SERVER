@@ -1,6 +1,8 @@
 spring:
   config:
     import: optional:file:.env[.properties]
+  jackson:
+    time-zone: Asia/Seoul
   datasource:
     url: ${LOCAL_SPRING_DATASOURCE_URL}
     username: ${LOCAL_SPRING_DATASOURCE_USERNAME}
@@ -14,6 +16,10 @@ spring:
         show_sql: true
         format_sql: true
         dialect: org.hibernate.dialect.MySQL8Dialect
+        jdbc:
+          time_zone: Asia/Seoul
+        timezone:
+          default_storage: NORMALIZE
   web:
     resources:
       add-mappings: false
@@ -29,7 +35,9 @@ spring:
     domain: localhost # .
     secure: false
     path: /
-
+  task:
+    scheduling:
+      time-zone: Asia/Seoul
   ai:
     model:
       chat: none

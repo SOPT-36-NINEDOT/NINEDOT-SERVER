@@ -92,7 +92,8 @@ public class AiRecommendationService {
     }
 
     private List<String> findAnswerContentsByUserId(Long userId) {
-        List<String> answers = answerRepository.findAllAnswerContentsByUserId(userId);
+        List<String> answers = answerRepository.findAllAnswerContentsByUserId(userId,
+            Domain.PERSONA);
         isListEmpty(answers, ANSWER_NOT_FOUND);
         return answers;
     }

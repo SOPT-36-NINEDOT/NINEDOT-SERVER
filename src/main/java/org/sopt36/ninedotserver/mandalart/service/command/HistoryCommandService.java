@@ -23,24 +23,24 @@ public class HistoryCommandService {
     private final SubGoalSnapshotRepository subGoalSnapshotRepository;
 
     @Transactional
-    public Long createHistory(Long userId, Long subGoalSnapshotId) {
+    public Long createHistory(Long userId, Long subGoalSnapshotId, LocalDate date) {
         SubGoalSnapshot subGoalSnapshot = getValidSubGoalSnapshot(subGoalSnapshotId);
         subGoalSnapshot.verifySubGoalUser(userId);
-        validateCanCompleteSubGoal(subGoalSnapshotId);
+        validateCanCompleteSubGoal(subGoalSnapshotId, date);
 
-        History history = History.create(subGoalSnapshot, LocalDate.now());
+        History history = History.create(subGoalSnapshot, date);
         historyRepository.save(history);
 
         return history.getId();
     }
 
     @Transactional
-    public void deleteHistory(Long userId, Long subGoalSnapshotId) {
+    public void deleteHistory(Long userId, Long subGoalSnapshotId, LocalDate completedDate) {
         SubGoalSnapshot subGoalSnapshot = getValidSubGoalSnapshot(subGoalSnapshotId);
         subGoalSnapshot.verifySubGoalUser(userId);
 
         History history = historyRepository
-            .findBySubGoalSnapshotIdAndCompletedDate(subGoalSnapshotId, LocalDate.now())
+            .findBySubGoalSnapshotIdAndCompletedDate(subGoalSnapshotId, completedDate)
             .orElseThrow(() -> new HistoryException(HISTORY_NOT_FOUND));
 
         historyRepository.delete(history);
@@ -51,9 +51,9 @@ public class HistoryCommandService {
             .orElseThrow(() -> new SubGoalException(SUB_GOAL_NOT_FOUND));
     }
 
-    private void validateCanCompleteSubGoal(Long subGoalSnapshotId) {
+    private void validateCanCompleteSubGoal(Long subGoalSnapshotId, LocalDate date) {
         if (historyRepository
-            .existsBySubGoalSnapshotIdAndCompletedDate(subGoalSnapshotId, LocalDate.now())
+            .existsBySubGoalSnapshotIdAndCompletedDate(subGoalSnapshotId, date)
         ) {
             throw new HistoryException(HISTORY_ALREADY_COMPLETED);
         }

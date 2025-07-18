@@ -1,4 +1,6 @@
 spring:
+  jackson:
+    time-zone: Asia/Seoul
   datasource:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
@@ -12,6 +14,10 @@ spring:
         show_sql: true
         format_sql: true
         dialect: org.hibernate.dialect.MySQL8Dialect
+        jdbc:
+          time_zone: Asia/Seoul
+        timezone:
+          default_storage: NORMALIZE
   web:
     resources:
       add-mappings: false
@@ -27,6 +33,9 @@ spring:
     domain: .ninedot.p-e.kr
     secure: true
     path: /
+  task:
+    scheduling:
+      time-zone: Asia/Seoul
   ai:
     model:
       chat: none
