@@ -1,8 +1,6 @@
 # <img width=26.5px src="https://github.com/user-attachments/assets/69a338b2-53ef-491f-99d8-6ee39c33bca5" /> 36TH APPJAM WEB - NiNE DOT.
-> 그토록 원하던 목표에 다가가게 할 방법, NiNE DOT. <br>
+> 그토록 원하던 목표에 다가가게 할 방법, NiNE DOT.
 ><br>
-> ✨ 36기 솝커톤 iOS 부문 최우수상 수상작 ✨ <br>
-> 
 <br>
 
 <img width="1920" height="1080" alt="표지" src="https://github.com/user-attachments/assets/233785c5-ba40-4a55-98f9-ddbdf2179509" />
@@ -38,5 +36,18 @@
 <br><br>
 
 ## 🏘 Architecture
-<img width="4488" height="3172" alt="나인도트  서버 아키텍처 (1)" src="https://github.com/user-attachments/assets/11340103-cbcb-4044-ae00-be5f080de463" />
+![나인도트  서버 아키텍처 (1)](https://github.com/user-attachments/assets/458fce2b-3eaa-433a-84d8-6d3265d62b01)
+
+<br><br>
+
+## 😎 Server Developers
+| <img width="640" height="1066" alt="소연  나인도트 명함" src="https://github.com/user-attachments/assets/1bf4a5d0-d16f-4ccd-b900-20753b99736b" /> | <img width="640" height="1066" alt="승준" src="https://github.com/user-attachments/assets/fb6af75b-127e-4744-85c0-a655035bf3b4" /> | <img width="640" height="1066" alt="찬민" src="https://github.com/user-attachments/assets/4c8ff6db-6d8d-48ff-9f9f-fc3cff120af8" />
+| :---: | :---: | :---: |
+| [김소연](https://github.com/kaswhy) | [배승준](https://github.com/lezgititt) | [전찬민](https://github.com/chanmin01) |
+
+<br><br>
+
+## 🔥 나인도트 무서버들의 자세한 컨벤션은?
+[<img width="1920" height="1080" alt="서버 단체샷" src="https://github.com/user-attachments/assets/de6a573f-a474-4a7e-82ab-8f8338e82fe0" />](https://fantastic-kumquat-2d3.notion.site/NiNEDOT-SERVER-CONVENTION-234f2c0149da809f98a9caf6c0819ee3?source=copy_link)
+
 
