@@ -40,24 +40,24 @@ public class GeminiClient implements AiClient {
         GenerateContentRequest request = buildGeminiRequest(prompt);
         try {
             return restClient.post()
-                       .body(request)
-                       .retrieve()
-                       .onStatus(
-                           status -> status.is4xxClientError() || status.is5xxServerError(),
-                           (req, res) -> {
-                               String bodyText;
-                               try (InputStream is = res.getBody()) {
-                                   bodyText = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-                               } catch (IOException io) {
-                                   log.error("Gemini API error reading body", io);
-                                   bodyText = "<unreadable>";
-                               }
-                               log.error("Gemini API error: status={}, body={}",
-                                   res.getStatusCode(), bodyText);
-                               throw new AiException(AI_API_ERROR);
-                           }
-                       )
-                       .body(String.class);
+                .body(request)
+                .retrieve()
+                .onStatus(
+                    status -> status.is4xxClientError() || status.is5xxServerError(),
+                    (req, res) -> {
+                        String bodyText;
+                        try (InputStream is = res.getBody()) {
+                            bodyText = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                        } catch (IOException io) {
+                            log.error("Gemini API error reading body", io);
+                            bodyText = "<unreadable>";
+                        }
+                        log.error("Gemini API error: status={}, body={}",
+                            res.getStatusCode(), bodyText);
+                        throw new AiException(AI_API_ERROR);
+                    }
+                )
+                .body(String.class);
         } catch (Exception e) {
             log.error("Failed to fetch AI response", e);
             if (e instanceof AiException) {
@@ -88,7 +88,7 @@ public class GeminiClient implements AiClient {
         GenerationConfig config = new GenerationConfig(
             "application/json",
             schemaNode,
-            new GenerationConfig.ThinkingConfig(512)
+            new GenerationConfig.ThinkingConfig(0)
         );
 
         return new GenerateContentRequest(contents, config);

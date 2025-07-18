@@ -30,6 +30,8 @@ public class GeminiSubGoalClient implements AiClient {
     private final ObjectMapper objectMapper;
 
     private String subGoalResponseSchema;
+    @Value("${gemini.api.subgoal-response-schema}")
+    private String subGoalResponseSchemaBase64;
 
     public GeminiSubGoalClient(@Qualifier("geminiRestClient") RestClient restClient,
         ObjectMapper objectMapper) {
@@ -42,10 +44,6 @@ public class GeminiSubGoalClient implements AiClient {
         this.subGoalResponseSchema = new String(
             Base64.getDecoder().decode(subGoalResponseSchemaBase64), StandardCharsets.UTF_8);
     }
-
-    @Value("${gemini.api.subgoal-response-schema}")
-    private String subGoalResponseSchemaBase64;
-
 
     public String fetchAiResponse(String prompt) {
         GenerateContentRequest request = buildGeminiRequest(prompt);
@@ -95,7 +93,7 @@ public class GeminiSubGoalClient implements AiClient {
         GenerationConfig config = new GenerationConfig(
             "application/json",
             schemaNode,
-            new GenerationConfig.ThinkingConfig(512)
+            new GenerationConfig.ThinkingConfig(0)
         );
 
         return new GenerateContentRequest(contents, config);
