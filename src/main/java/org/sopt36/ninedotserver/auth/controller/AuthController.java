@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping("/api/v1")
@@ -32,8 +33,11 @@ public class AuthController {
     @PostMapping("/auth/oauth2/google/callback")
     public ResponseEntity<ApiResponse<LoginOrSignupResponse<?>, Void>> googleCallback(
         @Valid @RequestBody GoogleAuthCodeRequest request,
+        @RequestParam(value = "redirect_uri", required = false) String clientRedirectUri,
         HttpServletResponse response) {
-        LoginOrSignupResponse<?> giveback = authService.loginOrSignupWithCode(request.code(),
+        LoginOrSignupResponse<?> giveback = authService.loginOrSignupWithCode(
+            request.code(),
+            clientRedirectUri,
             response);
         return ResponseEntity.ok(ApiResponse.ok(LOGIN_SIGNUP_SUCCESS, giveback));
     }

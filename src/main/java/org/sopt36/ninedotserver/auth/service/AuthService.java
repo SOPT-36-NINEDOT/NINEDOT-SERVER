@@ -62,6 +62,10 @@ import org.springframework.web.client.RestClient;
 @Service
 public class AuthService {
 
+    private static final List<String> ALLOWED_REDIRECT_URIS = List.of(
+        "http://localhost:5173/auth/google/callback",
+        "https://ninedot-client.vercel.app/auth/google/callback"
+    );
     private final RestClient restClient;
     private final JwtProvider jwtProvider;
     private final CookieUtil cookieUtil;
@@ -77,7 +81,7 @@ public class AuthService {
     @Value("${GOOGLE_CLIENT_SECRET}")
     String clientSecret;
     @Value("${GOOGLE_REDIRECT_URI}")
-    String redirectUri;
+    String defaultRedirectUri;
     @Value("${spring.jwt.access-token-expiration-milliseconds}")
     long accessTokenExpirationMilliseconds;
     @Value("${spring.jwt.refresh-token-expiration-milliseconds}")
@@ -108,9 +112,14 @@ public class AuthService {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> LoginOrSignupResponse<T> loginOrSignupWithCode(String code,
+    public <T> LoginOrSignupResponse<T> loginOrSignupWithCode(
+        String code,
+        String clientRedirectUri,
         HttpServletResponse response) {
-        GoogleTokenResponse tokens = getGoogleToken(code); //code로 구글에서 access token 가져와요
+        String effectiveRedirectUri = resolveRedirectUri(
+            clientRedirectUri); //프론트가 보낸 redirect_uri 검증
+        GoogleTokenResponse tokens = getGoogleToken(code,
+            effectiveRedirectUri); //code로 구글에서 access token 가져와요
         GoogleUserInfo googleUserInfo = getGoogleUserInfo(
             tokens.accessToken()); //access token으로 user info 받아와요
         Optional<AuthProvider> optionalUser = authProviderRepository.findByProviderAndProviderUserId(
@@ -170,13 +179,13 @@ public class AuthService {
         authProviderRepository.save(authProvider);
 
         String accessToken = jwtProvider
-                                 .createToken(user.getId(), accessTokenExpirationMilliseconds);
+            .createToken(user.getId(), accessTokenExpirationMilliseconds);
         generateAndStoreRefreshToken(user.getId(), response);
 
         return SignupResponse.of(accessToken, user);
     }
 
-    private GoogleTokenResponse getGoogleToken(String code) {
+    private GoogleTokenResponse getGoogleToken(String code, String redirectUri) {
         log.info("Google 토큰 요청 시작: code={}, redirectUri={}", code, redirectUri);
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
         form.add("code", code);
@@ -186,11 +195,11 @@ public class AuthService {
         form.add("grant_type", "authorization_code");
         try {
             GoogleTokenResponse response = restClient.post()
-                                               .uri("https://oauth2.googleapis.com/token")
-                                               .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                                               .body(form)
-                                               .retrieve()
-                                               .body(GoogleTokenResponse.class);
+                .uri("https://oauth2.googleapis.com/token")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .body(form)
+                .retrieve()
+                .body(GoogleTokenResponse.class);
             log.info("Google 응답 수신: {}", response);
             if (response == null) {
                 log.warn("Google 응답이 null입니다.");
@@ -209,24 +218,24 @@ public class AuthService {
 
     private GoogleUserInfo getGoogleUserInfo(String accessToken) {
         return restClient.get()
-                   .uri("https://openidconnect.googleapis.com/v1/userinfo")
-                   .headers(h -> h.setBearerAuth(accessToken))
-                   .retrieve()
-                   //파라미터 누락, 존재하지 않는 사용자, 비활성 사용자(구글에서) 등 처리
-                   .onStatus(HttpStatusCode::is4xxClientError, (req, res) -> {
-                       throw new AuthException(
-                           UNAUTHORIZED,
-                           "Google userinfo 4xx error: " + readErrorBody(res)
-                       );
-                   })
-                   //구글 터짐
-                   .onStatus(HttpStatusCode::is5xxServerError, (req, res) -> {
-                       throw new AuthException(
-                           GOOGLE_USER_INFO_RETRIEVAL_FAILED,
-                           "Google userinfo 5xx error: " + readErrorBody(res)
-                       );
-                   })
-                   .body(GoogleUserInfo.class);
+            .uri("https://openidconnect.googleapis.com/v1/userinfo")
+            .headers(h -> h.setBearerAuth(accessToken))
+            .retrieve()
+            //파라미터 누락, 존재하지 않는 사용자, 비활성 사용자(구글에서) 등 처리
+            .onStatus(HttpStatusCode::is4xxClientError, (req, res) -> {
+                throw new AuthException(
+                    UNAUTHORIZED,
+                    "Google userinfo 4xx error: " + readErrorBody(res)
+                );
+            })
+            //구글 터짐
+            .onStatus(HttpStatusCode::is5xxServerError, (req, res) -> {
+                throw new AuthException(
+                    GOOGLE_USER_INFO_RETRIEVAL_FAILED,
+                    "Google userinfo 5xx error: " + readErrorBody(res)
+                );
+            })
+            .body(GoogleUserInfo.class);
     }
 
     private void generateAndStoreRefreshToken(Long userId, HttpServletResponse response) {
@@ -241,16 +250,16 @@ public class AuthService {
 
     private RefreshToken isRefreshTokenValid(String refreshToken) {
         return refreshTokenRepository
-                   .findByRefreshTokenAndExpiresAtAfter(refreshToken, LocalDateTime.now())
-                   .orElseThrow(() -> new AuthException(INVALID_REFRESH_TOKEN));
+            .findByRefreshTokenAndExpiresAtAfter(refreshToken, LocalDateTime.now())
+            .orElseThrow(() -> new AuthException(INVALID_REFRESH_TOKEN));
     }
 
     // 로그인 시 데이터베이스에 리프레시 토큰 생성
     private void addRefreshTokenToDB(Long userId, String refreshToken) {
         Claims claims = jwtProvider.parseClaims(refreshToken).getPayload();
         User user = userRepository.findById(userId)
-                        .orElseThrow(
-                            () -> new AuthException(USER_NOT_FOUND));
+            .orElseThrow(
+                () -> new AuthException(USER_NOT_FOUND));
         refreshTokenRepository.save(
             RefreshToken.create(user, refreshToken,
                 expirationDateToLocalDateTime(claims.getExpiration())));
@@ -258,8 +267,8 @@ public class AuthService {
 
     private LocalDateTime expirationDateToLocalDateTime(Date expirationDate) {
         return expirationDate.toInstant()
-                   .atZone(ZoneId.systemDefault())
-                   .toLocalDateTime();
+            .atZone(ZoneId.systemDefault())
+            .toLocalDateTime();
     }
 
     private LoginOrSignupResponse<LoginData> createLoginResponse(Long userId, String accessToken) {
@@ -297,7 +306,7 @@ public class AuthService {
 
     private OnboardingPage findUserOnboardingPage(Long userId) {
         User user = userRepository.findById(userId)
-                        .orElseThrow(() -> new AuthException(USER_NOT_FOUND));
+            .orElseThrow(() -> new AuthException(USER_NOT_FOUND));
         if (user.getOnboardingCompleted()) {
             return OnboardingPage.ONBOARDING_COMPLETED;
         }
@@ -313,18 +322,25 @@ public class AuthService {
 
     private List<Answer> getAnswers(SignupRequest request, User user) {
         return request.answers().stream()
-                   .map(answer -> {
-                       Question question = questionRepository.
-                                               findById(answer.questionId())
-                                               .orElseThrow(
-                                                   () -> new QuestionException(
-                                                       QUESTION_NOT_FOUND
-                                                   ));
-                       String content = ChoiceInfo.getShortSentenceById(
-                           answer.choiceId());
+            .map(answer -> {
+                Question question = questionRepository.
+                    findById(answer.questionId())
+                    .orElseThrow(
+                        () -> new QuestionException(
+                            QUESTION_NOT_FOUND
+                        ));
+                String content = ChoiceInfo.getShortSentenceById(
+                    answer.choiceId());
 
-                       return Answer.create(question, user, content);
-                   })
-                   .collect(Collectors.toList());
+                return Answer.create(question, user, content);
+            })
+            .collect(Collectors.toList());
+    }
+
+    private String resolveRedirectUri(String clientRedirectUri) {
+        if (clientRedirectUri != null && ALLOWED_REDIRECT_URIS.contains(clientRedirectUri)) {
+            return clientRedirectUri;
+        }
+        return this.defaultRedirectUri;   // 기본값(배포용) 사용
     }
 }
