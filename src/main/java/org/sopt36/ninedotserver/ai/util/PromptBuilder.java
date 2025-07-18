@@ -16,8 +16,8 @@ public class PromptBuilder {
         String mandalartTitle,
         List<String> coreGoals) {
 
-        if (job == null || questions == null || answers == null ||
-            mandalartTitle == null || coreGoals == null) {
+        if (job == null ||
+            mandalartTitle == null) {
             throw new IllegalArgumentException("필수 파라미터가 null입니다");
         }
 
@@ -29,7 +29,7 @@ public class PromptBuilder {
 
         sb.append("나는 ").append(age).append("세 ").append(job).append("이고, 다음은 나를 알 수 있는 질답이야.\n\n");
 
-        for (int i = 0; i < Math.min(questions.size(), answers.size()); i++) {
+        for (int i = 0; i < questions.size(); i++) {
             sb.append(questions.get(i)).append("\n");
             sb.append(answers.get(i)).append("\n\n");
         }
