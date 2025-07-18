@@ -1,11 +1,8 @@
 package org.sopt36.ninedotserver.ai.service;
 
 import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.AI_RESPONSE_PARSE_ERROR;
-import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.ANSWER_NOT_FOUND;
 import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.CORE_GOAL_AI_FEATURE_NOT_AVAILABLE;
-import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.CORE_GOAL_NOT_FOUND;
 import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.MANDALART_NOT_FOUND;
-import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.QUESTION_NOT_FOUND;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -19,7 +16,6 @@ import org.sopt36.ninedotserver.ai.dto.response.CoreGoalAiResponse;
 import org.sopt36.ninedotserver.ai.exception.AiException;
 import org.sopt36.ninedotserver.ai.util.AgeUtil;
 import org.sopt36.ninedotserver.ai.util.PromptBuilder;
-import org.sopt36.ninedotserver.global.exception.ErrorCode;
 import org.sopt36.ninedotserver.mandalart.domain.Mandalart;
 import org.sopt36.ninedotserver.mandalart.repository.CoreGoalSnapshotRepository;
 import org.sopt36.ninedotserver.mandalart.repository.MandalartRepository;
@@ -42,13 +38,13 @@ public class AiRecommendationService {
     @Transactional
     public CoreGoalAiResponse fetchAiRecommendation(Long mandalartId) {
         Mandalart mandalart = mandalartRepository.findById(mandalartId)
-                                  .orElseThrow(() -> new AiException(MANDALART_NOT_FOUND));
+            .orElseThrow(() -> new AiException(MANDALART_NOT_FOUND));
         if (!mandalart.isAiGeneratable()) {
             throw new AiException(CORE_GOAL_AI_FEATURE_NOT_AVAILABLE);
         }
 
         User user = mandalartRepository.findUserById(mandalartId)
-                        .orElseThrow(() -> new AiException(MANDALART_NOT_FOUND));
+            .orElseThrow(() -> new AiException(MANDALART_NOT_FOUND));
 
         int age = AgeUtil.calculateAgeFromString(user.getBirthday());
 
@@ -75,33 +71,29 @@ public class AiRecommendationService {
         return convertAiResponseToDtoResponse(response);
     }
 
-    private void isListEmpty(List<?> list, ErrorCode errorCode) {
-        if (list == null || list.isEmpty()) {
-            throw new AiException(errorCode);
-        }
-    }
-
     private List<String> findQuestionByUserId(Long userId) {
-        List<String> questions = answerRepository.findQuestionsByUserIdAndDomain(userId,
+        return answerRepository.findQuestionsByUserIdAndDomain(userId,
                 Domain.PERSONA)
-                                     .stream()
-                                     .map(Question::getContent)
-                                     .collect(Collectors.toList());
-        isListEmpty(questions, QUESTION_NOT_FOUND);
-        return questions;
+            .stream()
+            .map(Question::getContent)
+            .collect(Collectors.toList());
     }
 
     private List<String> findAnswerContentsByUserId(Long userId) {
         List<String> answers = answerRepository.findAllAnswerContentsByUserId(userId,
             Domain.PERSONA);
-        isListEmpty(answers, ANSWER_NOT_FOUND);
+        if (answers == null) {
+            answers = List.of();
+        }
         return answers;
     }
 
     private List<String> findCoreGoalsByMandalartId(Long mandalartId) {
         List<String> coreGoals = coreGoalSnapshotRepository.findActiveCoreGoalTitleByMandalartId(
             mandalartId);
-        isListEmpty(coreGoals, CORE_GOAL_NOT_FOUND);
+        if (coreGoals == null) {
+            coreGoals = List.of();
+        }
         return coreGoals;
     }
 
@@ -111,9 +103,9 @@ public class AiRecommendationService {
             JsonNode root = objectMapper.readTree(response);
             //이걸로 ai의 전체 응답 중 우리가 원했던 응답만 쏙 빼온다.
             String innerJson = root
-                                   .path("candidates").get(0)
-                                   .path("content").path("parts").get(0)
-                                   .path("text").asText();
+                .path("candidates").get(0)
+                .path("content").path("parts").get(0)
+                .path("text").asText();
 
             //Read value는 그 json 응답을 dto랑 매칭시켜서 바로 포장해준다.
             return objectMapper.readValue(innerJson, CoreGoalAiResponse.class);
