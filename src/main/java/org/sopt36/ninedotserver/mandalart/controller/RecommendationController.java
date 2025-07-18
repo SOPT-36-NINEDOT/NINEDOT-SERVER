@@ -11,6 +11,7 @@ import org.sopt36.ninedotserver.mandalart.service.command.RecommendationSchedule
 import org.sopt36.ninedotserver.mandalart.service.query.RecommendationQueryService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,11 +29,12 @@ public class RecommendationController {
 
     @GetMapping("/mandalarts/{mandalartId}/histories/recommendation")
     public ResponseEntity<ApiResponse<SubGoalListResponse, Void>> getRecommendations(
+        Authentication authentication,
         @PathVariable Long mandalartId,
         @RequestParam(value = "date", required = false)
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
-        Long userId = 1L;
+        Long userId = Long.parseLong(authentication.getName());
         LocalDate recommendationDate = (date != null ? date : LocalDate.now());
 
         SubGoalListResponse response = recommendationQueryService
@@ -44,9 +46,10 @@ public class RecommendationController {
 
     @PostMapping("/mandalarts/{mandalartId}/onboarding/recommendation")
     public ResponseEntity<ApiResponse<Void, Void>> createRecommendation(
+        Authentication authentication,
         @PathVariable Long mandalartId
     ) {
-        Long userId = 1L;
+        Long userId = Long.parseLong(authentication.getName());
         schedulerService.computeRecommendations(userId, mandalartId);
 
         return ResponseEntity.ok(ApiResponse.ok(RECOMMENDATION_CREATED_SUCCESS));
