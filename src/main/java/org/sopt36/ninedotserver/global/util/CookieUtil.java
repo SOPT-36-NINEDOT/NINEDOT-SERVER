@@ -23,27 +23,27 @@ public class CookieUtil {
 
     public void createRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
         ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
-                                    .httpOnly(true)
-                                    .secure(secureCookie)
-                                    .sameSite(secureCookie ? "None" : "Lax")
-                                    .maxAge(Duration.ofSeconds(
-                                        refreshTokenExpirationMilliseconds / 1000))
-                                    .domain(cookieDomain)
-                                    .path(cookiePath)
-                                    .build();
+            .httpOnly(true)
+            .secure(secureCookie)
+            .sameSite("None")
+            .maxAge(Duration.ofSeconds(
+                refreshTokenExpirationMilliseconds / 1000))
+            .domain(cookieDomain)
+            .path(cookiePath)
+            .build();
 
         response.addHeader("Set-Cookie", cookie.toString());
     }
 
     public void clearRefreshTokenCookie(HttpServletResponse response) {
         ResponseCookie cookie = ResponseCookie.from("refreshToken", "")
-                                    .httpOnly(true)
-                                    .secure(secureCookie)
-                                    .sameSite(secureCookie ? "None" : "Lax")
-                                    .maxAge(Duration.ZERO)
-                                    .domain(cookieDomain)
-                                    .path(cookiePath)
-                                    .build();
+            .httpOnly(true)
+            .secure(secureCookie)
+            .sameSite(secureCookie ? "None" : "Lax")
+            .maxAge(Duration.ZERO)
+            .domain(cookieDomain)
+            .path(cookiePath)
+            .build();
 
         response.addHeader("Set-Cookie", cookie.toString()); // setHeader 대신 addHeader 권장
     }
