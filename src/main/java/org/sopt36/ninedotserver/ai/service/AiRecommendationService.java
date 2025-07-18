@@ -2,6 +2,7 @@ package org.sopt36.ninedotserver.ai.service;
 
 import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.AI_RESPONSE_PARSE_ERROR;
 import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.ANSWER_NOT_FOUND;
+import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.CORE_GOAL_AI_FEATURE_NOT_AVAILABLE;
 import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.CORE_GOAL_NOT_FOUND;
 import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.MANDALART_NOT_FOUND;
 import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.QUESTION_NOT_FOUND;
@@ -9,6 +10,7 @@ import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.QUESTION_NOT_FOU
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import org.sopt36.ninedotserver.ai.exception.AiException;
 import org.sopt36.ninedotserver.ai.util.AgeUtil;
 import org.sopt36.ninedotserver.ai.util.PromptBuilder;
 import org.sopt36.ninedotserver.global.exception.ErrorCode;
+import org.sopt36.ninedotserver.mandalart.domain.Mandalart;
 import org.sopt36.ninedotserver.mandalart.repository.CoreGoalSnapshotRepository;
 import org.sopt36.ninedotserver.mandalart.repository.MandalartRepository;
 import org.sopt36.ninedotserver.onboarding.domain.Domain;
@@ -36,7 +39,14 @@ public class AiRecommendationService {
     private final GeminiClient geminiClient;
     private final ObjectMapper objectMapper;
 
+    @Transactional
     public CoreGoalAiResponse fetchAiRecommendation(Long mandalartId) {
+        Mandalart mandalart = mandalartRepository.findById(mandalartId)
+                                  .orElseThrow(() -> new AiException(MANDALART_NOT_FOUND));
+        if (!mandalart.isAiGeneratable()) {
+            throw new AiException(CORE_GOAL_AI_FEATURE_NOT_AVAILABLE);
+        }
+
         User user = mandalartRepository.findUserById(mandalartId)
                         .orElseThrow(() -> new AiException(MANDALART_NOT_FOUND));
 
@@ -46,8 +56,7 @@ public class AiRecommendationService {
 
         List<String> answers = findAnswerContentsByUserId(user.getId());
 
-        String mandalart = mandalartRepository.findTitleByMandalartId(mandalartId)
-                               .orElseThrow(() -> new AiException(MANDALART_NOT_FOUND));
+        String mandalartTitle = mandalart.getTitle();
 
         List<String> coreGoals = findCoreGoalsByMandalartId(mandalartId);
 
@@ -56,10 +65,12 @@ public class AiRecommendationService {
             user.getJob(),
             questions,
             answers,
-            mandalart,
+            mandalartTitle,
             coreGoals);
 
         String response = geminiClient.fetchAiResponse(prompt);
+
+        mandalart.disableAiGeneration();
 
         return convertAiResponseToDtoResponse(response);
     }

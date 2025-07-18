@@ -42,7 +42,7 @@ public class AiSubGoalRecommendationService {
     private final ObjectMapper objectMapper;
 
     @Transactional
-    public SubGoalAiResponse fetchAiSubGoalRecommendation(Long coreGoalSnapshotId, Long userId,
+    public SubGoalAiResponse fetchAiSubGoalRecommendation(Long userId, Long coreGoalSnapshotId,
         SubGoalAiRequest request) {
 
         //

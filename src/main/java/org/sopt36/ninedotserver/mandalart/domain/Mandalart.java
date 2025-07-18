@@ -53,10 +53,14 @@ public class Mandalart extends BaseEntity {
 
     public static Mandalart create(User user, String title, boolean aiGeneratable) {
         return Mandalart.builder()
-            .user(user)
-            .title(title)
-            .aiGeneratable(aiGeneratable)
-            .build();
+                   .user(user)
+                   .title(title)
+                   .aiGeneratable(aiGeneratable)
+                   .build();
+    }
+
+    public void disableAiGeneration() {
+        this.aiGeneratable = false;
     }
 
     public void ensureOwnedBy(Long userId) {

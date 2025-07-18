@@ -139,7 +139,7 @@ public class CoreGoalController {
     }
 
     @PostMapping("/mandalarts/{mandalartId}/ai")
-    public ResponseEntity<ApiResponse<CoreGoalAiResponse, Void>> createAI(
+    public ResponseEntity<ApiResponse<CoreGoalAiResponse, Void>> createAi(
         @PathVariable Long mandalartId,
         @RequestBody GenerateCoreGoalRequest generateRequest) {
         Long userId = 1L;
