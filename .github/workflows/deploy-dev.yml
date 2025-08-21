@@ -40,6 +40,13 @@ jobs:
           echo "CODEDEPLOY_DG_NAME=${{ secrets.CODEDEPLOY_DEV_DG_NAME}}" >> .env
           echo "DOZZLE_USERNAME=${{ secrets.DOZZLE_USERNAME }}" >> .env
           echo "DOZZLE_PASSWORD=${{ secrets.DOZZLE_PASSWORD }}" >> .env
+          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
+          echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
+          echo "GOOGLE_REDIRECT_URI=${{ secrets.GOOGLE_REDIRECT_URI }}" >> .env
+          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
+          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> .env
+          echo "GEMINI_RESPONSE_STRUCTURE=${{ secrets.GEMINI_RESPONSE_STRUCTURE }}" >> .env
+          echo "GEMINI_SUB_GOAL_RESPONSE_STRUCTURE=${{ secrets.GEMINI_SUB_GOAL_RESPONSE_STRUCTURE}}" >> .env
           
           zip -r deploy-dev.zip .env docker-compose.yml deploy.sh appspec.yml
 
