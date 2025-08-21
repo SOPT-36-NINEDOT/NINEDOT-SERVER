@@ -6,6 +6,6 @@ files:
 
 hooks:
   AfterInstall:
-    - location: deploy.sh
+    - location: deploy.prod.sh
       timeout: 300
       runas: root

@@ -24,6 +24,9 @@ jobs:
           docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/ninedot-be-app-dev:1.3.0 .
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/ninedot-be-app-dev:1.3.0
 
+      - name: Select appspec for dev
+        run: cp appspec.dev.yml appspec.yml
+
       - name: Create Deployment Package
         run: |
           echo "DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }}" > .env
@@ -48,8 +51,7 @@ jobs:
           echo "GEMINI_RESPONSE_STRUCTURE=${{ secrets.GEMINI_RESPONSE_STRUCTURE }}" >> .env
           echo "GEMINI_SUB_GOAL_RESPONSE_STRUCTURE=${{ secrets.GEMINI_SUB_GOAL_RESPONSE_STRUCTURE}}" >> .env
           
-          zip -r deploy-dev.zip .env docker-compose.yml deploy.sh appspec.yml
-
+          zip -r deploy-dev.zip .env docker-compose.dev.yml deploy.dev.sh appspec.yml
 
       - name: Configure AWS credentials
         run: |
