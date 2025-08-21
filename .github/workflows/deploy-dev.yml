@@ -21,8 +21,8 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/ninedot-be-app-dev:1.3.0 .
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/ninedot-be-app-dev:1.3.0
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/ninedot-be-app-dev:latest .
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/ninedot-be-app-dev:latest
 
       - name: Select appspec for dev
         run: cp appspec.dev.yml appspec.yml
