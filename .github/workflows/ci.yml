@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  checks: write
   pull-requests: write
   issues: write
 
@@ -28,6 +29,15 @@ jobs:
           java-version: 17
           cache: gradle
 
+      - uses: gradle/gradle-build-action@v3
+        with:
+          cache-read-only: ${{ github.event_name == 'pull_request' }}
+          gradle-home-cache-includes: |
+            caches
+            notifications
+            jdks
+            wrapper
+
       - name: Gradle assemble (no tests)
         id: assemble
         env:
@@ -46,37 +56,36 @@ jobs:
             --no-daemon --stacktrace --info --no-watch-fs
 
       - name: Publish unit-test results (check UI)
-        if: ${{ always() && hashFiles('**/build/test-results/test/**/*.xml') != '' }}
+        if: ${{ always() && !env.ACT && hashFiles('**/build/test-results/test/**/*.xml') != '' }}
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           files: "**/build/test-results/test/**/*.xml"
           comment_mode: off
+          check_run: ${{ !github.event.pull_request.head.repo.fork }}
+          job_summary: true
 
       - name: Compose message
         id: status
         if: ${{ always() }}
         run: |
-          MSG=$([ "${{ steps.assemble.outcome }}" = "success" ] && echo "✅ Assemble 성공" || echo "❌ Assemble 실패")
-          MSG="$MSG"$'\n'"$([ "${{ steps.test.outcome }}" = "success" ] && echo "✅ Test 성공" || echo "❌ Test 실패")"
-          printf "message<<EOF\n%s\nEOF\n" "$MSG" >> "$GITHUB_OUTPUT"
+          if [ "${{ steps.assemble.outcome }}" = "success" ]; then
+            MSG="✅ Assemble 성공"
+          else
+            MSG="❌ Assemble 실패"
+          fi
 
-      # PR 코멘트 달기
-      - name: Comment to PR
-        if: ${{ always() && github.event_name == 'pull_request' }}
-        uses: actions/github-script@v7
-        env:
-          MESSAGE: ${{ steps.status.outputs.message }}
-        with:
-          script: |
-            const pr = context.payload.pull_request?.number;
-            if (pr) {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: pr,
-                body: `### PR 빌드 결과\n${process.env.MESSAGE}`
-              });
-            }
+          if [ "${{ steps.test.outcome }}" = "success" ]; then
+            MSG="$MSG"$'\n'"✅ Test 성공"
+          else
+            MSG="$MSG"$'\n'"❌ Test 실패"
+          fi
+
+          if [ "${{ steps.publish.outcome }}" = "failure" ]; then
+            MSG="$MSG"$'\n'"⚠️ 테스트 리포트 게시 실패(권한/토큰 문제일 수 있음)"
+          fi
+
+          printf "message<<EOF\n%s\nEOF\n" "$MSG" >> "$GITHUB_OUTPUT"
 
       - name: Fail if any failed
         if: ${{ always() && (steps.assemble.outcome != 'success' || steps.test.outcome != 'success') }}
