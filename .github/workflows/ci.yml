@@ -1,4 +1,4 @@
-name: 🩵 CI (build only) 🩵
+name: 🩵 CI 🩵
 
 on:
   pull_request:
