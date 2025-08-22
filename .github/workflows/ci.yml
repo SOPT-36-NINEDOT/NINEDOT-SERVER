@@ -56,6 +56,7 @@ jobs:
             --no-daemon --stacktrace --info --no-watch-fs
 
       - name: Publish unit-test results (check UI)
+        id: publish
         if: ${{ always() && !env.ACT && hashFiles('**/build/test-results/test/**/*.xml') != '' }}
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
