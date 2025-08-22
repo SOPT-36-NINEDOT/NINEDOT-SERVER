@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
@@ -34,7 +35,8 @@ public class RefreshToken extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "refresh_token", columnDefinition = "TEXT", nullable = false, unique = true)
+    @Lob
+    @Column(name = "refresh_token", nullable = false, unique = true)
     private String refreshToken;
 
     @Column(name = "expires_at", nullable = false)
@@ -42,6 +44,6 @@ public class RefreshToken extends BaseEntity {
 
     public static RefreshToken create(User user, String refreshToken, LocalDateTime expiresAt) {
         return RefreshToken.builder().user(user).refreshToken(refreshToken).expiresAt(expiresAt)
-                   .build();
+            .build();
     }
 }
