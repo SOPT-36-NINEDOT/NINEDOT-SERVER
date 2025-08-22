@@ -27,16 +27,12 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-          cache: gradle
 
-      - uses: gradle/gradle-build-action@v3
+      - uses: gradle/actions/setup-gradle@v3
+        if: ${{ !env.ACT }}
         with:
           cache-read-only: ${{ github.event_name == 'pull_request' }}
-          gradle-home-cache-includes: |
-            caches
-            notifications
-            jdks
-            wrapper
+          gradle-home-cache-cleanup: true
 
       - name: Gradle assemble (no tests)
         id: assemble
