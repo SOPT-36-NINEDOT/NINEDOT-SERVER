@@ -35,7 +35,7 @@ spring:
     redirect-uri: ${GOOGLE_REDIRECT_URI:http://localhost/login/oauth2/code/google}
 
   jwt:
-    secret: ${JWT_SECRET_KEY:0123456789abcdef0123456789abcdef}
+    secret: ${JWT_SECRET_KEY:MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}
     access-token-expiration-milliseconds: 1800000
     refresh-token-expiration-milliseconds: 1209600000
 

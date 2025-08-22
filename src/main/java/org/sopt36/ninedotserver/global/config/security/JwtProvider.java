@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
 public class JwtProvider {
 
     private final UserRepository userRepository;
-    @Value("${JWT_SECRET_KEY}")
+    @Value("${spring.jwt.secret}")
     private String secret;
     private SecretKey secretKey;
 
@@ -44,18 +44,18 @@ public class JwtProvider {
         Date expiry = new Date(now.getTime() + expirationMilliSeconds);
 
         return Jwts.builder()
-                   .subject(String.valueOf(id))
-                   .issuedAt(now)
-                   .expiration(expiry)
-                   .signWith(secretKey) //jwt 3번째 부분 만들어줌
-                   .compact();
+            .subject(String.valueOf(id))
+            .issuedAt(now)
+            .expiration(expiry)
+            .signWith(secretKey) //jwt 3번째 부분 만들어줌
+            .compact();
     }
 
     public Jws<Claims> parseClaims(String token) {
         return Jwts.parser()
-                   .verifyWith(secretKey)
-                   .build()
-                   .parseSignedClaims(token);
+            .verifyWith(secretKey)
+            .build()
+            .parseSignedClaims(token);
     }
 
     public boolean validateToken(String token) {
