@@ -1,4 +1,4 @@
-name: 🩵 CI (test) 🩵
+name: 🩵 CI (build only) 🩵
 
 on:
   pull_request:
@@ -16,50 +16,68 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
           cache: gradle
 
-      - name: Gradle test (H2)
-        id: test
+      - name: Gradle assemble (no tests)
+        id: assemble
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.vfs.watch=false"
         run: |
           chmod +x ./gradlew
-          ./gradlew test -Dspring.profiles.active=test --no-daemon --info
+          ./gradlew assemble --no-daemon --stacktrace --info --no-watch-fs
+
+      - name: Gradle test
+        id: test
+        continue-on-error: true
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.vfs.watch=false"
+        run: |
+          ./gradlew test -Dspring.profiles.active=test \
+            --no-daemon --stacktrace --info --no-watch-fs
 
       - name: Publish unit-test results (check UI)
+        if: ${{ always() && hashFiles('**/build/test-results/test/**/*.xml') != '' }}
         uses: EnricoMi/publish-unit-test-result-action@v2
-        if: ${{ always() && hashFiles('build/test-results/test/**/*.xml') != '' }}
         with:
-          files: build/test-results/test/**/*.xml
+          files: "**/build/test-results/test/**/*.xml"
           comment_mode: off
 
       - name: Compose message
         id: status
+        if: ${{ always() }}
         run: |
-          MSG=$([ "${{ steps.test.outcome }}" = "success" ] && echo "✅ Test 성공" || echo "❌ Test 실패")
+          MSG=$([ "${{ steps.assemble.outcome }}" = "success" ] && echo "✅ Assemble 성공" || echo "❌ Assemble 실패")
+          MSG="$MSG"$'\n'"$([ "${{ steps.test.outcome }}" = "success" ] && echo "✅ Test 성공" || echo "❌ Test 실패")"
           printf "message<<EOF\n%s\nEOF\n" "$MSG" >> "$GITHUB_OUTPUT"
 
+      # PR 코멘트 달기
       - name: Comment to PR
-        if: github.event_name == 'pull_request'
+        if: ${{ always() && github.event_name == 'pull_request' }}
         uses: actions/github-script@v7
         env:
           MESSAGE: ${{ steps.status.outputs.message }}
         with:
           script: |
-            const pr = context.payload.pull_request.number;
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: pr,
-              body: `### PR 테스트 결과\n${process.env.MESSAGE}`
-            });
+            const pr = context.payload.pull_request?.number;
+            if (pr) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr,
+                body: `### PR 빌드 결과\n${process.env.MESSAGE}`
+              });
+            }
 
-      - name: Fail if test failed
-        if: ${{ steps.test.outcome != 'success' }}
+      - name: Fail if any failed
+        if: ${{ always() && (steps.assemble.outcome != 'success' || steps.test.outcome != 'success') }}
         run: exit 1

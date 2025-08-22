@@ -1,0 +1,60 @@
+spring:
+  config:
+    import: optional:file:.env[.properties]
+
+  jackson:
+    time-zone: Asia/Seoul
+
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:internal;MODE=MySQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        globally_quoted_identifiers: true
+        show_sql: false
+        format_sql: true
+        jdbc:
+          time_zone: Asia/Seoul
+        timezone:
+          default_storage: NORMALIZE
+
+  web:
+    resources:
+      add-mappings: false
+
+  google:
+    client-id: ${GOOGLE_CLIENT_ID:test-google-client-id}
+    client-secret: ${GOOGLE_CLIENT_SECRET:test-google-client-secret}
+    redirect-uri: ${GOOGLE_REDIRECT_URI:http://localhost/login/oauth2/code/google}
+
+  jwt:
+    secret: ${JWT_SECRET_KEY:0123456789abcdef0123456789abcdef}
+    access-token-expiration-milliseconds: 1800000
+    refresh-token-expiration-milliseconds: 1209600000
+
+  cookie:
+    domain: ${SPRING_COOKIE_DOMAIN:localhost}
+    secure: ${SPRING_COOKIE_SECURE:false}
+    path: ${SPRING_COOKIE_PATH:/}
+
+  task:
+    scheduling:
+      time-zone: Asia/Seoul
+
+  ai:
+    model:
+      chat: none
+
+gemini:
+  api:
+    key: ${GEMINI_API_KEY:test-gemini-key}
+    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite-preview-06-17:generateContent
+    response-schema: ${GEMINI_RESPONSE_STRUCTURE:}
+    subgoal-response-schema: ${GEMINI_SUB_GOAL_RESPONSE_STRUCTURE:}
