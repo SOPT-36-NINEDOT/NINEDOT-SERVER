@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -38,7 +39,8 @@ public class User extends BaseEntity {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "profile_image_url", columnDefinition = "TEXT", nullable = false)
+    @Lob
+    @Column(name = "profile_image_url", nullable = false)
     private String profileImageUrl;
 
     @Column(name = "birthday", length = MAX_BIRTHDAY_LENGTH, nullable = false)
@@ -54,12 +56,12 @@ public class User extends BaseEntity {
     public static User create(String name, String email, String profileImageUrl, String birthday,
         String job) {
         return User.builder()
-                   .name(name)
-                   .email(email)
-                   .profileImageUrl(profileImageUrl)
-                   .birthday(birthday)
-                   .job(job)
-                   .build();
+            .name(name)
+            .email(email)
+            .profileImageUrl(profileImageUrl)
+            .birthday(birthday)
+            .job(job)
+            .build();
     }
 
     public boolean isSameId(Long id) {
