@@ -8,7 +8,6 @@ public record SubGoalAiRequest(
     String coreGoal,
 
     List<SubGoalRecommendationRequest> subGoal
-
 ) {
 
 }

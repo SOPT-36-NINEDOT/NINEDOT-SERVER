@@ -42,10 +42,11 @@ public class AiSubGoalRecommendationService {
     private final ObjectMapper objectMapper;
 
     @Transactional
-    public SubGoalAiResponse fetchAiSubGoalRecommendation(Long userId, Long coreGoalSnapshotId,
-        SubGoalAiRequest request) {
-
-        //
+    public SubGoalAiResponse fetchAiSubGoalRecommendation(
+        Long userId,
+        Long coreGoalSnapshotId,
+        SubGoalAiRequest request
+    ) {
         CoreGoalSnapshot coreGoalSnapshot = getExistingCoreGoal(coreGoalSnapshotId);
 
         if (request.subGoal().size() >= 8) {

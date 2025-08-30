@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 
 @RequiredArgsConstructor
 public enum AiErrorCode implements ErrorCode {
+
     //400
     SUB_GOAL_IS_FULL(HttpStatus.BAD_REQUEST, "하위 목표가 이미 모두 작성되어 있어 ai 추천이 불가능합니다."),
 
