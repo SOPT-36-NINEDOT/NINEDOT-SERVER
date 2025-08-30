@@ -6,16 +6,8 @@ import org.sopt36.ninedotserver.global.exception.ErrorCode;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ApiResponse<T, M>(int code, String message, T data, M meta) {
 
-    public ApiResponse(ErrorCode errorCode) {
-        this(errorCode.getStatus().value(), errorCode.getMessage(), null, null);
-    }
-
     public static <T> ApiResponse<T, Void> ok(String message, T data) {
         return new ApiResponse<>(200, message, data, null);
-    }
-
-    public static <T, M> ApiResponse<T, M> ok(String message, T data, M meta) {
-        return new ApiResponse<>(200, message, data, meta);
     }
 
     public static ApiResponse<Void, Void> ok(String message) {

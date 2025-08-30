@@ -66,7 +66,7 @@ public class AuthService {
         "http://localhost:5173/auth/google/callback",
         "https://ninedot-client.vercel.app/auth/google/callback"
     );
-    private final RestClient restClient;
+    private final @Qualifier("authRestClient") RestClient restClient;
     private final JwtProvider jwtProvider;
     private final CookieUtil cookieUtil;
     private final AuthProviderRepository authProviderRepository;
@@ -115,31 +115,38 @@ public class AuthService {
     public <T> LoginOrSignupResponse<T> loginOrSignupWithCode(
         String code,
         String clientRedirectUri,
-        HttpServletResponse response) {
-        String effectiveRedirectUri = resolveRedirectUri(
-            clientRedirectUri); //프론트가 보낸 redirect_uri 검증
-        GoogleTokenResponse tokens = getGoogleToken(code,
-            effectiveRedirectUri); //code로 구글에서 access token 가져와요
-        GoogleUserInfo googleUserInfo = getGoogleUserInfo(
-            tokens.accessToken()); //access token으로 user info 받아와요
+        HttpServletResponse response
+    ) {
+        //프론트가 보낸 redirect_uri 검증
+        String effectiveRedirectUri = resolveRedirectUri(clientRedirectUri);
+        //code로 구글에서 access token 가져와요
+        GoogleTokenResponse tokens = getGoogleToken(code, effectiveRedirectUri);
+        //access token으로 user info 받아와요
+        GoogleUserInfo googleUserInfo = getGoogleUserInfo(tokens.accessToken());
+        //provider user id로 AuthProvider가 db에 있는지 확인해요
         Optional<AuthProvider> optionalUser = authProviderRepository.findByProviderAndProviderUserId(
             ProviderType.GOOGLE,
-            googleUserInfo.sub()); //provider user id로 AuthProvider가 db에 있는지 확인해요
+            googleUserInfo.sub()
+        );
 
         log.info(googleUserInfo.sub());
         if (optionalUser.isPresent()) {
             Long userId = optionalUser.get().getUser().getId();
-            String accessToken = jwtProvider.createToken(userId,
-                accessTokenExpirationMilliseconds);
+            String accessToken = jwtProvider.createToken(
+                userId,
+                accessTokenExpirationMilliseconds
+            );
             generateAndStoreRefreshToken(userId, response);
             return (LoginOrSignupResponse<T>) createLoginResponse(userId, accessToken);
         }
         return (LoginOrSignupResponse<T>) createSignupResponse(googleUserInfo);
     }
 
-    public NewAccessTokenResponse createNewAccessToken(String refreshToken,
-        HttpServletResponse response) {
-
+    @Transactional
+    public NewAccessTokenResponse createNewAccessToken(
+        String refreshToken,
+        HttpServletResponse response
+    ) {
         RefreshToken rt = isRefreshTokenValid(refreshToken);
 
         Long userId = rt.getUser().getId();
@@ -239,8 +246,7 @@ public class AuthService {
     }
 
     private void generateAndStoreRefreshToken(Long userId, HttpServletResponse response) {
-        String refreshToken = jwtProvider.createToken(userId,
-            refreshTokenExpirationMilliseconds);
+        String refreshToken = jwtProvider.createToken(userId, refreshTokenExpirationMilliseconds);
         //ㄴ토큰을 만들어
         cookieUtil.createRefreshTokenCookie(response, refreshToken);
         //ㄴ쿠키에 담아
@@ -258,11 +264,14 @@ public class AuthService {
     private void addRefreshTokenToDB(Long userId, String refreshToken) {
         Claims claims = jwtProvider.parseClaims(refreshToken).getPayload();
         User user = userRepository.findById(userId)
-            .orElseThrow(
-                () -> new AuthException(USER_NOT_FOUND));
+            .orElseThrow(() -> new AuthException(USER_NOT_FOUND));
         refreshTokenRepository.save(
-            RefreshToken.create(user, refreshToken,
-                expirationDateToLocalDateTime(claims.getExpiration())));
+            RefreshToken.create(
+                user,
+                refreshToken,
+                expirationDateToLocalDateTime(claims.getExpiration())
+            )
+        );
     }
 
     private LocalDateTime expirationDateToLocalDateTime(Date expirationDate) {
@@ -274,17 +283,26 @@ public class AuthService {
     private LoginOrSignupResponse<LoginData> createLoginResponse(Long userId, String accessToken) {
         Boolean onboardingCompleted = findUserOnboardingCompleted(userId);
         OnboardingPage onboardingPage = findUserOnboardingPage(userId);
-        LoginData loginData = new LoginData(true, accessToken, onboardingCompleted, onboardingPage,
-            "성공적으로 로그인을 완료했습니다.");
+        LoginData loginData = new LoginData(
+            true,
+            accessToken,
+            onboardingCompleted,
+            onboardingPage,
+            "성공적으로 로그인을 완료했습니다."
+        );
         return new LoginOrSignupResponse<>(loginData);
     }
 
     private LoginOrSignupResponse<SignupData> createSignupResponse(GoogleUserInfo googleUserInfo) {
-        SignupData signupData = new SignupData("GOOGLE", googleUserInfo.sub(), false,
+        SignupData signupData = new SignupData(
+            "GOOGLE",
+            googleUserInfo.sub(),
+            false,
             googleUserInfo.name(),
             googleUserInfo.email(),
             googleUserInfo.profileImageUrl(),
-            "회원가입이 필요한 유저입니다.");
+            "회원가입이 필요한 유저입니다."
+        );
         return new LoginOrSignupResponse<>(signupData);
     }
 
@@ -319,19 +337,12 @@ public class AuthService {
         return OnboardingPage.MANDALART;
     }
 
-
     private List<Answer> getAnswers(SignupRequest request, User user) {
         return request.answers().stream()
             .map(answer -> {
-                Question question = questionRepository.
-                    findById(answer.questionId())
-                    .orElseThrow(
-                        () -> new QuestionException(
-                            QUESTION_NOT_FOUND
-                        ));
-                String content = ChoiceInfo.getShortSentenceById(
-                    answer.choiceId());
-
+                Question question = questionRepository.findById(answer.questionId())
+                    .orElseThrow(() -> new QuestionException(QUESTION_NOT_FOUND));
+                String content = ChoiceInfo.getShortSentenceById(answer.choiceId());
                 return Answer.create(question, user, content);
             })
             .collect(Collectors.toList());

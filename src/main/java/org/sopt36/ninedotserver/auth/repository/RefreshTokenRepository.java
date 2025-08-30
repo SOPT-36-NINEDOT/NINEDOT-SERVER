@@ -10,8 +10,11 @@ import org.springframework.stereotype.Repository;
 public interface RefreshTokenRepository
     extends JpaRepository<RefreshToken, Long>, RefreshTokenRepositoryCustom {
 
-    Optional<RefreshToken> findByRefreshTokenAndExpiresAtAfter(String refreshToken,
-        LocalDateTime now);
+    Optional<RefreshToken> findByRefreshTokenAndExpiresAtAfter(
+        String refreshToken,
+        LocalDateTime now
+    );
+
     void deleteByUserId(Long userId);
 
 }

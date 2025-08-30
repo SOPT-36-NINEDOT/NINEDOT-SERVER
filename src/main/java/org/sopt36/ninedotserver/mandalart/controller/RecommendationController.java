@@ -37,12 +37,14 @@ public class RecommendationController {
         Long userId = Long.parseLong(authentication.getName());
         LocalDate recommendationDate = (date != null ? date : LocalDate.now());
 
-        SubGoalListResponse response = recommendationQueryService
-            .getRecommendations(userId, mandalartId, recommendationDate);
+        SubGoalListResponse response = recommendationQueryService.getRecommendations(
+            userId,
+            mandalartId,
+            recommendationDate
+        );
 
         return ResponseEntity.ok(ApiResponse.ok(RECOMMENDATION_RETRIEVED_SUCCESS, response));
     }
-
 
     @PostMapping("/mandalarts/{mandalartId}/onboarding/recommendation")
     public ResponseEntity<ApiResponse<Void, Void>> createRecommendation(

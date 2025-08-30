@@ -1,17 +1,11 @@
 package org.sopt36.ninedotserver.mandalart.repository;
 
-import static org.sopt36.ninedotserver.mandalart.domain.QCoreGoal.coreGoal;
-import static org.sopt36.ninedotserver.mandalart.domain.QCoreGoalSnapshot.coreGoalSnapshot;
-import static org.sopt36.ninedotserver.mandalart.domain.QSubGoal.subGoal;
-import static org.sopt36.ninedotserver.mandalart.domain.QSubGoalSnapshot.subGoalSnapshot;
-
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.mandalart.domain.CoreGoalSnapshot;
 import org.sopt36.ninedotserver.mandalart.domain.QCoreGoal;
 import org.sopt36.ninedotserver.mandalart.domain.QCoreGoalSnapshot;
-import org.sopt36.ninedotserver.mandalart.domain.SubGoalSnapshot;
 
 @RequiredArgsConstructor
 public class CoreGoalSnapshotRepositoryImpl implements CoreGoalSnapshotRepositoryCustom {

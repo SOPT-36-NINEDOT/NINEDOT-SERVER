@@ -32,21 +32,11 @@ public enum ChoiceInfo {
         this.shortSentence = shortSentence;
     }
 
-    public static ChoiceInfo fromId(int id) {
-        for (ChoiceInfo choice : values()) {
-            if (choice.id == id) {
-                return choice;
-            }
-        }
-        throw new ChoiceException(CHOICE_NOT_FOUND);
-    }
-
     public static String getShortSentenceById(int id) {
         return Arrays.stream(ChoiceInfo.values())
-                   .filter(choice -> choice.getId() == id)
-                   .findFirst()
-                   .orElseThrow(
-                       () -> new ChoiceException(CHOICE_NOT_FOUND))
-                   .getShortSentence();
+            .filter(choice -> choice.getId() == id)
+            .findFirst()
+            .orElseThrow(() -> new ChoiceException(CHOICE_NOT_FOUND))
+            .getShortSentence();
     }
 }

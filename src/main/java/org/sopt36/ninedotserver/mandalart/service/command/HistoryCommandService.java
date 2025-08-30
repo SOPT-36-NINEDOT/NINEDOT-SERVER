@@ -52,9 +52,7 @@ public class HistoryCommandService {
     }
 
     private void validateCanCompleteSubGoal(Long subGoalSnapshotId, LocalDate date) {
-        if (historyRepository
-            .existsBySubGoalSnapshotIdAndCompletedDate(subGoalSnapshotId, date)
-        ) {
+        if (historyRepository.existsBySubGoalSnapshotIdAndCompletedDate(subGoalSnapshotId, date)) {
             throw new HistoryException(HISTORY_ALREADY_COMPLETED);
         }
     }

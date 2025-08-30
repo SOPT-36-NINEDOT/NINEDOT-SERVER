@@ -81,8 +81,10 @@ public class MandalartController {
         Authentication authentication
     ) {
         Long userId = Long.parseLong(authentication.getName());
-        MandalartBoardResponse response = mandalartQueryService
-            .getMandalartBoard(userId, mandalartId);
+        MandalartBoardResponse response = mandalartQueryService.getMandalartBoard(
+            userId,
+            mandalartId
+        );
 
         return ResponseEntity.ok(ApiResponse.ok(MANDALART_BOARD_RETRIEVED_SUCCESS, response));
     }

@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
-import org.sopt36.ninedotserver.ai.service.AiRecommendationService;
 import org.sopt36.ninedotserver.mandalart.domain.CoreGoal;
 import org.sopt36.ninedotserver.mandalart.domain.CoreGoalSnapshot;
 import org.sopt36.ninedotserver.mandalart.domain.Cycle;
@@ -48,7 +47,6 @@ public class CoreGoalCommandService {
 
     private final CoreGoalRepository coreGoalRepository;
     private final MandalartRepository mandalartRepository;
-    private final AiRecommendationService aiRecommendationService;
     private final CoreGoalSnapshotRepository coreGoalSnapshotRepository;
     private final SubGoalRepository subGoalRepository;
     private final SubGoalSnapshotRepository subGoalSnapshotRepository;
@@ -60,7 +58,7 @@ public class CoreGoalCommandService {
         CoreGoalCreateRequest coreGoalCreateRequest
     ) {
         Mandalart mandalart = getExistingMandalart(mandalartId);
-        // TODO validateCanCreateCoreGoal 로직 변경
+        validateCanCreateCoreGoal(mandalart, userId, coreGoalCreateRequest);
 
         CoreGoal coreGoal = CoreGoal.create(
             mandalart,
@@ -192,7 +190,8 @@ public class CoreGoalCommandService {
             .orElseThrow(() -> new MandalartException(MANDALART_NOT_FOUND));
     }
 
-    private void validateCanCreateCoreGoal(Mandalart mandalart,
+    private void validateCanCreateCoreGoal(
+        Mandalart mandalart,
         Long userId,
         CoreGoalCreateRequest coreGoalCreateRequest
     ) {

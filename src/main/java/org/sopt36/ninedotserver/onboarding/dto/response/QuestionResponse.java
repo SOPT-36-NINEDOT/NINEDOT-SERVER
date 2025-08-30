@@ -5,7 +5,7 @@ import org.sopt36.ninedotserver.onboarding.domain.Choice;
 import org.sopt36.ninedotserver.onboarding.domain.Question;
 import org.sopt36.ninedotserver.onboarding.domain.Type;
 
-public record QuestionResponse (
+public record QuestionResponse(
     Long id,
     Type type,
     String content,
@@ -20,12 +20,13 @@ public record QuestionResponse (
             choices.stream()
                 .map(choice -> new ChoiceResponse(choice.getId(), choice.getContent()))
                 .toList()
-            );
+        );
     }
 
-    public static record ChoiceResponse(
+    public record ChoiceResponse(
         Long id,
         String content
     ) {
+
     }
 }

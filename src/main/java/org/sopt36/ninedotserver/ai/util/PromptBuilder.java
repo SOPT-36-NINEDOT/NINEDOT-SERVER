@@ -10,14 +10,14 @@ import org.sopt36.ninedotserver.ai.exception.AiException;
 @Slf4j
 public class PromptBuilder {
 
-    public static String buildCoreGoalPrompt(int age, String job,
-
+    public static String buildCoreGoalPrompt(
+        int age,
+        String job,
         List<String> questions, List<String> answers,
         String mandalartTitle,
-        List<String> coreGoals) {
-
-        if (job == null ||
-            mandalartTitle == null) {
+        List<String> coreGoals
+    ) {
+        if (job == null || mandalartTitle == null) {
             throw new IllegalArgumentException("필수 파라미터가 null입니다");
         }
 
@@ -40,14 +40,16 @@ public class PromptBuilder {
 
             .append("- 전체목표: ").append(mandalartTitle).append("\n");
 
-        for (int i = 0; i < coreGoals.size(); i++) {
-            sb.append(coreGoals.get(i)).append("\n");
+        for (String coreGoal : coreGoals) {
+            sb.append(coreGoal).append("\n");
         }
         log.info(sb.toString());
         return sb.toString();
     }
 
-    public static String buildSubGoalPrompt(int age, String job,
+    public static String buildSubGoalPrompt(
+        int age,
+        String job,
         String mandalartTitle,
         String coreGoalTitle,
         Map<String, String> questionAnswerMap,

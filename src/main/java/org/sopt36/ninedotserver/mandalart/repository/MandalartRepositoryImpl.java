@@ -35,16 +35,6 @@ public class MandalartRepositoryImpl implements MandalartRepositoryCustom {
     }
 
     @Override
-    public Optional<String> findTitleByMandalartId(Long mandalartId) {
-        String title = queryFactory
-            .select(mandalart.title)
-            .from(mandalart)
-            .where(mandalart.id.eq(mandalartId))
-            .fetchOne();
-        return Optional.ofNullable(title);
-    }
-
-    @Override
     public Optional<String> findTitleByCoreGoalId(Long coreGoalSnapshotId) {
         return Optional.ofNullable(
             queryFactory

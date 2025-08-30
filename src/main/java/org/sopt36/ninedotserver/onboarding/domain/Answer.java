@@ -39,7 +39,7 @@ public class Answer extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(name = "content", length = MAX_CONTENT_LENGTH, nullable = false)
+    @Column(name = "content", nullable = false)
     private String content;
 
     public static Answer create(Question question, User user, String content) {

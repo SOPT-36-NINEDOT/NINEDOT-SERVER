@@ -53,8 +53,13 @@ public class User extends BaseEntity {
     @ColumnDefault(value = "false")
     private Boolean onboardingCompleted;
 
-    public static User create(String name, String email, String profileImageUrl, String birthday,
-        String job) {
+    public static User create(
+        String name,
+        String email,
+        String profileImageUrl,
+        String birthday,
+        String job
+    ) {
         return User.builder()
             .name(name)
             .email(email)

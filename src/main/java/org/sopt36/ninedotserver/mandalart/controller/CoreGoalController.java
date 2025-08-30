@@ -11,6 +11,7 @@ import static org.sopt36.ninedotserver.mandalart.controller.message.CoreGoalMess
 
 import jakarta.validation.Valid;
 import java.net.URI;
+import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.ai.dto.response.CoreGoalAiResponse;
 import org.sopt36.ninedotserver.ai.service.AiRecommendationService;
 import org.sopt36.ninedotserver.global.dto.response.ApiResponse;
@@ -25,8 +26,6 @@ import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalIdsResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalsResponse;
 import org.sopt36.ninedotserver.mandalart.service.command.CoreGoalCommandService;
 import org.sopt36.ninedotserver.mandalart.service.query.CoreGoalQueryService;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -37,33 +36,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestClient;
 
 @RequestMapping("/api/v1")
+@RequiredArgsConstructor
 @RestController
 public class CoreGoalController {
 
-    private final RestClient restClient;
     private final CoreGoalCommandService coreGoalCommandService;
     private final CoreGoalQueryService coreGoalQueryService;
     private final AiRecommendationService aiRecommendationService;
-
-    @Value("${gemini.api.url}")
-    private String apiUrl;
-    @Value("${gemini.api.key}")
-    private String apiKey;
-
-    public CoreGoalController(
-        @Qualifier("geminiRestClient") RestClient restClient,
-        CoreGoalCommandService coreGoalCommandService,
-        CoreGoalQueryService coreGoalQueryService,
-        AiRecommendationService aiRecommendationService
-    ) {
-        this.restClient = restClient;
-        this.coreGoalCommandService = coreGoalCommandService;
-        this.coreGoalQueryService = coreGoalQueryService;
-        this.aiRecommendationService = aiRecommendationService;
-    }
 
     @PostMapping("/onboarding/mandalarts/{mandalartId}/core-goals")
     public ResponseEntity<ApiResponse<CoreGoalCreateResponse, Void>> createCoreGoal(
@@ -145,11 +126,13 @@ public class CoreGoalController {
         return ResponseEntity.ok(ApiResponse.ok(CORE_GOAL_AI_CREATED_SUCCESS, response));
     }
 
+    // TODO user, request 서비스 코드에 추가 (dto 분리 필요)
     @PostMapping("/mandalarts/{mandalartId}/ai")
     public ResponseEntity<ApiResponse<CoreGoalAiResponse, Void>> createAi(
         @PathVariable Long mandalartId,
-        @RequestBody GenerateCoreGoalRequest generateRequest,
-        Authentication authentication) {
+        @RequestBody(required = false) GenerateCoreGoalRequest generateRequest,
+        Authentication authentication
+    ) {
         Long userId = Long.parseLong(authentication.getName());
         CoreGoalAiResponse response = aiRecommendationService.fetchAiRecommendation(mandalartId);
 

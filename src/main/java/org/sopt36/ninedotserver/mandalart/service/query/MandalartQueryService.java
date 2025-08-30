@@ -14,10 +14,8 @@ import org.sopt36.ninedotserver.mandalart.dto.response.MandalartHistoryResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.MandalartResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalBoardResponse;
 import org.sopt36.ninedotserver.mandalart.exception.MandalartException;
-import org.sopt36.ninedotserver.mandalart.repository.CoreGoalRepository;
 import org.sopt36.ninedotserver.mandalart.repository.CoreGoalSnapshotRepository;
 import org.sopt36.ninedotserver.mandalart.repository.MandalartRepository;
-import org.sopt36.ninedotserver.mandalart.repository.SubGoalRepository;
 import org.sopt36.ninedotserver.mandalart.repository.SubGoalSnapshotRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,9 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MandalartQueryService {
 
     private final MandalartRepository mandalartRepository;
-    private final CoreGoalRepository coreGoalRepository;
     private final CoreGoalSnapshotRepository coreGoalSnapshotRepository;
-    private final SubGoalRepository subGoalRepository;
     private final SubGoalSnapshotRepository subGoalSnapshotRepository;
 
     public MandalartHistoryResponse getMandalartHistory(Long userId, Long mandalartId) {

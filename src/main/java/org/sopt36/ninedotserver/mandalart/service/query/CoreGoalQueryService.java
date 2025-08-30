@@ -12,7 +12,6 @@ import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalIdResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalIdsResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalsResponse;
 import org.sopt36.ninedotserver.mandalart.exception.MandalartException;
-import org.sopt36.ninedotserver.mandalart.repository.CoreGoalRepository;
 import org.sopt36.ninedotserver.mandalart.repository.CoreGoalSnapshotRepository;
 import org.sopt36.ninedotserver.mandalart.repository.MandalartRepository;
 import org.springframework.stereotype.Service;
@@ -23,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class CoreGoalQueryService {
 
-    private final CoreGoalRepository coreGoalRepository;
     private final MandalartRepository mandalartRepository;
     private final CoreGoalSnapshotRepository coreGoalSnapshotRepository;
 
