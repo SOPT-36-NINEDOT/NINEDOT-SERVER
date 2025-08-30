@@ -28,11 +28,14 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         @NotNull FilterChain filterChain
     ) throws ServletException, IOException {
         List<String> skipPaths = List.of(
-            "/auth/jobs",
-            "/auth/personas",
-            "/auth/signup",
-            "/auth/refresh",
-            "/auth/oauth2/google/callback"
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/api/*/auth/jobs",
+            "/api/*/auth/personas",
+            "/api/*/auth/signup",
+            "/api/*/auth/refresh",
+            "/api/*/auth/oauth2/google/callback"
         );
         String uri = request.getRequestURI();
         if (skipPaths.contains(uri)) {
