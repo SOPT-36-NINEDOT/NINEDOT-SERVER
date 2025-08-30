@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 
 @RequiredArgsConstructor
 public enum AuthErrorCode implements ErrorCode {
+
     //401
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "너 뉘기야."),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "리프레시 토큰이 만료되었습니다. 다시 로그인하세요."),

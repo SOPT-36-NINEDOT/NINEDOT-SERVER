@@ -46,11 +46,14 @@ public class AuthProvider extends BaseEntity {
     @Column(name = "provider", length = MAX_PROVIDER_LENGTH, nullable = false)
     private ProviderType provider;
 
-    @Column(name = "provider_user_id", length = MAX_PROVIDER_USER_ID_LENGTH, nullable = false)
+    @Column(name = "provider_user_id", nullable = false)
     private String providerUserId;
 
     public static AuthProvider create(User user, ProviderType provider, String providerUserId) {
-        return AuthProvider.builder().user(user).provider(provider)
-                   .providerUserId(providerUserId).build();
+        return AuthProvider.builder()
+            .user(user)
+            .provider(provider)
+            .providerUserId(providerUserId)
+            .build();
     }
 }

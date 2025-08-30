@@ -34,11 +34,13 @@ public class AuthController {
     public ResponseEntity<ApiResponse<LoginOrSignupResponse<?>, Void>> googleCallback(
         @Valid @RequestBody GoogleAuthCodeRequest request,
         @RequestParam(value = "redirect_uri", required = false) String clientRedirectUri,
-        HttpServletResponse response) {
+        HttpServletResponse response
+    ) {
         LoginOrSignupResponse<?> giveback = authService.loginOrSignupWithCode(
             request.code(),
             clientRedirectUri,
-            response);
+            response
+        );
         return ResponseEntity.ok(ApiResponse.ok(LOGIN_SIGNUP_SUCCESS, giveback));
     }
 
@@ -65,7 +67,6 @@ public class AuthController {
         HttpServletResponse response
     ) {
         SignupResponse signupResponse = authService.registerUser(request, response);
-
         return ResponseEntity.ok(ApiResponse.ok(SIGNUP_SUCCESS, signupResponse));
     }
 }

@@ -41,7 +41,10 @@ public class RefreshToken extends BaseEntity {
     private LocalDateTime expiresAt;
 
     public static RefreshToken create(User user, String refreshToken, LocalDateTime expiresAt) {
-        return RefreshToken.builder().user(user).refreshToken(refreshToken).expiresAt(expiresAt)
-                   .build();
+        return RefreshToken.builder()
+            .user(user)
+            .refreshToken(refreshToken)
+            .expiresAt(expiresAt)
+            .build();
     }
 }
