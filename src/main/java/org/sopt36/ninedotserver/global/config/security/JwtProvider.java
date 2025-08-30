@@ -1,8 +1,6 @@
 package org.sopt36.ninedotserver.global.config.security;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -44,18 +42,18 @@ public class JwtProvider {
         Date expiry = new Date(now.getTime() + expirationMilliSeconds);
 
         return Jwts.builder()
-                   .subject(String.valueOf(id))
-                   .issuedAt(now)
-                   .expiration(expiry)
-                   .signWith(secretKey) //jwt 3번째 부분 만들어줌
-                   .compact();
+            .subject(String.valueOf(id))
+            .issuedAt(now)
+            .expiration(expiry)
+            .signWith(secretKey) //jwt 3번째 부분 만들어줌
+            .compact();
     }
 
     public Jws<Claims> parseClaims(String token) {
         return Jwts.parser()
-                   .verifyWith(secretKey)
-                   .build()
-                   .parseSignedClaims(token);
+            .verifyWith(secretKey)
+            .build()
+            .parseSignedClaims(token);
     }
 
     public boolean validateToken(String token) {
@@ -70,7 +68,6 @@ public class JwtProvider {
 
     public Authentication getAuthentication(String token) {
         Jws<Claims> jws = parseClaims(token);
-        Header header = jws.getHeader();
         Claims claims = jws.getPayload();
         String userId = claims.getSubject();
 
@@ -94,12 +91,6 @@ public class JwtProvider {
     private void validateIsUser(String userId) {
         if (!userRepository.existsById(Long.valueOf(userId))) {
             throw new UsernameNotFoundException("User not found: " + userId);
-        }
-    }
-
-    private void isTokenExpired(Date expiration, Header header, Claims claims) {
-        if (expiration.before(new Date())) {
-            throw new ExpiredJwtException(header, claims, "JWT 토큰이 만료되었습니다.");
         }
     }
 }

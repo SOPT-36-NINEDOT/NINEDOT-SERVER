@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -23,10 +24,14 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(
         HttpServletRequest request,
-        HttpServletResponse response,
-        FilterChain filterChain) throws ServletException, IOException {
+        @NotNull HttpServletResponse response,
+        @NotNull FilterChain filterChain
+    ) throws ServletException, IOException {
         List<String> skipPaths = List.of(
-            "/auth/jobs", "/auth/personas", "/auth/signup", "/auth/refresh",
+            "/auth/jobs",
+            "/auth/personas",
+            "/auth/signup",
+            "/auth/refresh",
             "/auth/oauth2/google/callback"
         );
         String uri = request.getRequestURI();
@@ -47,7 +52,6 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         // 5) 필터 체인 계속 진행
         filterChain.doFilter(request, response);
     }
-
 
     private String resolveToken(HttpServletRequest request) {
         String bearer = request.getHeader("Authorization");
