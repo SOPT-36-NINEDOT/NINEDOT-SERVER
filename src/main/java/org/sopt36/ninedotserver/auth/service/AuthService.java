@@ -142,6 +142,7 @@ public class AuthService {
         return (LoginOrSignupResponse<T>) createSignupResponse(googleUserInfo);
     }
 
+    @Transactional
     public NewAccessTokenResponse createNewAccessToken(
         String refreshToken,
         HttpServletResponse response
