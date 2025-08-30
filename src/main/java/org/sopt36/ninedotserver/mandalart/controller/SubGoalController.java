@@ -52,17 +52,15 @@ public class SubGoalController {
 
     @GetMapping("/core-goals/{coreGoalId}/sub-goals")
     public ResponseEntity<ApiResponse<SubGoalIdListResponse, Void>> getSubGoalIds(
-        Authentication authentication,
-        @PathVariable Long coreGoalId
+        @PathVariable Long coreGoalId,
+        Authentication authentication
     ) {
         Long userId = Long.parseLong(authentication.getName());
         List<SubGoalIdResponse> subGoalIds = subGoalQueryService.getSubGoalIds(userId, coreGoalId);
 
-        return ResponseEntity.ok()
-            .body(
-                ApiResponse.ok(SUB_GOAL_ID_LIST_FETCH_SUCCESS,
-                    SubGoalIdListResponse.from(subGoalIds))
-            );
+        return ResponseEntity.ok(
+            ApiResponse.ok(SUB_GOAL_ID_LIST_FETCH_SUCCESS, SubGoalIdListResponse.from(subGoalIds))
+        );
     }
 
     @PostMapping("/core-goals/{coreGoalId}/sub-goals")
@@ -73,12 +71,11 @@ public class SubGoalController {
     ) {
         Long userId = Long.parseLong(authentication.getName());
         SubGoalCreateResponse response = subGoalCommandService.createSubGoal(
-            userId,
-            coreGoalId,
-            request
+            userId, coreGoalId, request
         );
         URI location = URI.create(
-            "/api/v1/core-goals/" + coreGoalId + "/sub-goals/" + response.id());
+            "/api/v1/core-goals/" + coreGoalId + "/sub-goals/" + response.id()
+        );
 
         return ResponseEntity.created(location)
             .body(ApiResponse.created(response, SUB_GOAL_CREATE_SUCCESS));
@@ -93,8 +90,7 @@ public class SubGoalController {
         Long userId = Long.parseLong(authentication.getName());
         subGoalCommandService.updateSubGoal(userId, subGoalId, request);
 
-        return ResponseEntity.ok()
-            .body(ApiResponse.ok(SUB_GOAL_UPDATE_SUCCESS));
+        return ResponseEntity.ok().body(ApiResponse.ok(SUB_GOAL_UPDATE_SUCCESS));
     }
 
     @DeleteMapping("/sub-goals/{subGoalId}")
@@ -105,9 +101,7 @@ public class SubGoalController {
         Long userId = Long.parseLong(authentication.getName());
         subGoalCommandService.deleteSubGoal(userId, subGoalId);
 
-        return ResponseEntity.ok()
-            .body(ApiResponse.ok(SUB_GOAL_DELETE_SUCCESS));
-
+        return ResponseEntity.ok().body(ApiResponse.ok(SUB_GOAL_DELETE_SUCCESS));
     }
 
     @PostMapping("/core-goals/{coreGoalId}/ai")
@@ -117,9 +111,11 @@ public class SubGoalController {
         @RequestBody @Valid SubGoalAiRequest request
     ) {
         Long userId = Long.parseLong(authentication.getName());
-        SubGoalAiResponse response = aiSubGoalService.fetchAiSubGoalRecommendation(userId,
+        SubGoalAiResponse response = aiSubGoalService.fetchAiSubGoalRecommendation(
+            userId,
             coreGoalId,
-            request);
+            request
+        );
         return ResponseEntity.ok(ApiResponse.ok(SUB_GOAL_AI_RECOMMENDATION_SUCCESS, response));
     }
 
@@ -134,8 +130,14 @@ public class SubGoalController {
         Long userId = Long.parseLong(authentication.getName());
         LocalDate targetDate = (date != null ? date : LocalDate.now());
 
-        SubGoalListResponse response = subGoalQueryService
-            .getSubGoalWithFilter(userId, mandalartId, coreGoalId, cycle, targetDate);
+        SubGoalListResponse response = subGoalQueryService.getSubGoalWithFilter(
+            userId,
+            mandalartId,
+            coreGoalId,
+            cycle,
+            targetDate
+        );
+
         return ResponseEntity.ok(ApiResponse.ok(SUB_GOAL_READ_SUCCESS, response));
     }
 
@@ -146,8 +148,11 @@ public class SubGoalController {
         @Valid @RequestBody SubGoalAiListCreateRequest aiCreateRequest
     ) {
         Long userId = Long.parseLong(authentication.getName());
-        SubGoalAiListResponse response = subGoalCommandService
-            .createAiSubGoals(userId, coreGoalId, aiCreateRequest);
+        SubGoalAiListResponse response = subGoalCommandService.createAiSubGoals(
+            userId,
+            coreGoalId,
+            aiCreateRequest
+        );
 
         return ResponseEntity.ok(ApiResponse.ok(SUB_GOAL_AI_CREATED_SUCCESS, response));
     }

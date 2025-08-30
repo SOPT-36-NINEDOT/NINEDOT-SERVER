@@ -10,10 +10,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
-import org.sopt36.ninedotserver.ai.service.AiRecommendationService;
 import org.sopt36.ninedotserver.mandalart.domain.CoreGoal;
 import org.sopt36.ninedotserver.mandalart.domain.CoreGoalSnapshot;
-import org.sopt36.ninedotserver.mandalart.domain.Cycle;
 import org.sopt36.ninedotserver.mandalart.domain.SubGoal;
 import org.sopt36.ninedotserver.mandalart.domain.SubGoalSnapshot;
 import org.sopt36.ninedotserver.mandalart.dto.request.SubGoalAiListCreateRequest;
@@ -22,7 +20,6 @@ import org.sopt36.ninedotserver.mandalart.dto.request.SubGoalUpdateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalAiListResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalCreateResponse;
 import org.sopt36.ninedotserver.mandalart.exception.SubGoalException;
-import org.sopt36.ninedotserver.mandalart.repository.CoreGoalRepository;
 import org.sopt36.ninedotserver.mandalart.repository.CoreGoalSnapshotRepository;
 import org.sopt36.ninedotserver.mandalart.repository.SubGoalRepository;
 import org.sopt36.ninedotserver.mandalart.repository.SubGoalSnapshotRepository;
@@ -36,8 +33,6 @@ public class SubGoalCommandService {
     private static final int MAX_SUB_GOALS = 8;
 
     private final SubGoalRepository subGoalRepository;
-    private final CoreGoalRepository coreGoalRepository;
-    private final AiRecommendationService aiRecommendationService;
     private final CoreGoalSnapshotRepository coreGoalSnapshotRepository;
     private final SubGoalSnapshotRepository subGoalSnapshotRepository;
 
@@ -50,6 +45,7 @@ public class SubGoalCommandService {
         CoreGoalSnapshot coreGoalSnapshot = getExistingCoreGoal(coreGoalSnapshotId);
         coreGoalSnapshot.verifyCoreGoalUser(userId);
         // TODO validateCreate 로직 변경 생각해보기
+        validateCreate(coreGoalSnapshot, userId, request);
 
         SubGoal subGoal = SubGoal.create(
             coreGoalSnapshot.getCoreGoal(),
@@ -110,8 +106,12 @@ public class SubGoalCommandService {
         return SubGoalAiListResponse.of(snapshots);
     }
 
-    private void validateCreate(CoreGoalSnapshot coreGoalSnapshot, Long userId,
-        SubGoalCreateRequest request) {
+    private void validateCreate(
+        CoreGoalSnapshot coreGoalSnapshot,
+        Long userId,
+        SubGoalCreateRequest request
+    ) {
+        coreGoalSnapshot.verifyCoreGoalUser(userId);
         validateSubGoalLimitNotExceeded(coreGoalSnapshot.getId());
         validateAlreadyExists(coreGoalSnapshot.getId(), request.position());
     }

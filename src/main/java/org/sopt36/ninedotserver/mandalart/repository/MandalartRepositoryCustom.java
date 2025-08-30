@@ -9,7 +9,5 @@ public interface MandalartRepositoryCustom {
 
     Optional<User> findUserById(Long mandalartId);
 
-    Optional<String> findTitleByMandalartId(Long mandalartId);
-
     Optional<String> findTitleByCoreGoalId(Long coreGoalSnapshotId);
 }

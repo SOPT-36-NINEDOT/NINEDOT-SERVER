@@ -29,22 +29,25 @@ import org.sopt36.ninedotserver.user.domain.User;
 public class Recommendation extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)  // 기본 키 자동 생성
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)                   // User와 N:1 관계
-    @JoinColumn(name = "user_id", nullable = false)      // FK 컬럼 user_id
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sub_goal_snapshot_id", nullable = false)  // FK 컬럼 sub_goal_id
+    @JoinColumn(name = "sub_goal_snapshot_id", nullable = false)
     private SubGoalSnapshot subGoalSnapshot;
 
     @Column(name = "recommendation_date", nullable = false)
     private LocalDate recommendationDate;
 
-    public static Recommendation create(User user, SubGoalSnapshot subGoalSnapshot,
-        LocalDate recommendationDate) {
+    public static Recommendation create(
+        User user,
+        SubGoalSnapshot subGoalSnapshot,
+        LocalDate recommendationDate
+    ) {
         return Recommendation.builder()
             .user(user)
             .subGoalSnapshot(subGoalSnapshot)

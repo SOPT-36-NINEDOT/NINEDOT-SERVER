@@ -1,6 +1,5 @@
 package org.sopt36.ninedotserver.mandalart.dto.response;
 
-import org.sopt36.ninedotserver.mandalart.domain.CoreGoal;
 import org.sopt36.ninedotserver.mandalart.domain.CoreGoalSnapshot;
 
 public record CoreGoalDetailResponse(

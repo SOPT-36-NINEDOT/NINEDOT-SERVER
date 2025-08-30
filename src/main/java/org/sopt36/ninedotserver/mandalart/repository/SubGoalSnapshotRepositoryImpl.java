@@ -54,8 +54,10 @@ public class SubGoalSnapshotRepositoryImpl implements SubGoalSnapshotRepositoryC
     }
 
     @Override
-    public List<SubGoalSnapshot> findAllActiveSubGoalSnapshotOrderByPosition(Long mandalartId,
-        LocalDate date) {
+    public List<SubGoalSnapshot> findAllActiveSubGoalSnapshotOrderByPosition(
+        Long mandalartId,
+        LocalDate date
+    ) {
         //date가 valid from이랑 valid to 사이인 애들은 다 갖고와.
         //그리고 history에서 completed date가 date랑 일치된 애들은 다 체크표시해서 반환해
         return queryFactory
@@ -69,8 +71,10 @@ public class SubGoalSnapshotRepositoryImpl implements SubGoalSnapshotRepositoryC
     }
 
     @Override
-    public List<SubGoalSnapshot> findActiveSubGoalSnapshotByCycleOrderByPosition(Long mandalartId,
-        Cycle cycle) {
+    public List<SubGoalSnapshot> findActiveSubGoalSnapshotByCycleOrderByPosition(
+        Long mandalartId,
+        Cycle cycle
+    ) {
         return queryFactory
             .selectFrom(subGoalSnapshot)
             .join(subGoalSnapshot.subGoal, subGoal)
@@ -85,7 +89,8 @@ public class SubGoalSnapshotRepositoryImpl implements SubGoalSnapshotRepositoryC
     @Override
     public List<SubGoalSnapshot> findActiveSubGoalSnapshotFollowingCoreGoalOrderByPosition(
         Long mandalartId,
-        Long coreGoalSnapshotId) {
+        Long coreGoalSnapshotId
+    ) {
         return queryFactory
             .selectFrom(subGoalSnapshot)
             .join(subGoalSnapshot.subGoal, subGoal)
@@ -100,7 +105,10 @@ public class SubGoalSnapshotRepositoryImpl implements SubGoalSnapshotRepositoryC
 
     @Override
     public List<SubGoalSnapshot> findActiveSubGoalSnapshotFollowingCycleAndCoreGoalOrderByPosition(
-        Long mandalartId, Long coreGoalSnapshotId, Cycle cycle) {
+        Long mandalartId,
+        Long coreGoalSnapshotId,
+        Cycle cycle
+    ) {
         return queryFactory
             .selectFrom(subGoalSnapshot)
             .join(subGoalSnapshot.subGoal, subGoal)

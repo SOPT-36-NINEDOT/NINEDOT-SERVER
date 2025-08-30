@@ -39,7 +39,8 @@ public class HistoryController {
         LocalDate completedDate = (date != null) ? date : LocalDate.now();
         Long historyId = historyCommandService.createHistory(userId, subGoalId, completedDate);
         URI location = URI.create(
-            "/api/v1/sub-goals/" + subGoalId + "/histories/" + historyId);
+            "/api/v1/sub-goals/" + subGoalId + "/histories/" + historyId
+        );
 
         return ResponseEntity.created(location)
             .body(ApiResponse.created(HISTORY_CREATED_SUCCESS));

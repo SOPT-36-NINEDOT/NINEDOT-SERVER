@@ -15,11 +15,9 @@ import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalIdResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalListResponse;
 import org.sopt36.ninedotserver.mandalart.exception.MandalartException;
 import org.sopt36.ninedotserver.mandalart.exception.SubGoalException;
-import org.sopt36.ninedotserver.mandalart.repository.CoreGoalRepository;
 import org.sopt36.ninedotserver.mandalart.repository.CoreGoalSnapshotRepository;
 import org.sopt36.ninedotserver.mandalart.repository.HistoryRepository;
 import org.sopt36.ninedotserver.mandalart.repository.MandalartRepository;
-import org.sopt36.ninedotserver.mandalart.repository.SubGoalRepository;
 import org.sopt36.ninedotserver.mandalart.repository.SubGoalSnapshotRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,8 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class SubGoalQueryService {
 
-    private final SubGoalRepository subGoalRepository;
-    private final CoreGoalRepository coreGoalRepository;
     private final MandalartRepository mandalartRepository;
     private final CoreGoalSnapshotRepository coreGoalSnapshotRepository;
     private final SubGoalSnapshotRepository subGoalSnapshotRepository;
@@ -41,8 +37,7 @@ public class SubGoalQueryService {
         coreGoalSnapshot.verifyCoreGoalUser(userId);
 
         List<SubGoalSnapshot> subGoals = subGoalSnapshotRepository
-            .findByCoreGoalSnapshotIdOrderByPosition(
-                coreGoalSnapshotId);
+            .findByCoreGoalSnapshotIdOrderByPosition(coreGoalSnapshotId);
 
         return subGoals.stream()
             .map(SubGoalIdResponse::from)

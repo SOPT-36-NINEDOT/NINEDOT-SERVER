@@ -39,8 +39,9 @@ public class RecommendationQueryService {
         List<SubGoalDetailResponse> subGoals = recommendations.stream()
             .map(Recommendation::getSubGoalSnapshot)
             .map(subGoalSnapshot -> {
-                boolean isCompleted = historyRepository
-                    .existsBySubGoalSnapshotIdAndCompletedDate(subGoalSnapshot.getId(), date);
+                boolean isCompleted = historyRepository.existsBySubGoalSnapshotIdAndCompletedDate(
+                    subGoalSnapshot.getId(), date
+                );
                 return SubGoalDetailResponse.of(subGoalSnapshot, isCompleted);
             })
             .collect(Collectors.toList());
