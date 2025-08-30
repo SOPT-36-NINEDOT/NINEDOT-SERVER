@@ -28,7 +28,8 @@ public class QuestionQueryService {
 
     public PersonaQuestionResponse getAllActivatedQuestions() {
         List<Question> questions = questionRepository.findAllByActivatedTrueAndDomain(
-            Domain.PERSONA);
+            Domain.PERSONA
+        );
         List<Choice> choices = choiceRepository.findAllByActivatedTrue();
 
         if (questions.isEmpty()) {
@@ -36,13 +37,13 @@ public class QuestionQueryService {
         }
 
         Map<Long, List<Choice>> choiceMap = choices.stream()
-                                                .collect(Collectors.groupingBy(
-                                                    c -> c.getQuestion().getId()));
+            .collect(Collectors.groupingBy(
+                c -> c.getQuestion().getId()));
 
         List<QuestionResponse> responseList = questions.stream()
-                                                  .map(q -> QuestionResponse.from(q,
-                                                      choiceMap.getOrDefault(q.getId(), List.of())))
-                                                  .toList();
+            .map(q -> QuestionResponse.from(q,
+                choiceMap.getOrDefault(q.getId(), List.of())))
+            .toList();
 
         return PersonaQuestionResponse.from(responseList);
     }
@@ -53,8 +54,8 @@ public class QuestionQueryService {
             throw new QuestionException(QuestionErrorCode.JOB_DROPDOWN_NOT_FOUND);
         }
         List<Job> jobList = jobChoiceList.stream()
-                                .map(JobDropdownResponse.Job::from)
-                                .toList();
+            .map(JobDropdownResponse.Job::from)
+            .toList();
         return JobDropdownResponse.of(jobList);
     }
 }
