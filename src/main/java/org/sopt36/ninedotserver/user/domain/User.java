@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -38,7 +39,8 @@ public class User extends BaseEntity {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "profile_image_url", columnDefinition = "TEXT", nullable = false)
+    @Lob
+    @Column(name = "profile_image_url", nullable = false)
     private String profileImageUrl;
 
     @Column(name = "birthday", length = MAX_BIRTHDAY_LENGTH, nullable = false)

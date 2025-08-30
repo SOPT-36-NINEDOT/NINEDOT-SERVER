@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 public class JwtProvider {
 
     private final UserRepository userRepository;
-    @Value("${JWT_SECRET_KEY}")
+    @Value("${spring.jwt.secret}")
     private String secret;
     private SecretKey secretKey;
 
