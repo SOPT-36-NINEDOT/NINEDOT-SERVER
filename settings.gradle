@@ -1,1 +1,3 @@
 rootProject.name = 'NINEDOT-SERVER'
+
+include(":ninedot-api", ":ninedot-application", ":ninedot-domain", ":ninedot-global", ":ninedot-infrastructure")

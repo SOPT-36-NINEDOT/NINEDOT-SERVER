@@ -1,0 +1,29 @@
+plugins {
+    id "java-library"
+    id "io.spring.dependency-management"
+}
+
+java { toolchain { languageVersion = JavaLanguageVersion.of(17) } }
+
+dependencies {
+    // web (원래 여기서는 쓰면 안 돼서 나중에 예외처리 싹 바꾸기)
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // JPA/Validation 애노테이션만 (런타임 구현은 infra에서)
+    compileOnly 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+    compileOnly 'jakarta.validation:jakarta.validation-api:3.0.2'
+    compileOnly 'org.hibernate.orm:hibernate-core'
+
+    // OpenFeign QueryDSL
+    implementation 'io.github.openfeign.querydsl:querydsl-jpa:6.11'
+    annotationProcessor 'io.github.openfeign.querydsl:querydsl-apt:6.11:jpa'
+    annotationProcessor 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+
+    api project(":ninedot-global")
+}
+
+sourceSets {
+    main.java.srcDirs += file("$buildDir/generated/sources/annotationProcessor/java/main")
+}
+
+tasks.named("jar") { enabled = true }

@@ -4,30 +4,46 @@ plugins {
     id 'io.spring.dependency-management' version '1.1.7'
 }
 
+ext {
+    lombokVersion = '1.18.34'
+}
+
 group = 'org.sopt36'
 version = '0.0.1-SNAPSHOT'
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+allprojects {
+    repositories { mavenCentral() }
+
+    java {
+        toolchain { languageVersion = JavaLanguageVersion.of(17) }
     }
 }
 
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'io.spring.dependency-management'
+
+    dependencyManagement {
+        imports { mavenBom "org.springframework.boot:spring-boot-dependencies:3.3.6" }
     }
-}
 
-repositories {
-    mavenCentral()
-}
+    dependencies {
+        // lombok
+        compileOnly "org.projectlombok:lombok:${lombokVersion}"
+        annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
-ext {
-    set('springAiVersion', "1.0.0")
+        // 테스트
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    }
+
+    tasks.withType(Test).configureEach {
+        useJUnitPlatform()
+    }
 }
 
 dependencies {
+    // bc 다 옮기면 빼기
     // env
     implementation 'io.github.cdimascio:dotenv-java:2.2.4'
 
@@ -77,14 +93,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-batch'
-}
 
-dependencyManagement {
-    imports {
-        mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
-    }
-}
-
-tasks.named('test') {
-    useJUnitPlatform()
+    implementation project(":ninedot-api")
+    implementation project(':ninedot-application')
+    implementation project(':ninedot-infrastructure')
+    implementation project(":ninedot-domain")
+    implementation project(':ninedot-global')
 }

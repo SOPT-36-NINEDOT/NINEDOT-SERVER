@@ -1,0 +1,32 @@
+plugins {
+    id 'org.springframework.boot'
+    id 'io.spring.dependency-management'
+    id 'java'
+}
+
+dependencies {
+    implementation project(':ninedot-application')
+    implementation project(":ninedot-domain")
+    implementation project(':ninedot-global')
+    implementation project(':ninedot-infrastructure')
+
+    // jpa
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // Web & API
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
+
+    // Health Check
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // Security & OAuth2
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+
+    testImplementation 'org.springframework.security:spring-security-test'
+}
+
+tasks.named('jar') { enabled = true; }

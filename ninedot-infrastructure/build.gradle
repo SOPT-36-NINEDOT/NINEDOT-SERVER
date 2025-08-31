@@ -1,0 +1,41 @@
+plugins {
+    id "java-library"
+    id "io.spring.dependency-management"
+}
+
+java { toolchain { languageVersion = JavaLanguageVersion.of(17) } }
+
+dependencies {
+    implementation project(':ninedot-domain')
+
+    // Security & OAuth2
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+    // JPA / DB
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    // 테스트용 DB
+    testImplementation 'com.h2database:h2'
+
+    // 외부 HTTP 클라이언트 (reactive client 필요 시)
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+    // JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
+    // Gemini
+    implementation 'com.google.genai:google-genai:1.8.0'
+
+    // 배치
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
+
+    // OpenFeign QueryDSL
+    implementation 'io.github.openfeign.querydsl:querydsl-jpa:6.11'
+    annotationProcessor 'io.github.openfeign.querydsl:querydsl-apt:6.11:jpa'
+}
+
+tasks.named("jar") { enabled = true }
