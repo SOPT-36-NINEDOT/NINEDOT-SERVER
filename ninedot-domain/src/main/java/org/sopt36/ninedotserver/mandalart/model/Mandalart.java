@@ -1,8 +1,5 @@
 package org.sopt36.ninedotserver.mandalart.model;
 
-import static org.sopt36.ninedotserver.mandalart.exception.MandalartErrorCode.INVALID_MANDALART_USER;
-import static org.sopt36.ninedotserver.mandalart.exception.MandalartErrorCode.MANDALART_USER_REQUIRED;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
