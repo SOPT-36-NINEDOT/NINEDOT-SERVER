@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.ai.client;
+package org.sopt36.ninedotserver.ai.port;
 
 public interface AiClient {
 
