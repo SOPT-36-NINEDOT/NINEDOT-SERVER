@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.mandalart.domain;
+package org.sopt36.ninedotserver.mandalart.model;
 
 import static org.sopt36.ninedotserver.mandalart.exception.MandalartErrorCode.INVALID_MANDALART_USER;
 import static org.sopt36.ninedotserver.mandalart.exception.MandalartErrorCode.MANDALART_USER_REQUIRED;
@@ -21,9 +21,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
-import org.sopt36.ninedotserver.global.entity.BaseEntity;
+import org.sopt36.ninedotserver.entity.BaseEntity;
+import org.sopt36.ninedotserver.mandalart.exception.MandalartErrorCode;
 import org.sopt36.ninedotserver.mandalart.exception.MandalartException;
-import org.sopt36.ninedotserver.user.domain.User;
+import org.sopt36.ninedotserver.user.model.User;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -53,10 +54,10 @@ public class Mandalart extends BaseEntity {
 
     public static Mandalart create(User user, String title, boolean aiGeneratable) {
         return Mandalart.builder()
-                   .user(user)
-                   .title(title)
-                   .aiGeneratable(aiGeneratable)
-                   .build();
+            .user(user)
+            .title(title)
+            .aiGeneratable(aiGeneratable)
+            .build();
     }
 
     public void disableAiGeneration() {
@@ -74,13 +75,13 @@ public class Mandalart extends BaseEntity {
 
     private void requireUserId(Long userId) {
         if (userId == null) {
-            throw new MandalartException(MANDALART_USER_REQUIRED);
+            throw new MandalartException(MandalartErrorCode.MANDALART_USER_REQUIRED);
         }
     }
 
     private void checkOwnership(Long userId) {
         if (!user.isSameId(userId)) {
-            throw new MandalartException(INVALID_MANDALART_USER);
+            throw new MandalartException(MandalartErrorCode.INVALID_MANDALART_USER);
         }
     }
 }

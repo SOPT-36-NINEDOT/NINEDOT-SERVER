@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.mandalart.domain;
+package org.sopt36.ninedotserver.mandalart.model;
 
 import lombok.Getter;
 

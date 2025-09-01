@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.mandalart.domain;
+package org.sopt36.ninedotserver.mandalart.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,8 +16,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
-import org.sopt36.ninedotserver.global.entity.BaseEntity;
-import org.sopt36.ninedotserver.user.domain.User;
+import org.sopt36.ninedotserver.entity.BaseEntity;
+import org.sopt36.ninedotserver.user.model.User;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

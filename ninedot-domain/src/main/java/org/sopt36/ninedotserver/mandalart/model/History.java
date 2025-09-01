@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.mandalart.domain;
+package org.sopt36.ninedotserver.mandalart.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,44 +9,37 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.sopt36.ninedotserver.global.entity.BaseEntity;
+import org.sopt36.ninedotserver.entity.BaseEntity;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder(access = AccessLevel.PROTECTED)
-@Table(name = "sub_goal")
+@Table(name = "history")
 @Entity
-public class SubGoal extends BaseEntity {
+public class History extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "core_id", nullable = false)
-    private CoreGoal coreGoal;
+    @JoinColumn(name = "subgoal_snapshot_id", nullable = false)
+    private SubGoalSnapshot subGoalSnapshot;
 
-    @Column(name = "position", nullable = false)
-    private int position;
+    @Column(name = "completed_date", nullable = false)
+    private LocalDate completedDate;
 
-    public static SubGoal create(
-        CoreGoal coreGoal,
-        int position
-    ) {
-        return SubGoal.builder()
-            .coreGoal(coreGoal)
-            .position(position)
+    public static History create(SubGoalSnapshot subGoalSnapshot, LocalDate completedDate) {
+        return History.builder()
+            .subGoalSnapshot(subGoalSnapshot)
+            .completedDate(completedDate)
             .build();
     }
-
-    public void verifyUser(Long userId) {
-        this.coreGoal.verifyUser(userId);
-    }
-
 }
