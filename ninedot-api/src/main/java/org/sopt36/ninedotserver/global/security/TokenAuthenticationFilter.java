@@ -1,5 +1,6 @@
-package org.sopt36.ninedotserver.global.config.security;
+package org.sopt36.ninedotserver.global.security;
 
+import jakarta.validation.constraints.NotNull;
 import java.io.IOException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -8,7 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
+import org.sopt36.ninedotserver.auth.security.JwtProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;

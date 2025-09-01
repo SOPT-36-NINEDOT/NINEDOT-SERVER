@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.global.config.security;
+package org.sopt36.ninedotserver.global.security;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
