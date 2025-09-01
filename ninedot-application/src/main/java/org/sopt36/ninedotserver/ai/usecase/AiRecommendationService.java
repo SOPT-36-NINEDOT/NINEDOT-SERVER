@@ -1,50 +1,60 @@
-package org.sopt36.ninedotserver.ai.service;
-
-import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.AI_RESPONSE_PARSE_ERROR;
-import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.CORE_GOAL_AI_FEATURE_NOT_AVAILABLE;
-import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.MANDALART_NOT_FOUND;
+package org.sopt36.ninedotserver.ai.usecase;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
-import org.sopt36.ninedotserver.ai.client.GeminiClient;
 import org.sopt36.ninedotserver.ai.dto.response.CoreGoalAiResponse;
+import org.sopt36.ninedotserver.ai.exception.AiErrorCode;
 import org.sopt36.ninedotserver.ai.exception.AiException;
-import org.sopt36.ninedotserver.ai.util.AgeUtil;
-import org.sopt36.ninedotserver.ai.util.PromptBuilder;
-import org.sopt36.ninedotserver.mandalart.domain.Mandalart;
-import org.sopt36.ninedotserver.mandalart.repository.CoreGoalSnapshotRepository;
-import org.sopt36.ninedotserver.mandalart.repository.MandalartRepository;
-import org.sopt36.ninedotserver.onboarding.domain.Domain;
-import org.sopt36.ninedotserver.onboarding.domain.Question;
-import org.sopt36.ninedotserver.onboarding.repository.AnswerRepository;
-import org.sopt36.ninedotserver.user.domain.User;
+import org.sopt36.ninedotserver.ai.port.AiClient;
+import org.sopt36.ninedotserver.ai.support.PromptBuilder;
+import org.sopt36.ninedotserver.mandalart.model.Mandalart;
+import org.sopt36.ninedotserver.mandalart.port.out.CoreGoalSnapshotRepositoryPort;
+import org.sopt36.ninedotserver.mandalart.port.out.MandalartRepositoryPort;
+import org.sopt36.ninedotserver.onboarding.model.Domain;
+import org.sopt36.ninedotserver.onboarding.model.Question;
+import org.sopt36.ninedotserver.onboarding.port.out.AnswerRepositoryPort;
+import org.sopt36.ninedotserver.user.model.User;
+import org.sopt36.ninedotserver.user.support.AgeUtil;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-@RequiredArgsConstructor
 @Service
 public class AiRecommendationService {
 
-    private final MandalartRepository mandalartRepository;
-    private final AnswerRepository answerRepository;
-    private final CoreGoalSnapshotRepository coreGoalSnapshotRepository;
-    private final GeminiClient geminiClient;
+    private final MandalartRepositoryPort mandalartRepository;
+    private final AnswerRepositoryPort answerRepository;
+    private final CoreGoalSnapshotRepositoryPort coreGoalSnapshotRepository;
+    private final @Qualifier("geminiClient") AiClient geminiClient;
     private final ObjectMapper objectMapper;
+
+    public AiRecommendationService(
+        MandalartRepositoryPort mandalartRepository,
+        AnswerRepositoryPort answerRepository,
+        CoreGoalSnapshotRepositoryPort coreGoalSnapshotRepository,
+        @Qualifier("geminiClient") AiClient geminiClient,
+        ObjectMapper objectMapper
+    ) {
+        this.mandalartRepository = mandalartRepository;
+        this.answerRepository = answerRepository;
+        this.coreGoalSnapshotRepository = coreGoalSnapshotRepository;
+        this.geminiClient = geminiClient;
+        this.objectMapper = objectMapper;
+    }
 
     @Transactional
     public CoreGoalAiResponse fetchAiRecommendation(Long mandalartId) {
         Mandalart mandalart = mandalartRepository.findById(mandalartId)
-            .orElseThrow(() -> new AiException(MANDALART_NOT_FOUND));
+            .orElseThrow(() -> new AiException(AiErrorCode.MANDALART_NOT_FOUND));
         if (!mandalart.isAiGeneratable()) {
-            throw new AiException(CORE_GOAL_AI_FEATURE_NOT_AVAILABLE);
+            throw new AiException(AiErrorCode.CORE_GOAL_AI_FEATURE_NOT_AVAILABLE);
         }
 
         User user = mandalartRepository.findUserById(mandalartId)
-            .orElseThrow(() -> new AiException(MANDALART_NOT_FOUND));
+            .orElseThrow(() -> new AiException(AiErrorCode.MANDALART_NOT_FOUND));
 
         int age = AgeUtil.calculateAgeFromString(user.getBirthday());
 
@@ -110,7 +120,7 @@ public class AiRecommendationService {
             //Read value는 그 json 응답을 dto랑 매칭시켜서 바로 포장해준다.
             return objectMapper.readValue(innerJson, CoreGoalAiResponse.class);
         } catch (JsonProcessingException e) {
-            throw new AiException(AI_RESPONSE_PARSE_ERROR);
+            throw new AiException(AiErrorCode.AI_RESPONSE_PARSE_ERROR);
         }
     }
 

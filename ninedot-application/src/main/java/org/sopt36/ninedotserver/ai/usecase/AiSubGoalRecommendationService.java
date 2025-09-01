@@ -1,9 +1,5 @@
-package org.sopt36.ninedotserver.ai.service;
+package org.sopt36.ninedotserver.ai.usecase;
 
-import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.AI_RESPONSE_PARSE_ERROR;
-import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.MANDALART_NOT_FOUND;
-import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.SUB_GOAL_AI_FEATURE_NOT_AVAILABLE;
-import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.SUB_GOAL_IS_FULL;
 import static org.sopt36.ninedotserver.user.exception.UserErrorCode.USER_NOT_FOUND;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -11,35 +7,51 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
-import lombok.RequiredArgsConstructor;
-import org.sopt36.ninedotserver.ai.client.GeminiSubGoalClient;
 import org.sopt36.ninedotserver.ai.dto.request.SubGoalAiRequest;
 import org.sopt36.ninedotserver.ai.dto.request.SubGoalRecommendationRequest;
 import org.sopt36.ninedotserver.ai.dto.response.SubGoalAiResponse;
+import org.sopt36.ninedotserver.ai.exception.AiErrorCode;
 import org.sopt36.ninedotserver.ai.exception.AiException;
-import org.sopt36.ninedotserver.ai.util.AgeUtil;
-import org.sopt36.ninedotserver.ai.util.PromptBuilder;
-import org.sopt36.ninedotserver.mandalart.domain.CoreGoalSnapshot;
+import org.sopt36.ninedotserver.ai.port.AiClient;
+import org.sopt36.ninedotserver.ai.support.PromptBuilder;
 import org.sopt36.ninedotserver.mandalart.exception.CoreGoalErrorCode;
 import org.sopt36.ninedotserver.mandalart.exception.CoreGoalException;
-import org.sopt36.ninedotserver.mandalart.repository.CoreGoalSnapshotRepository;
-import org.sopt36.ninedotserver.mandalart.repository.MandalartRepository;
-import org.sopt36.ninedotserver.onboarding.repository.AnswerRepository;
-import org.sopt36.ninedotserver.user.domain.User;
-import org.sopt36.ninedotserver.user.repository.UserRepository;
+import org.sopt36.ninedotserver.mandalart.model.CoreGoalSnapshot;
+import org.sopt36.ninedotserver.mandalart.port.out.CoreGoalSnapshotRepositoryPort;
+import org.sopt36.ninedotserver.mandalart.port.out.MandalartRepositoryPort;
+import org.sopt36.ninedotserver.onboarding.port.out.AnswerRepositoryPort;
+import org.sopt36.ninedotserver.user.model.User;
+import org.sopt36.ninedotserver.user.port.out.UserRepositoryPort;
+import org.sopt36.ninedotserver.user.support.AgeUtil;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
 public class AiSubGoalRecommendationService {
 
-    private final MandalartRepository mandalartRepository;
-    private final UserRepository userRepository;
-    private final AnswerRepository answerRepository;
-    private final GeminiSubGoalClient geminiSubGoalClient;
-    private final CoreGoalSnapshotRepository coreGoalSnapshotRepository;
+    private final MandalartRepositoryPort mandalartRepository;
+    private final UserRepositoryPort userRepository;
+    private final AnswerRepositoryPort answerRepository;
+    private final @Qualifier("geminiSubgoalClient") AiClient geminiSubGoalClient;
+    private final CoreGoalSnapshotRepositoryPort coreGoalSnapshotRepository;
     private final ObjectMapper objectMapper;
+
+    public AiSubGoalRecommendationService(
+        MandalartRepositoryPort mandalartRepository,
+        UserRepositoryPort userRepository,
+        AnswerRepositoryPort answerRepository,
+        @Qualifier("geminiSubgoalClient") AiClient geminiSubGoalClient,
+        CoreGoalSnapshotRepositoryPort coreGoalSnapshotRepository,
+        ObjectMapper objectMapper
+    ) {
+        this.mandalartRepository = mandalartRepository;
+        this.userRepository = userRepository;
+        this.answerRepository = answerRepository;
+        this.geminiSubGoalClient = geminiSubGoalClient;
+        this.coreGoalSnapshotRepository = coreGoalSnapshotRepository;
+        this.objectMapper = objectMapper;
+    }
 
     @Transactional
     public SubGoalAiResponse fetchAiSubGoalRecommendation(
@@ -50,15 +62,15 @@ public class AiSubGoalRecommendationService {
         CoreGoalSnapshot coreGoalSnapshot = getExistingCoreGoal(coreGoalSnapshotId);
 
         if (request.subGoal().size() >= 8) {
-            throw new AiException(SUB_GOAL_IS_FULL);
+            throw new AiException(AiErrorCode.SUB_GOAL_IS_FULL);
         }
 
         if (!coreGoalSnapshot.getCoreGoal().isAiGeneratable()) {
-            throw new AiException(SUB_GOAL_AI_FEATURE_NOT_AVAILABLE);
+            throw new AiException(AiErrorCode.SUB_GOAL_AI_FEATURE_NOT_AVAILABLE);
         }
 
         String mandalartTitle = mandalartRepository.findTitleByCoreGoalId(coreGoalSnapshotId)
-            .orElseThrow(() -> new AiException(MANDALART_NOT_FOUND));
+            .orElseThrow(() -> new AiException(AiErrorCode.MANDALART_NOT_FOUND));
 
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new AiException(USER_NOT_FOUND));
@@ -107,7 +119,7 @@ public class AiSubGoalRecommendationService {
             return objectMapper.treeToValue(fixedNode, SubGoalAiResponse.class);
 
         } catch (JsonProcessingException e) {
-            throw new AiException(AI_RESPONSE_PARSE_ERROR);
+            throw new AiException(AiErrorCode.AI_RESPONSE_PARSE_ERROR);
         }
     }
 
