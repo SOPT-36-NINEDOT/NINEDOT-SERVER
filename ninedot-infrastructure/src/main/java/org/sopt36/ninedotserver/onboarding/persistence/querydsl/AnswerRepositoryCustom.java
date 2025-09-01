@@ -1,9 +1,9 @@
-package org.sopt36.ninedotserver.onboarding.repository;
+package org.sopt36.ninedotserver.onboarding.persistence.querydsl;
 
 import java.util.List;
 import java.util.Map;
-import org.sopt36.ninedotserver.onboarding.domain.Domain;
-import org.sopt36.ninedotserver.onboarding.domain.Question;
+import org.sopt36.ninedotserver.onboarding.model.Domain;
+import org.sopt36.ninedotserver.onboarding.model.Question;
 
 public interface AnswerRepositoryCustom {
 
