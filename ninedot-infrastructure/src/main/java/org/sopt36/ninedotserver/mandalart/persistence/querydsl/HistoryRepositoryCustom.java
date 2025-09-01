@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.mandalart.repository;
+package org.sopt36.ninedotserver.mandalart.persistence.querydsl;
 
 import java.time.LocalDate;
 import java.util.List;

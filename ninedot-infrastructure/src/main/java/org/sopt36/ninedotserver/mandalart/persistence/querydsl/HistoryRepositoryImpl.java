@@ -1,14 +1,14 @@
-package org.sopt36.ninedotserver.mandalart.repository;
+package org.sopt36.ninedotserver.mandalart.persistence.querydsl;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.sopt36.ninedotserver.mandalart.domain.QCoreGoal;
-import org.sopt36.ninedotserver.mandalart.domain.QHistory;
-import org.sopt36.ninedotserver.mandalart.domain.QMandalart;
-import org.sopt36.ninedotserver.mandalart.domain.QSubGoal;
-import org.sopt36.ninedotserver.mandalart.domain.QSubGoalSnapshot;
+import org.sopt36.ninedotserver.mandalart.model.QCoreGoal;
+import org.sopt36.ninedotserver.mandalart.model.QHistory;
+import org.sopt36.ninedotserver.mandalart.model.QMandalart;
+import org.sopt36.ninedotserver.mandalart.model.QSubGoal;
+import org.sopt36.ninedotserver.mandalart.model.QSubGoalSnapshot;
 
 @RequiredArgsConstructor
 public class HistoryRepositoryImpl implements HistoryRepositoryCustom {

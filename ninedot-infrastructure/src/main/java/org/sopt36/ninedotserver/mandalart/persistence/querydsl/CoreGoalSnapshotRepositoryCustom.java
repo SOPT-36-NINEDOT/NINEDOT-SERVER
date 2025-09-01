@@ -1,7 +1,7 @@
-package org.sopt36.ninedotserver.mandalart.repository;
+package org.sopt36.ninedotserver.mandalart.persistence.querydsl;
 
 import java.util.List;
-import org.sopt36.ninedotserver.mandalart.domain.CoreGoalSnapshot;
+import org.sopt36.ninedotserver.mandalart.model.CoreGoalSnapshot;
 
 public interface CoreGoalSnapshotRepositoryCustom {
 

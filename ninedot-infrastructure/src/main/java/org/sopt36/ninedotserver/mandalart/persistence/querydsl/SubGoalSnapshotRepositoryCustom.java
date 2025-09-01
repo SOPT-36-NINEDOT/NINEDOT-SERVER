@@ -1,9 +1,9 @@
-package org.sopt36.ninedotserver.mandalart.repository;
+package org.sopt36.ninedotserver.mandalart.persistence.querydsl;
 
 import java.time.LocalDate;
 import java.util.List;
-import org.sopt36.ninedotserver.mandalart.domain.Cycle;
-import org.sopt36.ninedotserver.mandalart.domain.SubGoalSnapshot;
+import org.sopt36.ninedotserver.mandalart.model.Cycle;
+import org.sopt36.ninedotserver.mandalart.model.SubGoalSnapshot;
 
 public interface SubGoalSnapshotRepositoryCustom {
 

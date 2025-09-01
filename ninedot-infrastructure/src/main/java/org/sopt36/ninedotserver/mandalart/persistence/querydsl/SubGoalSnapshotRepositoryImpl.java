@@ -1,19 +1,21 @@
-package org.sopt36.ninedotserver.mandalart.repository;
+package org.sopt36.ninedotserver.mandalart.persistence.querydsl;
 
-import static org.sopt36.ninedotserver.mandalart.domain.QCoreGoal.coreGoal;
-import static org.sopt36.ninedotserver.mandalart.domain.QCoreGoalSnapshot.coreGoalSnapshot;
-import static org.sopt36.ninedotserver.mandalart.domain.QSubGoal.subGoal;
-import static org.sopt36.ninedotserver.mandalart.domain.QSubGoalSnapshot.subGoalSnapshot;
+
+import static org.sopt36.ninedotserver.mandalart.model.QCoreGoal.coreGoal;
+import static org.sopt36.ninedotserver.mandalart.model.QCoreGoalSnapshot.coreGoalSnapshot;
+import static org.sopt36.ninedotserver.mandalart.model.QSubGoal.subGoal;
+import static org.sopt36.ninedotserver.mandalart.model.QSubGoalSnapshot.subGoalSnapshot;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.sopt36.ninedotserver.mandalart.domain.Cycle;
-import org.sopt36.ninedotserver.mandalart.domain.QCoreGoal;
-import org.sopt36.ninedotserver.mandalart.domain.QSubGoal;
-import org.sopt36.ninedotserver.mandalart.domain.QSubGoalSnapshot;
-import org.sopt36.ninedotserver.mandalart.domain.SubGoalSnapshot;
+import org.sopt36.ninedotserver.mandalart.model.Cycle;
+
+import org.sopt36.ninedotserver.mandalart.model.QCoreGoal;
+import org.sopt36.ninedotserver.mandalart.model.QSubGoal;
+import org.sopt36.ninedotserver.mandalart.model.QSubGoalSnapshot;
+import org.sopt36.ninedotserver.mandalart.model.SubGoalSnapshot;
 
 @RequiredArgsConstructor
 public class SubGoalSnapshotRepositoryImpl implements SubGoalSnapshotRepositoryCustom {

@@ -1,13 +1,13 @@
-package org.sopt36.ninedotserver.mandalart.repository;
+package org.sopt36.ninedotserver.mandalart.persistence.querydsl;
 
-import static org.sopt36.ninedotserver.mandalart.domain.QCoreGoal.coreGoal;
-import static org.sopt36.ninedotserver.mandalart.domain.QCoreGoalSnapshot.coreGoalSnapshot;
-import static org.sopt36.ninedotserver.mandalart.domain.QMandalart.mandalart;
+import static org.sopt36.ninedotserver.mandalart.model.QCoreGoal.coreGoal;
+import static org.sopt36.ninedotserver.mandalart.model.QMandalart.mandalart;
+import static org.sopt36.ninedotserver.mandalart.model.QCoreGoalSnapshot.coreGoalSnapshot;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.sopt36.ninedotserver.user.domain.User;
+import org.sopt36.ninedotserver.user.model.User;
 
 @RequiredArgsConstructor
 public class MandalartRepositoryImpl implements MandalartRepositoryCustom {

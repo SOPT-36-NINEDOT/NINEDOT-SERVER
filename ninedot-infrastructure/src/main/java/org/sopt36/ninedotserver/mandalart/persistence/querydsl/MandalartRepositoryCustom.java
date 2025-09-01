@@ -1,7 +1,7 @@
-package org.sopt36.ninedotserver.mandalart.repository;
+package org.sopt36.ninedotserver.mandalart.persistence.querydsl;
 
 import java.util.Optional;
-import org.sopt36.ninedotserver.user.domain.User;
+import org.sopt36.ninedotserver.user.model.User;
 
 public interface MandalartRepositoryCustom {
 

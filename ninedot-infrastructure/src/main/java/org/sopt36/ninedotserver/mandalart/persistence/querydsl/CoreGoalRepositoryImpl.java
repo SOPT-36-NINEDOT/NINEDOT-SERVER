@@ -1,7 +1,7 @@
-package org.sopt36.ninedotserver.mandalart.repository;
+package org.sopt36.ninedotserver.mandalart.persistence.querydsl;
 
-import static org.sopt36.ninedotserver.mandalart.domain.QCoreGoal.coreGoal;
-import static org.sopt36.ninedotserver.mandalart.domain.QMandalart.mandalart;
+import static org.sopt36.ninedotserver.mandalart.model.QCoreGoal.coreGoal;
+import static org.sopt36.ninedotserver.mandalart.model.QMandalart.mandalart;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
