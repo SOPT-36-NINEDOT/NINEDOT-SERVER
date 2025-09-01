@@ -1,21 +1,21 @@
-package org.sopt36.ninedotserver.mandalart.controller;
+package org.sopt36.ninedotserver.mandalart.v1;
 
-import static org.sopt36.ninedotserver.mandalart.controller.message.MandalartMessage.CREATED_SUCCESS;
-import static org.sopt36.ninedotserver.mandalart.controller.message.MandalartMessage.MANDALART_BOARD_RETRIEVED_SUCCESS;
-import static org.sopt36.ninedotserver.mandalart.controller.message.MandalartMessage.MANDALART_RETRIEVED_SUCCESS;
-import static org.sopt36.ninedotserver.mandalart.controller.message.MandalartMessage.PROGRESS_HISTORY_RETRIEVED_SUCCESS;
+import static org.sopt36.ninedotserver.mandalart.v1.message.MandalartMessage.CREATED_SUCCESS;
+import static org.sopt36.ninedotserver.mandalart.v1.message.MandalartMessage.MANDALART_BOARD_RETRIEVED_SUCCESS;
+import static org.sopt36.ninedotserver.mandalart.v1.message.MandalartMessage.MANDALART_RETRIEVED_SUCCESS;
+import static org.sopt36.ninedotserver.mandalart.v1.message.MandalartMessage.PROGRESS_HISTORY_RETRIEVED_SUCCESS;
 
 import jakarta.validation.Valid;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
-import org.sopt36.ninedotserver.global.dto.response.ApiResponse;
+import org.sopt36.ninedotserver.dto.response.ApiResponse;
 import org.sopt36.ninedotserver.mandalart.dto.request.MandalartCreateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.response.MandalartBoardResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.MandalartCreateResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.MandalartHistoryResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.MandalartResponse;
-import org.sopt36.ninedotserver.mandalart.service.command.MandalartCommandService;
-import org.sopt36.ninedotserver.mandalart.service.query.MandalartQueryService;
+import org.sopt36.ninedotserver.mandalart.usecase.command.MandalartCommandService;
+import org.sopt36.ninedotserver.mandalart.usecase.query.MandalartQueryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
