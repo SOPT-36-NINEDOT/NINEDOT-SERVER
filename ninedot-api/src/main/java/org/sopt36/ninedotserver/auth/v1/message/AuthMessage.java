@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.auth.controller.message;
+package org.sopt36.ninedotserver.auth.v1.message;
 
 public class AuthMessage {
 
