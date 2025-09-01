@@ -1,7 +1,7 @@
 package org.sopt36.ninedotserver.onboarding.dto.response;
 
 import java.util.List;
-import org.sopt36.ninedotserver.onboarding.domain.Choice;
+import org.sopt36.ninedotserver.onboarding.model.Choice;
 
 public record JobDropdownResponse(
     List<Job> jobList
