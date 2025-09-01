@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.onboarding.controller.message;
+package org.sopt36.ninedotserver.onboarding.v1.message;
 
 public class QuestionMessage {
 

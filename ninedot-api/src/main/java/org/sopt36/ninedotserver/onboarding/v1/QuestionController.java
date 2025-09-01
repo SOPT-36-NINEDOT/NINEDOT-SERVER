@@ -1,13 +1,13 @@
-package org.sopt36.ninedotserver.onboarding.controller;
+package org.sopt36.ninedotserver.onboarding.v1;
 
-import static org.sopt36.ninedotserver.onboarding.controller.message.QuestionMessage.JOB_DROPDOWN_RETRIEVED_SUCCESS;
-import static org.sopt36.ninedotserver.onboarding.controller.message.QuestionMessage.PERSONA_QUESTION_RETRIEVED_SUCCESS;
+import static org.sopt36.ninedotserver.onboarding.v1.message.QuestionMessage.JOB_DROPDOWN_RETRIEVED_SUCCESS;
+import static org.sopt36.ninedotserver.onboarding.v1.message.QuestionMessage.PERSONA_QUESTION_RETRIEVED_SUCCESS;
 
 import lombok.RequiredArgsConstructor;
-import org.sopt36.ninedotserver.global.dto.response.ApiResponse;
+import org.sopt36.ninedotserver.dto.response.ApiResponse;
 import org.sopt36.ninedotserver.onboarding.dto.response.JobDropdownResponse;
 import org.sopt36.ninedotserver.onboarding.dto.response.PersonaQuestionResponse;
-import org.sopt36.ninedotserver.onboarding.service.query.QuestionQueryService;
+import org.sopt36.ninedotserver.onboarding.usecase.query.QuestionQueryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
