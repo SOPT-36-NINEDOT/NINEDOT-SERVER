@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.global.util;
+package org.sopt36.ninedotserver.util;
 
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.Duration;

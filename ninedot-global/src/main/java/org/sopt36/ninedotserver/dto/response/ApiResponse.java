@@ -1,7 +1,7 @@
-package org.sopt36.ninedotserver.global.dto.response;
+package org.sopt36.ninedotserver.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.sopt36.ninedotserver.global.exception.ErrorCode;
+import org.sopt36.ninedotserver.exception.ErrorCode;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ApiResponse<T, M>(int code, String message, T data, M meta) {

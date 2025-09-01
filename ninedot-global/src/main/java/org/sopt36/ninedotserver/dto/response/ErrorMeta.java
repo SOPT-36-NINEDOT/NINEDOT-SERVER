@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.global.dto.response;
+package org.sopt36.ninedotserver.dto.response;
 
 public record ErrorMeta(
     String path,
