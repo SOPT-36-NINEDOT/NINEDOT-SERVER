@@ -1,11 +1,11 @@
-package org.sopt36.ninedotserver.user.controller;
+package org.sopt36.ninedotserver.user.v1;
 
-import static org.sopt36.ninedotserver.user.controller.message.UserMessage.USER_INFO_RETRIEVED_SUCCESS;
+import static org.sopt36.ninedotserver.user.v1.message.UserMessage.USER_INFO_RETRIEVED_SUCCESS;
 
 import lombok.RequiredArgsConstructor;
-import org.sopt36.ninedotserver.global.dto.response.ApiResponse;
+import org.sopt36.ninedotserver.dto.response.ApiResponse;
 import org.sopt36.ninedotserver.user.dto.response.UserInfoResponse;
-import org.sopt36.ninedotserver.user.service.query.UserQueryService;
+import org.sopt36.ninedotserver.user.usecase.UserQueryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.user.controller.message;
+package org.sopt36.ninedotserver.user.v1.message;
 
 public class UserMessage {
 
