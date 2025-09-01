@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.mandalart.controller.message;
+package org.sopt36.ninedotserver.mandalart.v1.message;
 
 public class RecommendationMessage {
 

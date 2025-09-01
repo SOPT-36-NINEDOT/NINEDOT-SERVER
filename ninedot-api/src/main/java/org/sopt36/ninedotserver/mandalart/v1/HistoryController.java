@@ -1,16 +1,16 @@
-package org.sopt36.ninedotserver.mandalart.controller;
+package org.sopt36.ninedotserver.mandalart.v1;
 
-import static org.sopt36.ninedotserver.mandalart.controller.message.HistoryMessage.HISTORY_CREATED_SUCCESS;
-import static org.sopt36.ninedotserver.mandalart.controller.message.HistoryMessage.HISTORY_DELETED_SUCCESS;
-import static org.sopt36.ninedotserver.mandalart.controller.message.HistoryMessage.HISTORY_RETRIEVED_SUCCESS;
+import static org.sopt36.ninedotserver.mandalart.v1.message.HistoryMessage.HISTORY_CREATED_SUCCESS;
+import static org.sopt36.ninedotserver.mandalart.v1.message.HistoryMessage.HISTORY_DELETED_SUCCESS;
+import static org.sopt36.ninedotserver.mandalart.v1.message.HistoryMessage.HISTORY_RETRIEVED_SUCCESS;
 
 import java.net.URI;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
-import org.sopt36.ninedotserver.global.dto.response.ApiResponse;
+import org.sopt36.ninedotserver.dto.response.ApiResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.StreakListResponse;
-import org.sopt36.ninedotserver.mandalart.service.command.HistoryCommandService;
-import org.sopt36.ninedotserver.mandalart.service.query.HistoryQueryService;
+import org.sopt36.ninedotserver.mandalart.usecase.command.HistoryCommandService;
+import org.sopt36.ninedotserver.mandalart.usecase.query.HistoryQueryService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
