@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.auth.domain;
+package org.sopt36.ninedotserver.auth.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,8 +16,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.sopt36.ninedotserver.global.entity.BaseEntity;
-import org.sopt36.ninedotserver.user.domain.User;
+import org.sopt36.ninedotserver.entity.BaseEntity;
+import org.sopt36.ninedotserver.user.model.User;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
