@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.onboarding.domain;
+package org.sopt36.ninedotserver.onboarding.model;
 
 import static org.sopt36.ninedotserver.onboarding.exception.ChoiceErrorCode.CHOICE_NOT_FOUND;
 

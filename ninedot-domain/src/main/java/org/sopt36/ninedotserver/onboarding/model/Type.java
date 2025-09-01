@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.onboarding.domain;
+package org.sopt36.ninedotserver.onboarding.model;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 

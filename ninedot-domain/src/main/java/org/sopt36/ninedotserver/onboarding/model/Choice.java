@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.onboarding.domain;
+package org.sopt36.ninedotserver.onboarding.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,18 +14,18 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.sopt36.ninedotserver.global.entity.BaseEntity;
-import org.sopt36.ninedotserver.user.domain.User;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
+import org.sopt36.ninedotserver.entity.BaseEntity;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder(access = AccessLevel.PROTECTED)
-@Table(name = "answer")
+@Table(name = "choice")
+@DynamicInsert
 @Entity
-public class Answer extends BaseEntity {
-
-    private static final int MAX_CONTENT_LENGTH = 255;
+public class Choice extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,19 +35,18 @@ public class Answer extends BaseEntity {
     @JoinColumn(name = "question_id")
     private Question question;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
-
     @Column(name = "content", nullable = false)
     private String content;
 
-    public static Answer create(Question question, User user, String content) {
-        return Answer.builder()
+    @Column(name = "activated", nullable = false)
+    @ColumnDefault(value = "true")
+    private boolean activated;
+
+    public static Choice create(Question question, String content, boolean activated) {
+        return Choice.builder()
             .question(question)
-            .user(user)
             .content(content)
+            .activated(activated)
             .build();
     }
-
 }
