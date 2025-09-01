@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.ai.util;
+package org.sopt36.ninedotserver.user.support;
 
 import static org.sopt36.ninedotserver.user.exception.UserErrorCode.BIRTHDAY_NOT_BLANK;
 import static org.sopt36.ninedotserver.user.exception.UserErrorCode.INVALID_BIRTHDAY_TYPE;
