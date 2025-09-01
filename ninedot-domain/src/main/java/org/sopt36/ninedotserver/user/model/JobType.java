@@ -1,5 +1,8 @@
-package org.sopt36.ninedotserver.user.domain;
+package org.sopt36.ninedotserver.user.model;
 
+import lombok.Getter;
+
+@Getter
 public enum JobType {
     STUDENT("학생"),
     JOB_SEEKER("취업 준비생 / 휴직자"),
@@ -22,7 +25,4 @@ public enum JobType {
         this.displayName = displayName;
     }
 
-    public String getDisplayName() {
-        return displayName;
-    }
 }

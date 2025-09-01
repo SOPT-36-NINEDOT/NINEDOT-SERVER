@@ -1,7 +1,7 @@
 package org.sopt36.ninedotserver.user.exception;
 
 import lombok.RequiredArgsConstructor;
-import org.sopt36.ninedotserver.global.exception.ErrorCode;
+import org.sopt36.ninedotserver.exception.ErrorCode;
 import org.springframework.http.HttpStatus;
 
 @RequiredArgsConstructor
