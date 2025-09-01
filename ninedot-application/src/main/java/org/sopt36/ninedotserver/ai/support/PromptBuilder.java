@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.ai.util;
+package org.sopt36.ninedotserver.ai.support;
 
 import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.SUB_GOAL_PROMPT_PARAMETER_NOT_FOUND;
 
