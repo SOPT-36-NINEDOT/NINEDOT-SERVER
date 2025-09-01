@@ -1,8 +1,5 @@
 package org.sopt36.ninedotserver.ai.client;
 
-import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.AI_API_CONNECTION_ERROR;
-import static org.sopt36.ninedotserver.ai.exception.AiErrorCode.AI_API_ERROR;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,6 +9,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.sopt36.ninedotserver.ai.exception.AiErrorCode;
+import org.sopt36.ninedotserver.ai.port.AiClient;
 import org.sopt36.ninedotserver.ai.dto.response.GenerateContentRequest;
 import org.sopt36.ninedotserver.ai.dto.response.GenerationConfig;
 import org.sopt36.ninedotserver.ai.exception.AiException;
@@ -21,7 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 @Slf4j
-@Component
+@Component("geminiClient")
 public class GeminiClient implements AiClient {
 
     private final RestClient restClient;
@@ -54,7 +53,7 @@ public class GeminiClient implements AiClient {
                         }
                         log.error("Gemini API error: status={}, body={}",
                             res.getStatusCode(), bodyText);
-                        throw new AiException(AI_API_ERROR);
+                        throw new AiException(AiErrorCode.AI_API_ERROR);
                     }
                 )
                 .body(String.class);
@@ -63,7 +62,7 @@ public class GeminiClient implements AiClient {
             if (e instanceof AiException) {
                 throw e;
             }
-            throw new AiException(AI_API_CONNECTION_ERROR);
+            throw new AiException(AiErrorCode.AI_API_CONNECTION_ERROR);
         }
     }
 
