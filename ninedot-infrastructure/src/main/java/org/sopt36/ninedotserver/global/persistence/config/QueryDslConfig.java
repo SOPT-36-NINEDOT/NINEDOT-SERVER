@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.global.config.querydsl;
+package org.sopt36.ninedotserver.global.persistence.config;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
