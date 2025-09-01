@@ -1,15 +1,7 @@
-package org.sopt36.ninedotserver.auth.service;
-
-import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.GOOGLE_TOKEN_RETRIEVAL_FAILED;
-import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.GOOGLE_USER_INFO_RETRIEVAL_FAILED;
-import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.INVALID_REFRESH_TOKEN;
-import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.UNAUTHORIZED;
-import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.USER_NOT_FOUND;
-import static org.sopt36.ninedotserver.onboarding.exception.QuestionErrorCode.QUESTION_NOT_FOUND;
+package org.sopt36.ninedotserver.auth.usecase;
 
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -19,10 +11,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.sopt36.ninedotserver.auth.domain.AuthProvider;
-import org.sopt36.ninedotserver.auth.domain.OnboardingPage;
-import org.sopt36.ninedotserver.auth.domain.ProviderType;
-import org.sopt36.ninedotserver.auth.domain.RefreshToken;
 import org.sopt36.ninedotserver.auth.dto.request.SignupRequest;
 import org.sopt36.ninedotserver.auth.dto.response.GoogleTokenResponse;
 import org.sopt36.ninedotserver.auth.dto.response.GoogleUserInfo;
@@ -31,21 +19,27 @@ import org.sopt36.ninedotserver.auth.dto.response.LoginOrSignupResponse.LoginDat
 import org.sopt36.ninedotserver.auth.dto.response.LoginOrSignupResponse.SignupData;
 import org.sopt36.ninedotserver.auth.dto.response.NewAccessTokenResponse;
 import org.sopt36.ninedotserver.auth.dto.response.SignupResponse;
+import org.sopt36.ninedotserver.auth.exception.AuthErrorCode;
 import org.sopt36.ninedotserver.auth.exception.AuthException;
-import org.sopt36.ninedotserver.auth.repository.AuthProviderRepository;
-import org.sopt36.ninedotserver.auth.repository.RefreshTokenRepository;
-import org.sopt36.ninedotserver.global.config.security.JwtProvider;
-import org.sopt36.ninedotserver.global.util.CookieUtil;
-import org.sopt36.ninedotserver.mandalart.repository.CoreGoalRepository;
-import org.sopt36.ninedotserver.mandalart.repository.MandalartRepository;
-import org.sopt36.ninedotserver.onboarding.domain.Answer;
-import org.sopt36.ninedotserver.onboarding.domain.ChoiceInfo;
-import org.sopt36.ninedotserver.onboarding.domain.Question;
+import org.sopt36.ninedotserver.auth.model.AuthProvider;
+import org.sopt36.ninedotserver.auth.model.OnboardingPage;
+import org.sopt36.ninedotserver.auth.model.ProviderType;
+import org.sopt36.ninedotserver.auth.model.RefreshToken;
+import org.sopt36.ninedotserver.auth.port.JwtProviderPort;
+import org.sopt36.ninedotserver.auth.port.out.AuthProviderRepositoryPort;
+import org.sopt36.ninedotserver.auth.port.out.RefreshTokenRepositoryPort;
+import org.sopt36.ninedotserver.mandalart.port.out.CoreGoalRepositoryPort;
+import org.sopt36.ninedotserver.mandalart.port.out.MandalartRepositoryPort;
+import org.sopt36.ninedotserver.onboarding.exception.QuestionErrorCode;
 import org.sopt36.ninedotserver.onboarding.exception.QuestionException;
-import org.sopt36.ninedotserver.onboarding.repository.AnswerRepository;
-import org.sopt36.ninedotserver.onboarding.repository.QuestionRepository;
-import org.sopt36.ninedotserver.user.domain.User;
-import org.sopt36.ninedotserver.user.repository.UserRepository;
+import org.sopt36.ninedotserver.onboarding.model.Answer;
+import org.sopt36.ninedotserver.onboarding.model.ChoiceInfo;
+import org.sopt36.ninedotserver.onboarding.model.Question;
+import org.sopt36.ninedotserver.onboarding.port.out.AnswerRepositoryPort;
+import org.sopt36.ninedotserver.onboarding.port.out.QuestionRepositoryPort;
+import org.sopt36.ninedotserver.user.model.User;
+import org.sopt36.ninedotserver.user.port.out.UserRepositoryPort;
+import org.sopt36.ninedotserver.util.CookieUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
@@ -53,6 +47,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -67,15 +62,15 @@ public class AuthService {
         "https://ninedot-client.vercel.app/auth/google/callback"
     );
     private final @Qualifier("authRestClient") RestClient restClient;
-    private final JwtProvider jwtProvider;
+    private final JwtProviderPort jwtProvider;
     private final CookieUtil cookieUtil;
-    private final AuthProviderRepository authProviderRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
-    private final UserRepository userRepository;
-    private final CoreGoalRepository coreGoalRepository;
-    private final MandalartRepository mandalartRepository;
-    private final AnswerRepository answerRepository;
-    private final QuestionRepository questionRepository;
+    private final AuthProviderRepositoryPort authProviderRepository;
+    private final RefreshTokenRepositoryPort refreshTokenRepository;
+    private final UserRepositoryPort userRepository;
+    private final CoreGoalRepositoryPort coreGoalRepository;
+    private final MandalartRepositoryPort mandalartRepository;
+    private final AnswerRepositoryPort answerRepository;
+    private final QuestionRepositoryPort questionRepository;
     @Value("${GOOGLE_CLIENT_ID}")
     String clientId;
     @Value("${GOOGLE_CLIENT_SECRET}")
@@ -89,15 +84,15 @@ public class AuthService {
 
     public AuthService(
         @Qualifier("authRestClient") RestClient restClient,
-        JwtProvider jwtProvider,
+        JwtProviderPort jwtProvider,
         CookieUtil cookieUtil,
-        AuthProviderRepository authProviderRepository,
-        RefreshTokenRepository refreshTokenRepository,
-        UserRepository userRepository,
-        CoreGoalRepository coreGoalRepository,
-        MandalartRepository mandalartRepository,
-        AnswerRepository answerRepository,
-        QuestionRepository questionRepository
+        AuthProviderRepositoryPort authProviderRepository,
+        RefreshTokenRepositoryPort refreshTokenRepository,
+        UserRepositoryPort userRepository,
+        CoreGoalRepositoryPort coreGoalRepository,
+        MandalartRepositoryPort mandalartRepository,
+        AnswerRepositoryPort answerRepository,
+        QuestionRepositoryPort questionRepository
     ) {
         this.restClient = restClient;
         this.jwtProvider = jwtProvider;
@@ -210,16 +205,16 @@ public class AuthService {
             log.info("Google 응답 수신: {}", response);
             if (response == null) {
                 log.warn("Google 응답이 null입니다.");
-                throw new AuthException(GOOGLE_TOKEN_RETRIEVAL_FAILED);
+                throw new AuthException(AuthErrorCode.GOOGLE_TOKEN_RETRIEVAL_FAILED);
             }
             if (response.accessToken() == null) {
                 log.warn("Google 응답에서 accessToken이 null입니다: {}", response);
-                throw new AuthException(GOOGLE_TOKEN_RETRIEVAL_FAILED);
+                throw new AuthException(AuthErrorCode.GOOGLE_TOKEN_RETRIEVAL_FAILED);
             }
             return response;
         } catch (Exception e) {
             log.error("Google 토큰 요청 실패", e);
-            throw new AuthException(GOOGLE_TOKEN_RETRIEVAL_FAILED, e.getMessage());
+            throw new AuthException(AuthErrorCode.GOOGLE_TOKEN_RETRIEVAL_FAILED, e.getMessage());
         }
     }
 
@@ -231,14 +226,14 @@ public class AuthService {
             //파라미터 누락, 존재하지 않는 사용자, 비활성 사용자(구글에서) 등 처리
             .onStatus(HttpStatusCode::is4xxClientError, (req, res) -> {
                 throw new AuthException(
-                    UNAUTHORIZED,
+                    AuthErrorCode.UNAUTHORIZED,
                     "Google userinfo 4xx error: " + readErrorBody(res)
                 );
             })
             //구글 터짐
             .onStatus(HttpStatusCode::is5xxServerError, (req, res) -> {
                 throw new AuthException(
-                    GOOGLE_USER_INFO_RETRIEVAL_FAILED,
+                    AuthErrorCode.GOOGLE_USER_INFO_RETRIEVAL_FAILED,
                     "Google userinfo 5xx error: " + readErrorBody(res)
                 );
             })
@@ -257,14 +252,14 @@ public class AuthService {
     private RefreshToken isRefreshTokenValid(String refreshToken) {
         return refreshTokenRepository
             .findByRefreshTokenAndExpiresAtAfter(refreshToken, LocalDateTime.now())
-            .orElseThrow(() -> new AuthException(INVALID_REFRESH_TOKEN));
+            .orElseThrow(() -> new AuthException(AuthErrorCode.INVALID_REFRESH_TOKEN));
     }
 
     // 로그인 시 데이터베이스에 리프레시 토큰 생성
     private void addRefreshTokenToDB(Long userId, String refreshToken) {
         Claims claims = jwtProvider.parseClaims(refreshToken).getPayload();
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new AuthException(USER_NOT_FOUND));
+            .orElseThrow(() -> new AuthException(AuthErrorCode.USER_NOT_FOUND));
         refreshTokenRepository.save(
             RefreshToken.create(
                 user,
@@ -319,12 +314,12 @@ public class AuthService {
         if (optUser.isPresent()) {
             return optUser.get().getOnboardingCompleted();
         }
-        throw new AuthException(USER_NOT_FOUND);
+        throw new AuthException(AuthErrorCode.USER_NOT_FOUND);
     }
 
     private OnboardingPage findUserOnboardingPage(Long userId) {
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new AuthException(USER_NOT_FOUND));
+            .orElseThrow(() -> new AuthException(AuthErrorCode.USER_NOT_FOUND));
         if (user.getOnboardingCompleted()) {
             return OnboardingPage.ONBOARDING_COMPLETED;
         }
@@ -341,7 +336,7 @@ public class AuthService {
         return request.answers().stream()
             .map(answer -> {
                 Question question = questionRepository.findById(answer.questionId())
-                    .orElseThrow(() -> new QuestionException(QUESTION_NOT_FOUND));
+                    .orElseThrow(() -> new QuestionException(QuestionErrorCode.QUESTION_NOT_FOUND));
                 String content = ChoiceInfo.getShortSentenceById(answer.choiceId());
                 return Answer.create(question, user, content);
             })

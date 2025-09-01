@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.global.config.security;
+package org.sopt36.ninedotserver.auth.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -12,7 +12,8 @@ import java.util.Date;
 import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.sopt36.ninedotserver.user.repository.UserRepository;
+import org.sopt36.ninedotserver.auth.port.JwtProviderPort;
+import org.sopt36.ninedotserver.user.port.out.UserRepositoryPort;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -22,9 +23,10 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class JwtProvider {
+public class JwtProvider implements JwtProviderPort {
 
-    private final UserRepository userRepository;
+    private final UserRepositoryPort userRepository;
+
     @Value("${spring.jwt.secret}")
     private String secret;
     private SecretKey secretKey;

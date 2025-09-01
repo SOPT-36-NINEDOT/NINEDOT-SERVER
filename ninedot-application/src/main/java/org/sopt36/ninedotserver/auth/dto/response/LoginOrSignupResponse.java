@@ -1,7 +1,7 @@
 package org.sopt36.ninedotserver.auth.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-import org.sopt36.ninedotserver.auth.domain.OnboardingPage;
+import org.sopt36.ninedotserver.auth.model.OnboardingPage;
 
 public record LoginOrSignupResponse<T>(
     @JsonValue T data
