@@ -1,6 +1,6 @@
 package org.sopt36.ninedotserver.user.dto.response;
 
-import org.sopt36.ninedotserver.user.domain.User;
+import org.sopt36.ninedotserver.user.model.User;
 
 public record UserInfoResponse(
     Long id,
