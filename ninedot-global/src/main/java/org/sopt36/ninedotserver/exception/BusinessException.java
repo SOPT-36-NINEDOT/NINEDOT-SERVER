@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.global.exception;
+package org.sopt36.ninedotserver.exception;
 
 import lombok.Getter;
 

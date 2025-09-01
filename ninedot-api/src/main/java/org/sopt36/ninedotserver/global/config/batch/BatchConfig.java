@@ -1,9 +1,9 @@
 package org.sopt36.ninedotserver.global.config.batch;
 
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
-@EnableBatchProcessing
+@EnableScheduling
 @Configuration
 public class BatchConfig {
 
