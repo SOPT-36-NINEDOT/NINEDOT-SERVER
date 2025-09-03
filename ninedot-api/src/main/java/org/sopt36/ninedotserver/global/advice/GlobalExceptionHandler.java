@@ -1,10 +1,13 @@
-package org.sopt36.ninedotserver.exception;
+package org.sopt36.ninedotserver.global.advice;
 
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt36.ninedotserver.dto.response.ApiResponse;
 import org.sopt36.ninedotserver.dto.response.ErrorMeta;
+import org.sopt36.ninedotserver.exception.BusinessException;
+import org.sopt36.ninedotserver.exception.ErrorCode;
+import org.sopt36.ninedotserver.exception.GlobalErrorCode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

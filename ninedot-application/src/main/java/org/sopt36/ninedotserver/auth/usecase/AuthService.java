@@ -25,6 +25,7 @@ import org.sopt36.ninedotserver.auth.model.AuthProvider;
 import org.sopt36.ninedotserver.auth.model.OnboardingPage;
 import org.sopt36.ninedotserver.auth.model.ProviderType;
 import org.sopt36.ninedotserver.auth.model.RefreshToken;
+import org.sopt36.ninedotserver.auth.port.CookiePort;
 import org.sopt36.ninedotserver.auth.port.JwtProviderPort;
 import org.sopt36.ninedotserver.auth.port.out.AuthProviderRepositoryPort;
 import org.sopt36.ninedotserver.auth.port.out.RefreshTokenRepositoryPort;
@@ -39,7 +40,6 @@ import org.sopt36.ninedotserver.onboarding.port.out.AnswerRepositoryPort;
 import org.sopt36.ninedotserver.onboarding.port.out.QuestionRepositoryPort;
 import org.sopt36.ninedotserver.user.model.User;
 import org.sopt36.ninedotserver.user.port.out.UserRepositoryPort;
-import org.sopt36.ninedotserver.util.CookieUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
@@ -63,7 +63,7 @@ public class AuthService {
     );
     private final @Qualifier("authRestClient") RestClient restClient;
     private final JwtProviderPort jwtProvider;
-    private final CookieUtil cookieUtil;
+    private final CookiePort cookiePort;
     private final AuthProviderRepositoryPort authProviderRepository;
     private final RefreshTokenRepositoryPort refreshTokenRepository;
     private final UserRepositoryPort userRepository;
@@ -85,7 +85,7 @@ public class AuthService {
     public AuthService(
         @Qualifier("authRestClient") RestClient restClient,
         JwtProviderPort jwtProvider,
-        CookieUtil cookieUtil,
+        CookiePort cookiePort,
         AuthProviderRepositoryPort authProviderRepository,
         RefreshTokenRepositoryPort refreshTokenRepository,
         UserRepositoryPort userRepository,
@@ -96,7 +96,7 @@ public class AuthService {
     ) {
         this.restClient = restClient;
         this.jwtProvider = jwtProvider;
-        this.cookieUtil = cookieUtil;
+        this.cookiePort = cookiePort;
         this.authProviderRepository = authProviderRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.userRepository = userRepository;
@@ -243,7 +243,7 @@ public class AuthService {
     private void generateAndStoreRefreshToken(Long userId, HttpServletResponse response) {
         String refreshToken = jwtProvider.createToken(userId, refreshTokenExpirationMilliseconds);
         //ㄴ토큰을 만들어
-        cookieUtil.createRefreshTokenCookie(response, refreshToken);
+        cookiePort.createRefreshTokenCookie(response, refreshToken);
         //ㄴ쿠키에 담아
         addRefreshTokenToDB(userId, refreshToken);
         //ㄴdb에 refresh token 추가

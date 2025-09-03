@@ -1,13 +1,14 @@
-package org.sopt36.ninedotserver.util;
+package org.sopt36.ninedotserver.global.support;
 
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.Duration;
+import org.sopt36.ninedotserver.auth.port.CookiePort;
 import org.springframework.beans.factory.annotation.Value; // @Value 임포트
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CookieUtil {
+public class CookieAdapter implements CookiePort {
 
     @Value("${spring.cookie.domain}")
     private String cookieDomain;

@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.config.auth;
+package org.sopt36.ninedotserver.global.config.client;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
