@@ -114,5 +114,5 @@ jobs:
             ${{ steps.status.outputs.message }}
 
       - name: Fail if any failed
-        if: ${{ always() && (steps.assemble.outcome != 'success' || steps.test.outcome != 'success') }}
+        if: ${{ failure() }}
         run: exit 1
