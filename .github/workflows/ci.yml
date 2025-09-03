@@ -22,6 +22,7 @@ env:
   GOOGLE_CLIENT_SECRET: dummy
   GOOGLE_REDIRECT_URI: http://localhost/callback
   JWT_SECRET_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
+  ACT: "false"
 
 jobs:
   assemble:
@@ -36,7 +37,7 @@ jobs:
           java-version: 17
 
       - uses: gradle/actions/setup-gradle@v3
-        if: ${{ !env.ACT }}
+        if: ${{ env.ACT != 'true' }}
         with:
           cache-read-only: ${{ github.event_name == 'pull_request' }}
           gradle-home-cache-cleanup: true
@@ -56,7 +57,7 @@ jobs:
           java-version: 17
 
       - uses: gradle/actions/setup-gradle@v3
-        if: ${{ !env.ACT }}
+        if: ${{ env.ACT != 'true' }}
         with:
           cache-read-only: ${{ github.event_name == 'pull_request' }}
           gradle-home-cache-cleanup: true
@@ -70,14 +71,13 @@ jobs:
     name: Report status to PR
     runs-on: ubuntu-latest
     needs: [ assemble, test ]
-    if: ${{ always() && github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork && !env.ACT }}
+    if: ${{ always() && github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork && env.ACT != 'true' }}
     steps:
       - name: Compose status message
         id: status
         run: |
           a="${{ needs.assemble.result }}"
           t="${{ needs.test.result }}"
-          # success / failure / cancelled / skipped
           msg="**CI status**%0A"
           if [ "$a" = "success" ]; then
             msg="$msg ✅ assemble: success%0A"
