@@ -6,12 +6,15 @@ plugins {
 java { toolchain { languageVersion = JavaLanguageVersion.of(17) } }
 
 dependencies {
-    // web (원래 여기서는 쓰면 안 돼서 나중에 예외처리 싹 바꾸기)
-    implementation 'org.springframework.boot:spring-boot-starter-web'
+    api project(':ninedot-global')
 
-    // JPA/Validation 애노테이션만 (런타임 구현은 infra에서)
+    // Bean Validation
+    api 'jakarta.validation:jakarta.validation-api:3.0.2'
+
+    implementation 'com.fasterxml.jackson.core:jackson-annotations'
+
+    // JPA/Hibernate annotation
     compileOnly 'jakarta.persistence:jakarta.persistence-api:3.1.0'
-    compileOnly 'jakarta.validation:jakarta.validation-api:3.0.2'
     compileOnly 'org.hibernate.orm:hibernate-core'
 
     // OpenFeign QueryDSL
@@ -19,7 +22,8 @@ dependencies {
     annotationProcessor 'io.github.openfeign.querydsl:querydsl-apt:6.11:jpa'
     annotationProcessor 'jakarta.persistence:jakarta.persistence-api:3.1.0'
 
-    api project(":ninedot-global")
+    // 추후 ErrorCode 에서 HttpStatus 삭제하는 리팩토링 후 제거 필요
+    implementation 'org.springframework:spring-web'
 }
 
 sourceSets {
