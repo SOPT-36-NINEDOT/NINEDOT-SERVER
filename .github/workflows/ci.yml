@@ -48,13 +48,6 @@ jobs:
           ./gradlew :ninedot-domain:test :ninedot-application:test :ninedot-api:test \
             -Dspring.profiles.active=test --no-daemon --stacktrace --info --no-watch-fs
 
-      - name: Gradle test
-        id: test
-        continue-on-error: true
-        run: |
-          ./gradlew test -Dspring.profiles.active=test \
-            --no-daemon --stacktrace --info --no-watch-fs
-
       - name: Publish unit-test results (check UI)
         id: publish
         if: ${{ always() && !env.ACT && hashFiles('**/build/test-results/test/**/*.xml') != '' }}
@@ -114,5 +107,5 @@ jobs:
             ${{ steps.status.outputs.message }}
 
       - name: Fail if any failed
-        if: ${{ failure() }}
+        if: ${{ always() && (steps.assemble.conclusion == 'failure' || steps.test.conclusion == 'failure') }}
         run: exit 1
