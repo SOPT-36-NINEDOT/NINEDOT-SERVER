@@ -16,16 +16,17 @@ concurrency:
   group: pr-ci-${{ github.ref }}
   cancel-in-progress: true
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    env:
-      GRADLE_OPTS: "-Dorg.gradle.vfs.watch=false"
-      GOOGLE_CLIENT_ID: dummy
-      GOOGLE_CLIENT_SECRET: dummy
-      GOOGLE_REDIRECT_URI: http://localhost/callback
-      JWT_SECRET_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
+env:
+  GRADLE_OPTS: "-Dorg.gradle.vfs.watch=false"
+  GOOGLE_CLIENT_ID: dummy
+  GOOGLE_CLIENT_SECRET: dummy
+  GOOGLE_REDIRECT_URI: http://localhost/callback
+  JWT_SECRET_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
 
+jobs:
+  assemble:
+    name: Assemble
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -43,69 +44,66 @@ jobs:
       - name: Gradle assemble (no tests)
         run: ./gradlew :ninedot-api:assemble --no-daemon --stacktrace --info --no-watch-fs
 
-      - name: Gradle unit tests (domain + application [+ api])
+  test:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v3
+        if: ${{ !env.ACT }}
+        with:
+          cache-read-only: ${{ github.event_name == 'pull_request' }}
+          gradle-home-cache-cleanup: true
+
+      - name: Gradle unit tests (domain + application + api)
         run: |
           ./gradlew :ninedot-domain:test :ninedot-application:test :ninedot-api:test \
             -Dspring.profiles.active=test --no-daemon --stacktrace --info --no-watch-fs
 
-      - name: Publish unit-test results (check UI)
-        id: publish
-        if: ${{ always() && !env.ACT && hashFiles('**/build/test-results/test/**/*.xml') != '' }}
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          files: "**/build/test-results/test/**/*.xml"
-          comment_mode: off
-          check_run: ${{ !github.event.pull_request.head.repo.fork }}
-          job_summary: true
-
-      - name: Compose message
+  report:
+    name: Report status to PR
+    runs-on: ubuntu-latest
+    needs: [ assemble, test ]
+    if: ${{ always() && github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork && !env.ACT }}
+    steps:
+      - name: Compose status message
         id: status
-        if: ${{ always() }}
-        env:
-          ASSEMBLE: ${{ steps.assemble.conclusion }}
-          TEST: ${{ steps.test.conclusion }}
-          PUBLISH: ${{ steps.publish.outcome }}
         run: |
-          if [ "$ASSEMBLE" = "success" ]; then
-            MSG="✅ Assemble 성공"
+          a="${{ needs.assemble.result }}"
+          t="${{ needs.test.result }}"
+          # success / failure / cancelled / skipped
+          msg="**CI status**%0A"
+          if [ "$a" = "success" ]; then
+            msg="$msg ✅ assemble: success%0A"
           else
-            MSG="❌ Assemble 실패"
+            msg="$msg ❌ assemble: $a%0A"
           fi
-
-          if [ "$TEST" = "success" ]; then
-            MSG="$MSG"$'\n'"✅ Test 성공"
+          if [ "$t" = "success" ]; then
+            msg="$msg ✅ test: success%0A"
           else
-            MSG="$MSG"$'\n'"❌ Test 실패"
+            msg="$msg ❌ test: $t%0A"
           fi
+          echo "message=$msg" >> "$GITHUB_OUTPUT"
 
-          if [ "$PUBLISH" = "failure" ]; then
-            MSG="$MSG"$'\n'"⚠️ 테스트 리포트 게시 실패(권한/토큰 문제일 수 있음)"
-          fi
-
-          printf "message<<EOF\n%s\nEOF\n" "$MSG" >> "$GITHUB_OUTPUT"
-
-      - name: Find existing CI status comment
+      - name: Find existing comment
         id: find-comment
-        if: ${{ always() && github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork && !env.ACT }}
         uses: peter-evans/find-comment@v3
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: 'github-actions[bot]'
-          body-includes: 'CI status'
+          body-includes: '**CI status**'
 
       - name: Create or update PR comment
-        if: ${{ always() && github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork && !env.ACT }}
         uses: peter-evans/create-or-update-comment@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ github.event.pull_request.number }}
           comment-id: ${{ steps.find-comment.outputs.comment-id }}
           edit-mode: replace
-          body: |
-            **CI status**
-            ${{ steps.status.outputs.message }}
-
-      - name: Fail if any failed
-        if: ${{ always() && (steps.assemble.conclusion == 'failure' || steps.test.conclusion == 'failure') }}
-        run: exit 1
+          body: ${{ steps.status.outputs.message }}
