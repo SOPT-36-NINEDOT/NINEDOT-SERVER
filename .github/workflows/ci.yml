@@ -19,6 +19,12 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      GRADLE_OPTS: "-Dorg.gradle.vfs.watch=false"
+      GOOGLE_CLIENT_ID: dummy
+      GOOGLE_CLIENT_SECRET: dummy
+      GOOGLE_REDIRECT_URI: http://localhost/callback
+      JWT_SECRET_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
 
     steps:
       - uses: actions/checkout@v4
@@ -45,12 +51,6 @@ jobs:
       - name: Gradle test
         id: test
         continue-on-error: true
-        env:
-          GRADLE_OPTS: "-Dorg.gradle.vfs.watch=false"
-          GOOGLE_CLIENT_ID: dummy
-          GOOGLE_CLIENT_SECRET: dummy
-          GOOGLE_REDIRECT_URI: http://localhost/callback
-          JWT_SECRET_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
         run: |
           ./gradlew test -Dspring.profiles.active=test \
             --no-daemon --stacktrace --info --no-watch-fs
