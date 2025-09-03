@@ -16,10 +16,18 @@ concurrency:
   group: pr-ci-${{ github.ref }}
   cancel-in-progress: true
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+env:
+  GRADLE_OPTS: "-Dorg.gradle.vfs.watch=false"
+  GOOGLE_CLIENT_ID: dummy
+  GOOGLE_CLIENT_SECRET: dummy
+  GOOGLE_REDIRECT_URI: http://localhost/callback
+  JWT_SECRET_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
+  ACT: "false"
 
+jobs:
+  assemble:
+    name: Assemble
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -29,65 +37,79 @@ jobs:
           java-version: 17
 
       - uses: gradle/actions/setup-gradle@v3
-        if: ${{ !env.ACT }}
+        if: ${{ env.ACT != 'true' }}
         with:
           cache-read-only: ${{ github.event_name == 'pull_request' }}
           gradle-home-cache-cleanup: true
 
       - name: Gradle assemble (no tests)
-        id: assemble
-        env:
-          GRADLE_OPTS: "-Dorg.gradle.vfs.watch=false"
-        run: |
-          chmod +x ./gradlew
-          ./gradlew assemble --no-daemon --stacktrace --info --no-watch-fs
+        run: ./gradlew :ninedot-api:assemble --no-daemon --stacktrace --info --no-watch-fs
 
-      - name: Gradle test
-        id: test
-        continue-on-error: true
-        env:
-          GRADLE_OPTS: "-Dorg.gradle.vfs.watch=false"
-          GOOGLE_CLIENT_ID: dummy
-          GOOGLE_CLIENT_SECRET: dummy
-          GOOGLE_REDIRECT_URI: http://localhost/callback
-          JWT_SECRET_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
-        run: |
-          ./gradlew test -Dspring.profiles.active=test \
-            --no-daemon --stacktrace --info --no-watch-fs
+  test:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: Publish unit-test results (check UI)
-        id: publish
-        if: ${{ always() && !env.ACT && hashFiles('**/build/test-results/test/**/*.xml') != '' }}
-        uses: EnricoMi/publish-unit-test-result-action@v2
+      - uses: actions/setup-java@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          files: "**/build/test-results/test/**/*.xml"
-          comment_mode: off
-          check_run: ${{ !github.event.pull_request.head.repo.fork }}
-          job_summary: true
+          distribution: temurin
+          java-version: 17
 
-      - name: Compose message
-        id: status
-        if: ${{ always() }}
+      - uses: gradle/actions/setup-gradle@v3
+        if: ${{ env.ACT != 'true' }}
+        with:
+          cache-read-only: ${{ github.event_name == 'pull_request' }}
+          gradle-home-cache-cleanup: true
+
+      - name: Gradle unit tests (domain + application + api)
         run: |
-          if [ "${{ steps.assemble.outcome }}" = "success" ]; then
-            MSG="✅ Assemble 성공"
-          else
-            MSG="❌ Assemble 실패"
-          fi
+          ./gradlew :ninedot-domain:test :ninedot-application:test :ninedot-api:test \
+            -Dspring.profiles.active=test --no-daemon --stacktrace --info --no-watch-fs
 
-          if [ "${{ steps.test.outcome }}" = "success" ]; then
-            MSG="$MSG"$'\n'"✅ Test 성공"
-          else
-            MSG="$MSG"$'\n'"❌ Test 실패"
-          fi
+  report:
+    name: Report status to PR
+    runs-on: ubuntu-latest
+    needs: [ assemble, test ]
+    if: ${{ always() && github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork }}
+    steps:
+      - name: Compose status message
+        id: status
+        run: |
+          a="${{ needs.assemble.result }}"
+          t="${{ needs.test.result }}"
+          
+          {
+            echo "message<<EOF"
+            echo "**CI status**"
+            if [ "$a" = "success" ]; then
+              echo "✅ assemble: success"
+            else
+              echo "❌ assemble: $a"
+            fi
+            if [ "$t" = "success" ]; then
+              echo "✅ test: success"
+            else
+              echo "❌ test: $t"
+            fi
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT" 
 
-          if [ "${{ steps.publish.outcome }}" = "failure" ]; then
-            MSG="$MSG"$'\n'"⚠️ 테스트 리포트 게시 실패(권한/토큰 문제일 수 있음)"
-          fi
+      - name: Find existing comment
+        if: ${{ env.ACT != 'true' }}
+        id: find-comment
+        uses: peter-evans/find-comment@v3
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: '**CI status**'
 
-          printf "message<<EOF\n%s\nEOF\n" "$MSG" >> "$GITHUB_OUTPUT"
-
-      - name: Fail if any failed
-        if: ${{ always() && (steps.assemble.outcome != 'success' || steps.test.outcome != 'success') }}
-        run: exit 1
+      - name: Create or update PR comment
+        if: ${{ env.ACT != 'true' }}
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
+          edit-mode: replace
+          body: ${{ steps.status.outputs.message }}

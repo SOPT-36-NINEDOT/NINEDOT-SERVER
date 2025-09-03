@@ -1,0 +1,15 @@
+plugins {
+    id "java-library"
+    id "io.spring.dependency-management"
+}
+
+java { toolchain { languageVersion = JavaLanguageVersion.of(17) } }
+
+dependencies {
+    implementation 'com.fasterxml.jackson.core:jackson-annotations'
+
+    // 추후 ErrorCode 에서 HttpStatus 삭제하는 리팩토링 후 제거 필요
+    implementation 'org.springframework:spring-web'
+}
+
+tasks.named("jar") { enabled = true }

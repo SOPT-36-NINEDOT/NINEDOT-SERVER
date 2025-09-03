@@ -1,90 +1,40 @@
 plugins {
-    id 'java'
-    id 'org.springframework.boot' version '3.3.6'
     id 'io.spring.dependency-management' version '1.1.7'
 }
 
-group = 'org.sopt36'
-version = '0.0.1-SNAPSHOT'
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
-}
-
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
-}
-
-repositories {
-    mavenCentral()
-}
-
 ext {
-    set('springAiVersion', "1.0.0")
+    springBootVersion = '3.3.6'
+    lombokVersion = '1.18.34'
 }
 
-dependencies {
-    // env
-    implementation 'io.github.cdimascio:dotenv-java:2.2.4'
-
-    // Web
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-
-    // Security & OAuth2
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-
-    // JPA
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-
-    // JWT (jjwt)
-    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
-    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
-    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
-
-
-    // OpenFeign QueryDSL
-    implementation 'io.github.openfeign.querydsl:querydsl-jpa:6.11'
-    annotationProcessor 'io.github.openfeign.querydsl:querydsl-apt:6.11:jpa'
-
-    // Lombok
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
-
-    // Validation
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-
-    // Test
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.security:spring-security-test'
-    testImplementation "com.h2database:h2"
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-    //MySQL
-    implementation 'mysql:mysql-connector-java:8.0.33'
-
-    // swagger
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
-
-    //Gemini
-    implementation 'com.google.genai:google-genai:1.8.0'
-
-    // Spring batch
-    implementation 'org.springframework.boot:spring-boot-starter'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-batch'
+allprojects {
+    group = 'org.sopt36'
+    version = '0.0.1-SNAPSHOT'
+    repositories { mavenCentral() }
 }
 
-dependencyManagement {
-    imports {
-        mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
+configure(subprojects.findAll { it.name != 'ninedot-api' }) {
+    apply plugin: 'java-library'
+    apply plugin: 'io.spring.dependency-management'
+
+    java { toolchain { languageVersion = JavaLanguageVersion.of(17) } }
+
+    dependencies {
+        compileOnly "org.projectlombok:lombok:${lombokVersion}"
+        annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+        testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+        testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+        testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
+        testImplementation 'org.assertj:assertj-core:3.25.3'
+        testImplementation 'org.mockito:mockito-core:5.11.0'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+        test {
+            useJUnitPlatform()
+        }
     }
-}
 
-tasks.named('test') {
-    useJUnitPlatform()
+    dependencyManagement {
+        imports { mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}" }
+    }
 }
