@@ -78,16 +78,16 @@ jobs:
         run: |
           a="${{ needs.assemble.result }}"
           t="${{ needs.test.result }}"
-          msg="**CI status**%0A"
+          msg="**CI status**\n"
           if [ "$a" = "success" ]; then
-            msg="$msg ✅ assemble: success%0A"
+            msg="$msg ✅ assemble: success\n"
           else
-            msg="$msg ❌ assemble: $a%0A"
+            msg="$msg ❌ assemble: $a\n"
           fi
           if [ "$t" = "success" ]; then
-            msg="$msg ✅ test: success%0A"
+            msg="$msg ✅ test: success\n"
           else
-            msg="$msg ❌ test: $t%0A"
+            msg="$msg ❌ test: $t\n"
           fi
           echo "message=$msg" >> "$GITHUB_OUTPUT"
 
