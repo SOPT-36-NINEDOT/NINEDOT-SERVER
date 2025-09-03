@@ -78,18 +78,22 @@ jobs:
         run: |
           a="${{ needs.assemble.result }}"
           t="${{ needs.test.result }}"
-          msg="**CI status**\n"
-          if [ "$a" = "success" ]; then
-            msg="$msg ✅ assemble: success\n"
-          else
-            msg="$msg ❌ assemble: $a\n"
-          fi
-          if [ "$t" = "success" ]; then
-            msg="$msg ✅ test: success\n"
-          else
-            msg="$msg ❌ test: $t\n"
-          fi
-          echo "message=$msg" >> "$GITHUB_OUTPUT"
+          
+          {
+            echo "message<<EOF"
+            echo "**CI status**"
+            if [ "$a" = "success" ]; then
+              echo "✅ assemble: success"
+            else
+              echo "❌ assemble: $a"
+            fi
+            if [ "$t" = "success" ]; then
+              echo "✅ test: success"
+            else
+              echo "❌ test: $t"
+            fi
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT" 
 
       - name: Find existing comment
         if: ${{ env.ACT != 'true' }}
