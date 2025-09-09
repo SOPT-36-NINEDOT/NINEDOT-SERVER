@@ -11,14 +11,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.sopt36.ninedotserver.auth.dto.request.SignupServiceRequest;
+import org.sopt36.ninedotserver.auth.dto.request.SignupCommand;
 import org.sopt36.ninedotserver.auth.dto.response.GoogleTokenResponse;
 import org.sopt36.ninedotserver.auth.dto.response.GoogleUserInfo;
 import org.sopt36.ninedotserver.auth.dto.response.LoginOrSignupResponse;
 import org.sopt36.ninedotserver.auth.dto.response.LoginOrSignupResponse.LoginData;
 import org.sopt36.ninedotserver.auth.dto.response.LoginOrSignupResponse.SignupData;
-import org.sopt36.ninedotserver.auth.dto.response.NewAccessTokenResponse;
-import org.sopt36.ninedotserver.auth.dto.response.SignupResponse;
+import org.sopt36.ninedotserver.auth.dto.response.NewAccessTokenResult;
+import org.sopt36.ninedotserver.auth.dto.response.SignupResult;
 import org.sopt36.ninedotserver.auth.exception.AuthErrorCode;
 import org.sopt36.ninedotserver.auth.exception.AuthException;
 import org.sopt36.ninedotserver.auth.model.AuthProvider;
@@ -133,7 +133,7 @@ public class AuthService {
     }
 
     @Transactional
-    public NewAccessTokenResponse createNewAccessToken(String refreshToken) {
+    public NewAccessTokenResult createNewAccessToken(String refreshToken) {
         RefreshToken rt = isRefreshTokenValid(refreshToken);
 
         Long userId = rt.getUser().getId();
@@ -141,7 +141,7 @@ public class AuthService {
 
         refreshTokenRepository.delete(rt);
         generateAndStoreRefreshToken(userId); // TODO) RT담는 로직 컨트롤러로
-        return new NewAccessTokenResponse(newAccessToken, "새로운 액세스토큰이 생성되었습니다.");
+        return new NewAccessTokenResult(newAccessToken, "새로운 액세스토큰이 생성되었습니다.");
     }
 
     @Transactional
@@ -153,7 +153,7 @@ public class AuthService {
     }
 
     @Transactional
-    public SignupResponse registerUser(SignupServiceRequest request) {
+    public SignupResult registerUser(SignupCommand request) {
         User user = User.create(
             request.name(),
             request.email(),
@@ -177,7 +177,7 @@ public class AuthService {
             .createToken(user.getId(), accessTokenExpirationMilliseconds);
         generateAndStoreRefreshToken(user.getId());
 
-        return SignupResponse.of(accessToken, user); // TODO 서비스 return DTO 변경
+        return SignupResult.of(accessToken, user); // TODO 서비스 return DTO 변경
     }
 
     private GoogleTokenResponse getGoogleToken(String code, String redirectUri) {
@@ -330,7 +330,7 @@ public class AuthService {
         return OnboardingPage.MANDALART;
     }
 
-    private List<Answer> getAnswers(SignupServiceRequest request, User user) {
+    private List<Answer> getAnswers(SignupCommand request, User user) {
         return request.answers().stream()
             .map(answer -> {
                 Question question = questionRepository.findById(answer.questionId())

@@ -2,7 +2,7 @@ package org.sopt36.ninedotserver.auth.dto.response;
 
 import org.sopt36.ninedotserver.user.model.User;
 
-public record UserRetrievedResponse(
+public record UserRetrievedResult(
     Long id,
     String email,
     String name,
@@ -10,8 +10,8 @@ public record UserRetrievedResponse(
     String birthday
 ) {
 
-    public static UserRetrievedResponse of(User user) {
-        return new UserRetrievedResponse(
+    public static UserRetrievedResult of(User user) {
+        return new UserRetrievedResult(
             user.getId(), user.getEmail(), user.getName(), user.getJob(), user.getBirthday()
         );
     }

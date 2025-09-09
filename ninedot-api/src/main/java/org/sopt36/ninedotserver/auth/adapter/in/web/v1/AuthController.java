@@ -9,11 +9,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.auth.adapter.in.web.support.CookieWriter;
-import org.sopt36.ninedotserver.auth.dto.request.SignupServiceRequest;
+import org.sopt36.ninedotserver.auth.dto.request.SignupCommand;
 import org.sopt36.ninedotserver.auth.usecase.AuthService;
 import org.sopt36.ninedotserver.auth.dto.response.LoginOrSignupResponse;
-import org.sopt36.ninedotserver.auth.dto.response.NewAccessTokenResponse;
-import org.sopt36.ninedotserver.auth.dto.response.SignupResponse;
+import org.sopt36.ninedotserver.auth.dto.response.NewAccessTokenResult;
+import org.sopt36.ninedotserver.auth.dto.response.SignupResult;
 import org.sopt36.ninedotserver.auth.adapter.in.web.v1.dto.request.GoogleAuthCodeRequest;
 import org.sopt36.ninedotserver.auth.adapter.in.web.v1.dto.request.SignupRequest;
 import org.sopt36.ninedotserver.auth.adapter.in.web.v1.mapper.AuthRequestMapper;
@@ -49,15 +49,15 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<ApiResponse<NewAccessTokenResponse, Void>> tokenRefresh(
+    public ResponseEntity<ApiResponse<NewAccessTokenResult, Void>> tokenRefresh(
         @CookieValue("refreshToken") String refreshToken,
         HttpServletResponse response
     ) {
-        NewAccessTokenResponse newAccessTokenResponse = authService.createNewAccessToken(
+        NewAccessTokenResult newAccessTokenResult = authService.createNewAccessToken(
             refreshToken
         );
         return ResponseEntity.ok(
-            ApiResponse.ok(ACCESS_TOKEN_REFRESH_SUCCESS, newAccessTokenResponse)
+            ApiResponse.ok(ACCESS_TOKEN_REFRESH_SUCCESS, newAccessTokenResult)
         );
     }
 
@@ -68,12 +68,12 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<SignupResponse, Void>> registerUser(
+    public ResponseEntity<ApiResponse<SignupResult, Void>> registerUser(
         @RequestBody @Valid SignupRequest request,
         HttpServletResponse response
     ) {
-        SignupServiceRequest serviceRequest = AuthRequestMapper.toSignupServiceRequest(request);
-        SignupResponse signupResponse = authService.registerUser(serviceRequest);
-        return ResponseEntity.ok(ApiResponse.ok(SIGNUP_SUCCESS, signupResponse));
+        SignupCommand serviceRequest = AuthRequestMapper.toSignupServiceRequest(request);
+        SignupResult signupResult = authService.registerUser(serviceRequest);
+        return ResponseEntity.ok(ApiResponse.ok(SIGNUP_SUCCESS, signupResult));
     }
 }

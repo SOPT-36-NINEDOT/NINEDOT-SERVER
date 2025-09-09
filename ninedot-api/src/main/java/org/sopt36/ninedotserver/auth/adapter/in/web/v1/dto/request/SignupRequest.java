@@ -1,10 +1,11 @@
-package org.sopt36.ninedotserver.auth.dto.request;
+package org.sopt36.ninedotserver.auth.adapter.in.web.v1.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.util.List;
+import org.sopt36.ninedotserver.auth.dto.request.SignupCommand;
 
 public record SignupRequest(
     @NotBlank(message = "소셜 로그인 유형은 필수입니다")
@@ -33,7 +34,7 @@ public record SignupRequest(
 
     String profileImageUrl,
 
-    List<Answer> answers
+    List<SignupCommand.Answer> answers
 ) {
 
     public record Answer(Long questionId, int choiceId) {
