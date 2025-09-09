@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.global.config.client;
+package org.sopt36.ninedotserver.auth.adapter.out.google;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -6,7 +6,7 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 
 @Configuration
-public class AuthConfig {
+public class GoogleOAuthRestClientConfig {
 
     @Bean(name = "authRestClient")
     public RestClient restClient() {
