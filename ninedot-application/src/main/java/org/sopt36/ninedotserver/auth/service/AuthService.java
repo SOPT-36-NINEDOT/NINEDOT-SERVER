@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.auth.usecase;
+package org.sopt36.ninedotserver.auth.service;
 
 import io.jsonwebtoken.Claims;
 import java.io.IOException;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.sopt36.ninedotserver.auth.dto.request.SignupCommand;
+import org.sopt36.ninedotserver.auth.dto.command.SignupCommand;
 import org.sopt36.ninedotserver.auth.dto.response.GoogleTokenResponse;
 import org.sopt36.ninedotserver.auth.dto.response.GoogleUserInfo;
 import org.sopt36.ninedotserver.auth.dto.response.LoginOrSignupResponse;
@@ -25,7 +25,7 @@ import org.sopt36.ninedotserver.auth.model.AuthProvider;
 import org.sopt36.ninedotserver.auth.model.OnboardingPage;
 import org.sopt36.ninedotserver.auth.model.ProviderType;
 import org.sopt36.ninedotserver.auth.model.RefreshToken;
-import org.sopt36.ninedotserver.auth.port.JwtProviderPort;
+import org.sopt36.ninedotserver.auth.port.out.token.JwtProviderPort;
 import org.sopt36.ninedotserver.auth.port.out.AuthProviderRepositoryPort;
 import org.sopt36.ninedotserver.auth.port.out.RefreshTokenRepositoryPort;
 import org.sopt36.ninedotserver.mandalart.port.out.CoreGoalRepositoryPort;
