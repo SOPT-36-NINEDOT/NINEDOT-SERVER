@@ -1,8 +1,8 @@
 package org.sopt36.ninedotserver.auth.usecase;
 
 import io.jsonwebtoken.Claims;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.sopt36.ninedotserver.auth.dto.request.SignupRequest;
+import org.sopt36.ninedotserver.auth.dto.request.SignupServiceRequest;
 import org.sopt36.ninedotserver.auth.dto.response.GoogleTokenResponse;
 import org.sopt36.ninedotserver.auth.dto.response.GoogleUserInfo;
 import org.sopt36.ninedotserver.auth.dto.response.LoginOrSignupResponse;
@@ -25,7 +25,6 @@ import org.sopt36.ninedotserver.auth.model.AuthProvider;
 import org.sopt36.ninedotserver.auth.model.OnboardingPage;
 import org.sopt36.ninedotserver.auth.model.ProviderType;
 import org.sopt36.ninedotserver.auth.model.RefreshToken;
-import org.sopt36.ninedotserver.auth.port.CookiePort;
 import org.sopt36.ninedotserver.auth.port.JwtProviderPort;
 import org.sopt36.ninedotserver.auth.port.out.AuthProviderRepositoryPort;
 import org.sopt36.ninedotserver.auth.port.out.RefreshTokenRepositoryPort;
@@ -63,7 +62,6 @@ public class AuthService {
     );
     private final @Qualifier("authRestClient") RestClient restClient;
     private final JwtProviderPort jwtProvider;
-    private final CookiePort cookiePort;
     private final AuthProviderRepositoryPort authProviderRepository;
     private final RefreshTokenRepositoryPort refreshTokenRepository;
     private final UserRepositoryPort userRepository;
@@ -85,7 +83,6 @@ public class AuthService {
     public AuthService(
         @Qualifier("authRestClient") RestClient restClient,
         JwtProviderPort jwtProvider,
-        CookiePort cookiePort,
         AuthProviderRepositoryPort authProviderRepository,
         RefreshTokenRepositoryPort refreshTokenRepository,
         UserRepositoryPort userRepository,
@@ -96,7 +93,6 @@ public class AuthService {
     ) {
         this.restClient = restClient;
         this.jwtProvider = jwtProvider;
-        this.cookiePort = cookiePort;
         this.authProviderRepository = authProviderRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.userRepository = userRepository;
@@ -109,8 +105,7 @@ public class AuthService {
     @SuppressWarnings("unchecked")
     public <T> LoginOrSignupResponse<T> loginOrSignupWithCode(
         String code,
-        String clientRedirectUri,
-        HttpServletResponse response
+        String clientRedirectUri
     ) {
         //프론트가 보낸 redirect_uri 검증
         String effectiveRedirectUri = resolveRedirectUri(clientRedirectUri);
@@ -131,36 +126,34 @@ public class AuthService {
                 userId,
                 accessTokenExpirationMilliseconds
             );
-            generateAndStoreRefreshToken(userId, response);
+            generateAndStoreRefreshToken(userId); // TODO) RT 쿠키에 담는 로직 컨트롤러로
             return (LoginOrSignupResponse<T>) createLoginResponse(userId, accessToken);
         }
         return (LoginOrSignupResponse<T>) createSignupResponse(googleUserInfo);
     }
 
     @Transactional
-    public NewAccessTokenResponse createNewAccessToken(
-        String refreshToken,
-        HttpServletResponse response
-    ) {
+    public NewAccessTokenResponse createNewAccessToken(String refreshToken) {
         RefreshToken rt = isRefreshTokenValid(refreshToken);
 
         Long userId = rt.getUser().getId();
         String newAccessToken = jwtProvider.createToken(userId, accessTokenExpirationMilliseconds);
 
         refreshTokenRepository.delete(rt);
-        generateAndStoreRefreshToken(userId, response);
+        generateAndStoreRefreshToken(userId); // TODO) RT담는 로직 컨트롤러로
         return new NewAccessTokenResponse(newAccessToken, "새로운 액세스토큰이 생성되었습니다.");
     }
 
     @Transactional
     public void deleteRefreshToken() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Authentication auth = SecurityContextHolder.getContext()
+            .getAuthentication(); // TODO) application이 spring security 의존 가능한지
         Long userId = Long.parseLong(auth.getName());
         refreshTokenRepository.deleteByUserId(userId);
     }
 
     @Transactional
-    public SignupResponse registerUser(SignupRequest request, HttpServletResponse response) {
+    public SignupResponse registerUser(SignupServiceRequest request) {
         User user = User.create(
             request.name(),
             request.email(),
@@ -182,15 +175,20 @@ public class AuthService {
 
         String accessToken = jwtProvider
             .createToken(user.getId(), accessTokenExpirationMilliseconds);
-        generateAndStoreRefreshToken(user.getId(), response);
+        generateAndStoreRefreshToken(user.getId());
 
-        return SignupResponse.of(accessToken, user);
+        return SignupResponse.of(accessToken, user); // TODO 서비스 return DTO 변경
     }
 
     private GoogleTokenResponse getGoogleToken(String code, String redirectUri) {
         log.info("Google 토큰 요청 시작: code={}, redirectUri={}", code, redirectUri);
+        String normalizedCode = code.contains("%")
+            ? URLDecoder.decode(code, StandardCharsets.UTF_8)
+            : code;
+
+        // TODO) 꼭 타입이 이래야 하나? DTO로 하면 안 되나? 이거 뭐 매퍼나 그런 걸로 뺄 수 있을 듯
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
-        form.add("code", code);
+        form.add("code", normalizedCode);
         form.add("client_id", clientId);
         form.add("client_secret", clientSecret);
         form.add("redirect_uri", redirectUri);
@@ -240,13 +238,12 @@ public class AuthService {
             .body(GoogleUserInfo.class);
     }
 
-    private void generateAndStoreRefreshToken(Long userId, HttpServletResponse response) {
+    private String generateAndStoreRefreshToken(Long userId) {
         String refreshToken = jwtProvider.createToken(userId, refreshTokenExpirationMilliseconds);
         //ㄴ토큰을 만들어
-        cookiePort.createRefreshTokenCookie(response, refreshToken);
-        //ㄴ쿠키에 담아
         addRefreshTokenToDB(userId, refreshToken);
         //ㄴdb에 refresh token 추가
+        return refreshToken;
     }
 
     private RefreshToken isRefreshTokenValid(String refreshToken) {
@@ -275,6 +272,7 @@ public class AuthService {
             .toLocalDateTime();
     }
 
+    // 얘 Mapper로 빼는 게 낫지 않나
     private LoginOrSignupResponse<LoginData> createLoginResponse(Long userId, String accessToken) {
         Boolean onboardingCompleted = findUserOnboardingCompleted(userId);
         OnboardingPage onboardingPage = findUserOnboardingPage(userId);
@@ -332,7 +330,7 @@ public class AuthService {
         return OnboardingPage.MANDALART;
     }
 
-    private List<Answer> getAnswers(SignupRequest request, User user) {
+    private List<Answer> getAnswers(SignupServiceRequest request, User user) {
         return request.answers().stream()
             .map(answer -> {
                 Question question = questionRepository.findById(answer.questionId())
