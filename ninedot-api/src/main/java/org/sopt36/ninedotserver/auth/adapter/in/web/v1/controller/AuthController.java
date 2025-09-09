@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.auth.adapter.in.web.v1;
+package org.sopt36.ninedotserver.auth.adapter.in.web.v1.controller;
 
 import static org.sopt36.ninedotserver.auth.adapter.in.web.v1.message.AuthMessage.ACCESS_TOKEN_REFRESH_SUCCESS;
 import static org.sopt36.ninedotserver.auth.adapter.in.web.v1.message.AuthMessage.LOGIN_SIGNUP_SUCCESS;
