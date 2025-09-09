@@ -1,15 +1,11 @@
-package org.sopt36.ninedotserver.auth.persistence;
+package org.sopt36.ninedotserver.auth.adapter.out.persistence.jpa.repository;
 
 import java.util.Optional;
 import org.sopt36.ninedotserver.auth.model.AuthProvider;
 import org.sopt36.ninedotserver.auth.model.ProviderType;
-import org.sopt36.ninedotserver.auth.port.out.AuthProviderRepositoryPort;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
-@Repository
-public interface AuthProviderRepository
-    extends JpaRepository<AuthProvider, Long>, AuthProviderRepositoryPort {
+public interface AuthProviderRepository extends JpaRepository<AuthProvider, Long> {
 
     Optional<AuthProvider> findByProviderAndProviderUserId(ProviderType providerType, String sub);
 

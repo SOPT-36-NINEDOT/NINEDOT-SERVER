@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.auth.port;
+package org.sopt36.ninedotserver.auth.port.out;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
