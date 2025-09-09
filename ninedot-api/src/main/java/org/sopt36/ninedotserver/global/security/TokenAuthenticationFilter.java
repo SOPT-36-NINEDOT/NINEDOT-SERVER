@@ -9,7 +9,7 @@ import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.sopt36.ninedotserver.auth.security.JwtProvider;
+import org.sopt36.ninedotserver.auth.adapter.out.jwt.JwtProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
