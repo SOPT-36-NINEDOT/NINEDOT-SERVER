@@ -19,4 +19,6 @@ public interface RefreshTokenRepository
     void deleteByUserId(Long userId);
 
     Long user(User user);
+
+    void deleteByExpiresAtBefore(LocalDateTime cutoff);
 }
