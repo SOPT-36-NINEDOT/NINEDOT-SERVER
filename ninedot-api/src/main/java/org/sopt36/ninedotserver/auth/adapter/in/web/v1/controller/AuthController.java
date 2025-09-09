@@ -9,14 +9,18 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.auth.adapter.in.web.support.CookieWriter;
-import org.sopt36.ninedotserver.auth.dto.request.SignupCommand;
-import org.sopt36.ninedotserver.auth.usecase.AuthService;
-import org.sopt36.ninedotserver.auth.dto.response.LoginOrSignupResponse;
-import org.sopt36.ninedotserver.auth.dto.response.NewAccessTokenResult;
-import org.sopt36.ninedotserver.auth.dto.response.SignupResult;
 import org.sopt36.ninedotserver.auth.adapter.in.web.v1.dto.request.GoogleAuthCodeRequest;
 import org.sopt36.ninedotserver.auth.adapter.in.web.v1.dto.request.SignupRequest;
+import org.sopt36.ninedotserver.auth.adapter.in.web.v1.dto.response.AuthResponse;
 import org.sopt36.ninedotserver.auth.adapter.in.web.v1.mapper.AuthRequestMapper;
+import org.sopt36.ninedotserver.auth.adapter.in.web.v1.mapper.AuthResponseMapper;
+import org.sopt36.ninedotserver.auth.dto.command.GoogleLoginCommand;
+import org.sopt36.ninedotserver.auth.dto.command.SignupCommand;
+import org.sopt36.ninedotserver.auth.dto.response.NewAccessTokenResult;
+import org.sopt36.ninedotserver.auth.dto.response.SignupResult;
+import org.sopt36.ninedotserver.auth.dto.result.AuthResult;
+import org.sopt36.ninedotserver.auth.port.in.LoginOrSignupWithGoogleCodeUsecase;
+import org.sopt36.ninedotserver.auth.service.AuthService;
 import org.sopt36.ninedotserver.dto.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -32,20 +36,28 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final LoginOrSignupWithGoogleCodeUsecase loginOrSignupWithGoogleCodeUsecase;
     private final CookieWriter cookieWriter;
 
     @PostMapping("/oauth2/google/callback")
-    // TODO) Response 타입 명시적으로 바꾸기
-    public ResponseEntity<ApiResponse<LoginOrSignupResponse<?>, Void>> googleCallback(
+    public ResponseEntity<ApiResponse<AuthResponse, Void>> googleCallback(
         @Valid @RequestBody GoogleAuthCodeRequest request,
         @RequestParam(value = "redirect_uri", required = false) String clientRedirectUri,
-        HttpServletResponse response
+        HttpServletResponse servletResponse
     ) {
-        LoginOrSignupResponse<?> giveback = authService.loginOrSignupWithCode(
-            request.code(),
+        GoogleLoginCommand command = AuthRequestMapper.toGoogleLoginCommand(
+            request,
             clientRedirectUri
         );
-        return ResponseEntity.ok(ApiResponse.ok(LOGIN_SIGNUP_SUCCESS, giveback));
+
+        AuthResult authResult = loginOrSignupWithGoogleCodeUsecase.execute(command);
+
+        authResult.refreshTokenCookie().ifPresent(instruction ->
+            cookieWriter.write(servletResponse, instruction)
+        );
+        AuthResponse body = AuthResponseMapper.toResponse(authResult);
+
+        return ResponseEntity.ok(ApiResponse.ok(LOGIN_SIGNUP_SUCCESS, body));
     }
 
     @PostMapping("/refresh")
