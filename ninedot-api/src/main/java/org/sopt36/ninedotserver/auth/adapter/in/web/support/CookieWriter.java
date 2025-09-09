@@ -2,7 +2,9 @@ package org.sopt36.ninedotserver.auth.adapter.in.web.support;
 
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.Duration;
-import org.springframework.beans.factory.annotation.Value; // @Value 임포트
+import org.sopt36.ninedotserver.auth.support.CookieInstruction;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
@@ -21,30 +23,37 @@ public class CookieWriter {
     @Value("${spring.jwt.refresh-token-expiration-milliseconds}")
     private long refreshTokenExpirationMilliseconds;
 
-    public void createRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
-            .httpOnly(true)
-            .secure(secureCookie)
-            .sameSite("None")
-            .maxAge(Duration.ofSeconds(
-                refreshTokenExpirationMilliseconds / 1000))
-            .domain(cookieDomain)
-            .path(cookiePath)
-            .build();
+    public void write(HttpServletResponse response, CookieInstruction instruction) {
+        if (instruction instanceof CookieInstruction.SetRefreshToken setRefreshToken) {
+            ResponseCookie responseCookie = ResponseCookie.from("refreshToken",
+                    setRefreshToken.refreshToken())
+                .httpOnly(true)
+                .secure(secureCookie)
+                .sameSite("None")
+                .maxAge(Duration.ofSeconds(refreshTokenExpirationMilliseconds / 1000))
+                .domain(cookieDomain)
+                .path(cookiePath)
+                .build();
 
-        response.addHeader("Set-Cookie", cookie.toString());
-    }
+            response.addHeader(HttpHeaders.SET_COOKIE, responseCookie.toString());
+            return;
+        }
 
-    public void clearRefreshTokenCookie(HttpServletResponse response) {
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", "")
-            .httpOnly(true)
-            .secure(secureCookie)
-            .sameSite(secureCookie ? "None" : "Lax")
-            .maxAge(Duration.ZERO)
-            .domain(cookieDomain)
-            .path(cookiePath)
-            .build();
+        if (instruction instanceof CookieInstruction.ClearRefreshToken) {
+            ResponseCookie responseCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(secureCookie)
+                .sameSite(secureCookie ? "None" : "Lax")
+                .maxAge(Duration.ZERO)
+                .domain(cookieDomain)
+                .path(cookiePath)
+                .build();
 
-        response.addHeader("Set-Cookie", cookie.toString()); // setHeader 대신 addHeader 권장
+            response.addHeader(HttpHeaders.SET_COOKIE, responseCookie.toString());
+            return;
+        }
+
+        throw new IllegalArgumentException(
+            "Unsupported CookieInstruction type: " + instruction.getClass().getName());
     }
 }

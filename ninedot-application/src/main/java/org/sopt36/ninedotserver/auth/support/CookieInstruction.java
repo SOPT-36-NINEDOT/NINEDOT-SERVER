@@ -1,24 +1,23 @@
 package org.sopt36.ninedotserver.auth.support;
 
-import java.time.Duration;
+public sealed interface CookieInstruction
+    permits CookieInstruction.SetRefreshToken, CookieInstruction.ClearRefreshToken {
 
-public record CookieInstruction(
-    String name,
-    String value,
-    boolean httpOnly,
-    boolean secure,
-    String path,
-    Duration maxAge,
-    String sameSite
-) {
+    static CookieInstruction setRefreshToken(String refreshToken) {
+        return new SetRefreshToken(refreshToken);
+    }
 
-    public static CookieInstruction httpOnlySecure(
-        String name,
-        String value,
-        Duration maxAge,
-        String path,
-        String sameSite
-    ) {
-        return new CookieInstruction(name, value, true, true, path, maxAge, sameSite);
+    static CookieInstruction clearRefreshToken() {
+        return new ClearRefreshToken();
+    }
+
+
+    record SetRefreshToken(String refreshToken) implements CookieInstruction {
+
+    }
+
+    record ClearRefreshToken() implements CookieInstruction {
+
     }
 }
+
