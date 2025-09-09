@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.util.List;
-import org.sopt36.ninedotserver.auth.dto.request.SignupCommand;
+import org.sopt36.ninedotserver.auth.dto.command.SignupCommand;
 
 public record SignupRequest(
     @NotBlank(message = "소셜 로그인 유형은 필수입니다")
