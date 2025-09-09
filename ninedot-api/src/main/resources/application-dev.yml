@@ -21,10 +21,6 @@ spring:
   web:
     resources:
       add-mappings: false
-  google:
-    client-id: ${GOOGLE_CLIENT_ID}
-    client-secret: ${GOOGLE_CLIENT_SECRET}
-    redirect-uri: ${GOOGLE_REDIRECT_URI}
   jwt:
     secret: ${JWT_SECRET_KEY}
     access-token-expiration-milliseconds: 1800000
@@ -39,9 +35,24 @@ spring:
   ai:
     model:
       chat: none
+
 gemini:
   api:
     key: ${GEMINI_API_KEY}
     url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite-preview-06-17:generateContent
     response-schema: ${GEMINI_RESPONSE_STRUCTURE:}
     subgoal-response-schema: ${GEMINI_SUB_GOAL_RESPONSE_STRUCTURE:}
+
+google:
+  client-id: ${GOOGLE_CLIENT_ID}
+  client-secret: ${GOOGLE_CLIENT_SECRET}
+  redirect-uri: ${GOOGLE_REDIRECT_URI}
+  token-uri: https://oauth2.googleapis.com/token
+  userinfo-uri: https://openidconnect.googleapis.com/v1/userinfo
+
+auth:
+  redirect:
+    whitelist:
+      - http://localhost:5173/auth/google/callback
+      - https://ninedot-client.vercel.app/auth/google/callback
+    default-redirect-uri: https://ninedot-client.vercel.app/auth/google/callback
