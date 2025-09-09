@@ -12,7 +12,7 @@ import java.util.Date;
 import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.sopt36.ninedotserver.auth.port.out.JwtProviderPort;
+import org.sopt36.ninedotserver.auth.port.out.token.JwtProviderPort;
 import org.sopt36.ninedotserver.user.port.out.UserRepositoryPort;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
