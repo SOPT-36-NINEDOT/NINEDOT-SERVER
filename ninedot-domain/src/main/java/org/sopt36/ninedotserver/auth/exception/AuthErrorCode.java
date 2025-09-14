@@ -8,6 +8,9 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum AuthErrorCode implements ErrorCode {
 
+    // 400
+    BAD_MAPPING_TYPE(HttpStatus.BAD_REQUEST, "지원하지 않는 내부 DTO 매핑 타입입니다."),
+
     //401
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증되지 않은 사용자입니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "리프레시 토큰이 만료되었습니다. 다시 로그인하세요."),
