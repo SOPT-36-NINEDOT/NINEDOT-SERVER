@@ -41,7 +41,8 @@ public class AuthAccountService {
             Long userId = authProviderOptional.get().getUser().getId();
 
             IssuedTokens issuedTokens = tokenService.issueTokens(userId);
-            OnboardingStatus onboardingStatus = onboardingStatusService.determine(userId);
+            OnboardingStatus onboardingStatus = onboardingStatusService.determineOnboardingStatus(
+                userId);
 
             return new LoginResult(
                 userId,

@@ -7,7 +7,6 @@ import static org.sopt36.ninedotserver.auth.model.OnboardingPage.SUB_GOAL;
 import static org.sopt36.ninedotserver.user.exception.UserErrorCode.USER_NOT_FOUND;
 
 import lombok.RequiredArgsConstructor;
-import org.sopt36.ninedotserver.auth.model.OnboardingPage;
 import org.sopt36.ninedotserver.auth.service.login.dto.OnboardingStatus;
 import org.sopt36.ninedotserver.mandalart.port.out.CoreGoalRepositoryPort;
 import org.sopt36.ninedotserver.mandalart.port.out.MandalartRepositoryPort;
@@ -23,7 +22,7 @@ public class OnboardingStatusService {
     private final CoreGoalRepositoryPort coreGoalRepositoryPort;
     private final MandalartRepositoryPort mandalartRepositoryPort;
 
-    public OnboardingStatus determine(Long userId) {
+    public OnboardingStatus determineOnboardingStatus(Long userId) {
         boolean onboardingCompleted = userRepositoryPort.findById(userId)
             .map(user -> Boolean.TRUE.equals(user.getOnboardingCompleted()))
             .orElseThrow(() -> new UserException(USER_NOT_FOUND));
