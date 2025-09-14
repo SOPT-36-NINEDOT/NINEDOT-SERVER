@@ -13,7 +13,7 @@ public interface RefreshTokenRepositoryPort {
 
     void deleteByUserId(Long userId);
 
-    void delete(RefreshToken rt);
+    void delete(RefreshToken refreshToken);
 
     <S extends RefreshToken> S save(S refreshToken);
 
