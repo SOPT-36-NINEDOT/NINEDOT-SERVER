@@ -1,9 +1,9 @@
 package org.sopt36.ninedotserver.auth.adapter.in.web.v1.dto.response;
 
 public record AuthSignupResponse(
+    boolean exists,
     String socialProvider,
     String socialToken,
-    boolean exists,
     String name,
     String email,
     String profileImageUrl

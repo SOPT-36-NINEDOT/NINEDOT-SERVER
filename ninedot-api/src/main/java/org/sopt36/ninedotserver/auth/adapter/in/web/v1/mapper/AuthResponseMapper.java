@@ -15,6 +15,7 @@ public class AuthResponseMapper {
     public static AuthResponse toResponse(AuthResult authResult) {
         if (authResult instanceof LoginResult loginResult) {
             return new AuthLoginResponse(
+                true,
                 loginResult.userId(),
                 loginResult.accessToken(),
                 loginResult.onboardingCompleted(),
@@ -23,9 +24,9 @@ public class AuthResponseMapper {
         }
         if (authResult instanceof SignupResult signupResult) {
             return new AuthSignupResponse(
+                false,
                 signupResult.provider().toString(),
                 signupResult.providerToken(),
-                false,
                 signupResult.name(),
                 signupResult.email(),
                 signupResult.picture()
