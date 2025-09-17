@@ -56,7 +56,7 @@ public class AiRecommendationService {
         User user = mandalartRepository.findUserById(mandalartId)
             .orElseThrow(() -> new AiException(AiErrorCode.MANDALART_NOT_FOUND));
 
-        int age = AgeUtil.calculateAgeFromString(user.getBirthday());
+        int age = user.getBirthday().calculateAge();
 
         List<String> questions = findQuestionByUserId(user.getId());
 
@@ -68,7 +68,7 @@ public class AiRecommendationService {
 
         String prompt = PromptBuilder.buildCoreGoalPrompt(
             age,
-            user.getJob(),
+            user.jobAsString(),
             questions,
             answers,
             mandalartTitle,
