@@ -75,7 +75,7 @@ public class AiSubGoalRecommendationService {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new AiException(USER_NOT_FOUND));
 
-        int age = AgeUtil.calculateAgeFromString(user.getBirthday());
+        int age = AgeUtil.calculateAgeFromString(user.birthdayAsString());
 
         Map<String, String> questionAnswerMap = answerRepository.findQnAMapByUserId(user.getId());
 
@@ -86,7 +86,7 @@ public class AiSubGoalRecommendationService {
 
         String prompt = PromptBuilder.buildSubGoalPrompt(
             age,
-            user.getJob(),
+            user.jobAsString(),
             mandalartTitle,
             coreGoalTitle,
             questionAnswerMap,
