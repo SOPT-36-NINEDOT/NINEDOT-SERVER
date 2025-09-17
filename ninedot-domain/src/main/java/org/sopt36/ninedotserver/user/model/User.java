@@ -100,7 +100,4 @@ public class User extends BaseEntity {
         }
     }
 
-    public boolean isOnboardingCompleted() {
-        return Boolean.TRUE.equals(this.onboardingCompleted);
-    }
 }
