@@ -17,13 +17,13 @@ public class UserPersistenceAdapter implements UserRepositoryPort {
 
 
     @Override
-    public User save(User user) {
-        return userRepository.save(user);
+    public Optional<User> findById(Long userId) {
+        return userRepository.findById(userId);
     }
 
     @Override
-    public Optional<User> findById(Long userId) {
-        return userRepository.findById(userId);
+    public <S extends User> S save(S user) {
+        return userRepository.save(user);
     }
 
     @Override
