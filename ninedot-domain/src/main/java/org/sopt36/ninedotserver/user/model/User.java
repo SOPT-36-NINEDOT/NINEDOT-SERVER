@@ -1,12 +1,6 @@
 package org.sopt36.ninedotserver.user.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,6 +9,10 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.sopt36.ninedotserver.entity.BaseEntity;
+import org.sopt36.ninedotserver.user.model.value.Birthday;
+import org.sopt36.ninedotserver.user.model.value.Email;
+import org.sopt36.ninedotserver.user.model.value.ProfileImageUrl;
+import org.sopt36.ninedotserver.user.model.value.UserName;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -25,29 +23,33 @@ import org.sopt36.ninedotserver.entity.BaseEntity;
 @Entity
 public class User extends BaseEntity {
 
-    private static final int MAX_NAME_LENGTH = 10;
-    private static final int MAX_BIRTHDAY_LENGTH = 20;
-    private static final int MAX_JOB_LENGTH = 100;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", length = MAX_NAME_LENGTH, nullable = false)
-    private String name;
+    @Embedded
+    @AttributeOverride(name = "value",
+            column = @Column(name = "name", length = UserName.MAX_LENGTH, nullable = false))
+    private UserName name;
 
-    @Column(name = "email", nullable = false, unique = true)
-    private String email;
+    @Embedded
+    @AttributeOverride(name = "value",
+            column = @Column(name = "email", nullable = false, unique = true))
+    private Email email;
 
-    @Lob
-    @Column(name = "profile_image_url", nullable = false)
-    private String profileImageUrl;
+    @Embedded
+    @AttributeOverride(name = "value",
+            column = @Column(name = "profile_Image_Url", length = ProfileImageUrl.MAX_LENGTH, nullable = false))
+    private ProfileImageUrl profileImageUrl;
 
-    @Column(name = "birthday", length = MAX_BIRTHDAY_LENGTH, nullable = false)
-    private String birthday;
+    @Embedded
+    @AttributeOverride(name = "value",
+            column = @Column(name = "birthday", length = Birthday.MAX_LENGTH, nullable = false))
+    private Birthday birthday;
 
-    @Column(name = "job", length = MAX_JOB_LENGTH)
-    private String job;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "job", length = JobType.MAX_LENGTH, nullable = false)
+    private JobType job;
 
     @Column(name = "onboarding_completed", nullable = false)
     @ColumnDefault(value = "false")
@@ -61,12 +63,28 @@ public class User extends BaseEntity {
         String job
     ) {
         return User.builder()
-            .name(name)
-            .email(email)
-            .profileImageUrl(profileImageUrl)
-            .birthday(birthday)
-            .job(job)
-            .build();
+                .name(new UserName(name))
+                .email(new Email(email))
+                .profileImageUrl(new ProfileImageUrl(profileImageUrl))
+                .birthday(new Birthday(birthday))
+                .job(JobType.valueOf(job))
+                .build();
+    }
+
+    public String nameAsString() {
+        return name.toString();
+    }
+    public String emailAsString() {
+        return email.toString();
+    }
+    public String profileImageUrlAsString() {
+        return profileImageUrl.toString();
+    }
+    public String birthdayAsString() {
+        return birthday.toString();
+    }
+    public String jobAsString() {
+        return job.toString();
     }
 
     public boolean isSameId(Long id) {
@@ -80,5 +98,9 @@ public class User extends BaseEntity {
         if (Boolean.FALSE.equals(this.onboardingCompleted)) {
             this.onboardingCompleted = true;
         }
+    }
+
+    public boolean isOnboardingCompleted() {
+        return Boolean.TRUE.equals(this.onboardingCompleted);
     }
 }
