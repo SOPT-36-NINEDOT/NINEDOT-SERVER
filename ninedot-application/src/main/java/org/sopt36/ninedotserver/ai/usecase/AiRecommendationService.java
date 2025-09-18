@@ -17,7 +17,6 @@ import org.sopt36.ninedotserver.onboarding.model.Domain;
 import org.sopt36.ninedotserver.onboarding.model.Question;
 import org.sopt36.ninedotserver.onboarding.port.out.AnswerRepositoryPort;
 import org.sopt36.ninedotserver.user.model.User;
-import org.sopt36.ninedotserver.user.support.AgeUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

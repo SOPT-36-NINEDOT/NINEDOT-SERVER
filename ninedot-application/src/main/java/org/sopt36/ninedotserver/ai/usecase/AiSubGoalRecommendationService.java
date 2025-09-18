@@ -21,8 +21,8 @@ import org.sopt36.ninedotserver.mandalart.port.out.CoreGoalSnapshotRepositoryPor
 import org.sopt36.ninedotserver.mandalart.port.out.MandalartRepositoryPort;
 import org.sopt36.ninedotserver.onboarding.port.out.AnswerRepositoryPort;
 import org.sopt36.ninedotserver.user.model.User;
+import org.sopt36.ninedotserver.user.model.value.Birthday;
 import org.sopt36.ninedotserver.user.port.out.UserRepositoryPort;
-import org.sopt36.ninedotserver.user.support.AgeUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,7 +75,7 @@ public class AiSubGoalRecommendationService {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new AiException(USER_NOT_FOUND));
 
-        int age = AgeUtil.calculateAgeFromString(user.birthdayAsString());
+        int age = user.getBirthday().calculateAge();
 
         Map<String, String> questionAnswerMap = answerRepository.findQnAMapByUserId(user.getId());
 
