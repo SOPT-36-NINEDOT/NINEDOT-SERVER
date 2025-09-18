@@ -26,7 +26,7 @@ public class AuthResponseMapper {
             return new AuthSignupResponse(
                 false,
                 signupResult.provider().toString(),
-                signupResult.providerToken(),
+                signupResult.providerUserId(),
                 signupResult.name(),
                 signupResult.email(),
                 signupResult.picture()

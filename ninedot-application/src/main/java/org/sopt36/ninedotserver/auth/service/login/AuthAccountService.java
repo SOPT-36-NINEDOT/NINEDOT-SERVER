@@ -55,7 +55,7 @@ public class AuthAccountService {
 
         return new SignupResult(
             ProviderType.GOOGLE,
-            exchangeResult.providerAccessToken(),
+            exchangeResult.identityUserInfo().sub(),
             exchangeResult.identityUserInfo().name(),
             exchangeResult.identityUserInfo().email(),
             exchangeResult.identityUserInfo().pictureUrl(),

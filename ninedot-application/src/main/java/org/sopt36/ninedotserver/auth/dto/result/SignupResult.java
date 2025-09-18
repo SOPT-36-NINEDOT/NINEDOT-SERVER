@@ -6,7 +6,7 @@ import org.sopt36.ninedotserver.auth.support.CookieInstruction;
 
 public record SignupResult(
     ProviderType provider,
-    String providerToken,
+    String providerUserId,
     String name,
     String email,
     String picture,
