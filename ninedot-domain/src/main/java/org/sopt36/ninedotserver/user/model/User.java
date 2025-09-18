@@ -67,7 +67,8 @@ public class User extends BaseEntity {
                 .email(new Email(email))
                 .profileImageUrl(new ProfileImageUrl(profileImageUrl))
                 .birthday(new Birthday(birthday))
-                .job(JobType.valueOf(job))
+                .job(JobType.from(job))
+                .onboardingCompleted(false)
                 .build();
     }
 
