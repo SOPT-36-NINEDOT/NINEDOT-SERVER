@@ -58,4 +58,9 @@ public record Birthday(String value) {
         return LocalDate.parse(value, FORMATTER);
     }
 
+    @Override
+    public String toString() {
+        return value;
+    }
+
 }
