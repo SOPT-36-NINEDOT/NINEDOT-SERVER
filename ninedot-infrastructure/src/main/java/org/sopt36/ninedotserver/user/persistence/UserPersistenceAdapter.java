@@ -3,7 +3,8 @@ package org.sopt36.ninedotserver.user.persistence;
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.user.model.User;
 import org.sopt36.ninedotserver.user.persistence.jpa.repository.userRepository;
-import org.sopt36.ninedotserver.user.port.out.UserRepositoryPort;
+import org.sopt36.ninedotserver.user.port.out.UserCommandPort;
+import org.sopt36.ninedotserver.user.port.out.UserQueryPort;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class UserPersistenceAdapter implements UserRepositoryPort {
+public class UserPersistenceAdapter implements UserQueryPort, UserCommandPort {
 
     private final userRepository userRepository;
 
