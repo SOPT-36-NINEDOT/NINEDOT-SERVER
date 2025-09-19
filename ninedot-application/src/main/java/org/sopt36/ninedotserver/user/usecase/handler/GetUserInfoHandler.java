@@ -16,11 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class GetUserInfoHandler implements GetUserInfoUseCase {
 
-    private final UserQueryPort userRepository;
+    private final UserQueryPort userQueryPort;
 
     @Override
     public UserInfoResult getUserInfo(GetUserInfoQuery query) {
-        User user = userRepository.findById(query.userId())
+        User user = userQueryPort.findById(query.userId())
                 .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 
         return UserInfoResult.from(user);
