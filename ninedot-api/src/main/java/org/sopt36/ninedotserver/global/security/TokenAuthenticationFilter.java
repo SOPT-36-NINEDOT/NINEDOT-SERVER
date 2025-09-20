@@ -32,8 +32,8 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
-            "/api/*/auth/jobs",
-            "/api/*/auth/personas",
+            "/api/*/jobs",
+            "/api/*/persona",
             "/api/*/auth/signup",
             "/api/*/auth/refresh",
             "/api/*/auth/oauth2/google/callback"
