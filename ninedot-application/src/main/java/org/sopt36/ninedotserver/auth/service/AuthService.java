@@ -38,7 +38,8 @@ import org.sopt36.ninedotserver.onboarding.model.Question;
 import org.sopt36.ninedotserver.onboarding.port.out.AnswerRepositoryPort;
 import org.sopt36.ninedotserver.onboarding.port.out.QuestionRepositoryPort;
 import org.sopt36.ninedotserver.user.model.User;
-import org.sopt36.ninedotserver.user.port.out.UserRepositoryPort;
+import org.sopt36.ninedotserver.user.port.out.UserCommandPort;
+import org.sopt36.ninedotserver.user.port.out.UserQueryPort;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
@@ -64,7 +65,8 @@ public class AuthService {
     private final JwtProviderPort jwtProvider;
     private final AuthProviderRepositoryPort authProviderRepository;
     private final RefreshTokenRepositoryPort refreshTokenRepository;
-    private final UserRepositoryPort userRepository;
+    private final UserQueryPort userQueryPort;
+    private final UserCommandPort userCommandPort;
     private final CoreGoalRepositoryPort coreGoalRepository;
     private final MandalartRepositoryPort mandalartRepository;
     private final AnswerRepositoryPort answerRepository;
@@ -85,7 +87,8 @@ public class AuthService {
         JwtProviderPort jwtProvider,
         AuthProviderRepositoryPort authProviderRepository,
         RefreshTokenRepositoryPort refreshTokenRepository,
-        UserRepositoryPort userRepository,
+        UserQueryPort userQueryPort,
+        UserCommandPort userCommandPort,
         CoreGoalRepositoryPort coreGoalRepository,
         MandalartRepositoryPort mandalartRepository,
         AnswerRepositoryPort answerRepository,
@@ -95,7 +98,8 @@ public class AuthService {
         this.jwtProvider = jwtProvider;
         this.authProviderRepository = authProviderRepository;
         this.refreshTokenRepository = refreshTokenRepository;
-        this.userRepository = userRepository;
+        this.userQueryPort = userQueryPort;
+        this.userCommandPort = userCommandPort;
         this.coreGoalRepository = coreGoalRepository;
         this.mandalartRepository = mandalartRepository;
         this.answerRepository = answerRepository;
@@ -161,7 +165,7 @@ public class AuthService {
             request.birthday(),
             request.job()
         );
-        userRepository.save(user);
+        userCommandPort.save(user);
 
         List<Answer> answers = getAnswers(request, user);
         answerRepository.saveAll(answers);
@@ -255,7 +259,7 @@ public class AuthService {
     // 로그인 시 데이터베이스에 리프레시 토큰 생성
     private void addRefreshTokenToDB(Long userId, String refreshToken) {
         Claims claims = jwtProvider.parseClaims(refreshToken).getPayload();
-        User user = userRepository.findById(userId)
+        User user = userQueryPort.findById(userId)
             .orElseThrow(() -> new AuthException(AuthErrorCode.USER_NOT_FOUND));
         refreshTokenRepository.save(
             RefreshToken.create(
@@ -308,7 +312,7 @@ public class AuthService {
     }
 
     private boolean findUserOnboardingCompleted(Long userId) {
-        Optional<User> optUser = userRepository.findById(userId);
+        Optional<User> optUser = userQueryPort.findById(userId);
         if (optUser.isPresent()) {
             return optUser.get().getOnboardingCompleted();
         }
@@ -316,7 +320,7 @@ public class AuthService {
     }
 
     private OnboardingPage findUserOnboardingPage(Long userId) {
-        User user = userRepository.findById(userId)
+        User user = userQueryPort.findById(userId)
             .orElseThrow(() -> new AuthException(AuthErrorCode.USER_NOT_FOUND));
         if (user.getOnboardingCompleted()) {
             return OnboardingPage.ONBOARDING_COMPLETED;

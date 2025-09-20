@@ -12,7 +12,7 @@ public record UserRetrievedResult(
 
     public static UserRetrievedResult of(User user) {
         return new UserRetrievedResult(
-            user.getId(), user.getEmail(), user.getName(), user.getJob(), user.getBirthday()
+            user.getId(), user.emailAsString(), user.nameAsString(), user.jobAsString(), user.birthdayAsString()
         );
     }
 

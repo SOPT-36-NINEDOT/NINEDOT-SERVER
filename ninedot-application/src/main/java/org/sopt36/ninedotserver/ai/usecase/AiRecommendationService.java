@@ -17,7 +17,6 @@ import org.sopt36.ninedotserver.onboarding.model.Domain;
 import org.sopt36.ninedotserver.onboarding.model.Question;
 import org.sopt36.ninedotserver.onboarding.port.out.AnswerRepositoryPort;
 import org.sopt36.ninedotserver.user.model.User;
-import org.sopt36.ninedotserver.user.support.AgeUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,7 +55,7 @@ public class AiRecommendationService {
         User user = mandalartRepository.findUserById(mandalartId)
             .orElseThrow(() -> new AiException(AiErrorCode.MANDALART_NOT_FOUND));
 
-        int age = AgeUtil.calculateAgeFromString(user.getBirthday());
+        int age = user.getAge();
 
         List<String> questions = findQuestionByUserId(user.getId());
 
@@ -68,7 +67,7 @@ public class AiRecommendationService {
 
         String prompt = PromptBuilder.buildCoreGoalPrompt(
             age,
-            user.getJob(),
+            user.jobAsString(),
             questions,
             answers,
             mandalartTitle,

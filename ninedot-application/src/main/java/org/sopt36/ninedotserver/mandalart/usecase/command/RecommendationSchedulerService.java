@@ -18,7 +18,7 @@ import org.sopt36.ninedotserver.mandalart.port.out.RecommendationRepositoryPort;
 import org.sopt36.ninedotserver.mandalart.port.out.SubGoalSnapshotRepositoryPort;
 import org.sopt36.ninedotserver.user.model.User;
 import org.sopt36.ninedotserver.user.exception.UserException;
-import org.sopt36.ninedotserver.user.port.out.UserRepositoryPort;
+import org.sopt36.ninedotserver.user.port.out.UserQueryPort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +30,7 @@ public class RecommendationSchedulerService {
     private static final Logger log = LoggerFactory.getLogger(RecommendationSchedulerService.class);
 
     private final RecommendationRepositoryPort recommendationRepository;
-    private final UserRepositoryPort userRepository;
+    private final UserQueryPort userRepository;
     private final SubGoalSnapshotRepositoryPort subGoalSnapshotRepository;
     private final MandalartRepositoryPort mandalartRepository;
     private final HistoryRepositoryPort historyRepository;

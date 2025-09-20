@@ -1,0 +1,32 @@
+package org.sopt36.ninedotserver.user.model.value;
+
+import org.sopt36.ninedotserver.user.exception.UserErrorCode;
+import org.sopt36.ninedotserver.user.exception.UserException;
+
+public record UserName(String value) {
+
+    public static final int MAX_LENGTH = 10;
+
+    public UserName {
+        validateNotBlank(value);
+        validateLength(value);
+    }
+
+    private void validateLength(String value) {
+        if (value.length() > MAX_LENGTH) {
+            throw new UserException(UserErrorCode.INVALID_NAME_LENGTH);
+        }
+    }
+
+    private void validateNotBlank(String value) {
+        if (value == null || value.isBlank()) {
+            throw new UserException(UserErrorCode.NAME_NOT_BLANK);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+
+}
