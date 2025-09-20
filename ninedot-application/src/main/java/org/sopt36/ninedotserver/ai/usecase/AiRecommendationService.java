@@ -55,7 +55,7 @@ public class AiRecommendationService {
         User user = mandalartRepository.findUserById(mandalartId)
             .orElseThrow(() -> new AiException(AiErrorCode.MANDALART_NOT_FOUND));
 
-        int age = user.getBirthday().calculateAge();
+        int age = user.getAge();
 
         List<String> questions = findQuestionByUserId(user.getId());
 

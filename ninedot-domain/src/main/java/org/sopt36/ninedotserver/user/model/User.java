@@ -95,6 +95,13 @@ public class User extends BaseEntity {
         return this.id.equals(id);
     }
 
+    public int getAge() {
+        if (this.birthday == null) {
+            return 0;
+        }
+        return this.birthday.calculateAge();
+    }
+
     public void completeOnboarding() {
         if (Boolean.FALSE.equals(this.onboardingCompleted)) {
             this.onboardingCompleted = true;
