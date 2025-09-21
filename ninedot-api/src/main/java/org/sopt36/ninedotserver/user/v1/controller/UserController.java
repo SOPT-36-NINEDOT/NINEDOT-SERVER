@@ -1,10 +1,10 @@
-package org.sopt36.ninedotserver.user.v1;
+package org.sopt36.ninedotserver.user.v1.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.dto.response.ApiResponse;
 import org.sopt36.ninedotserver.user.dto.query.UserInfoQuery;
 import org.sopt36.ninedotserver.user.dto.result.UserInfoResult;
-import org.sopt36.ninedotserver.user.usecase.port.in.GetUserInfoUseCase;
+import org.sopt36.ninedotserver.user.port.in.GetUserInfoUseCase;
 import org.sopt36.ninedotserver.user.v1.dto.response.UserInfoResponse;
 import org.sopt36.ninedotserver.user.v1.mapper.UserResponseMapper;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +29,7 @@ public class UserController {
     ) {
         Long userId = Long.parseLong(authentication.getName());
         UserInfoQuery query = new UserInfoQuery(userId);
-        UserInfoResult result = getUserInfoUseCase.getUserInfo(query);
+        UserInfoResult result = getUserInfoUseCase.execute(query);
         UserInfoResponse response = userResponseMapper.toResponse(result);
         return ResponseEntity.ok(ApiResponse.ok(USER_INFO_RETRIEVED_SUCCESS, response));
     }
