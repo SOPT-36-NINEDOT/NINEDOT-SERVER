@@ -2,6 +2,7 @@ plugins {
     id 'org.springframework.boot' version '3.3.6'
     id 'io.spring.dependency-management'
     id 'java'
+    id 'jacoco'
 }
 
 java { toolchain { languageVersion = JavaLanguageVersion.of(17) } }
@@ -40,6 +41,54 @@ dependencies {
 
 tasks.named('jar') { enabled = false }
 tasks.named('bootJar') { enabled = true }
+
+jacoco {
+    toolVersion = "0.8.11"
+}
+
 tasks.withType(Test).configureEach {
     useJUnitPlatform()
+    finalizedBy(tasks.named("jacocoTestReport"))
+}
+
+tasks.named("jacocoTestReport", JacocoReport) {
+    dependsOn tasks.named("test")
+
+    reports {
+        xml.required = true
+        xml.outputLocation = layout.buildDirectory.file("reports/jacoco/jacocoTestReport.xml")
+        html.required = true
+        html.outputLocation = layout.buildDirectory.dir("jacocoHtml")
+        csv.required = false
+    }
+
+    def excludes = [
+            // 실행 파일
+            '**/*Application*',
+
+            // dto
+            '**/*Request*', '**/*Response*', '**/*Command*', '**/*Query*', '**/*Result*', '**/*Mapper*',
+
+            // 설정 파일
+            '**/*Config*',
+
+            // 예외 관련 파일
+            '**/*Exception*', '**/*Error*',
+
+            // QueryDSL 생성 클래스
+            '**/Q*.*',
+    ]
+
+    doFirst {
+        classDirectories.setFrom(
+                files(sourceSets.main.output).collect { dir ->
+                    fileTree(dir: dir, exclude: excludes)
+                }
+        )
+        sourceDirectories.setFrom(files(sourceSets.main.allSource.srcDirs))
+        additionalSourceDirs.setFrom(files(sourceSets.main.allSource.srcDirs))
+        executionData.setFrom(fileTree(layout.buildDirectory.asFile.get()) {
+            include "jacoco/test.exec", "jacoco/*.exec", "outputs/unit_test_code_coverage/*/jacoco.exec"
+        })
+    }
 }

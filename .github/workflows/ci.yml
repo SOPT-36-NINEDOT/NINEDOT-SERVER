@@ -67,10 +67,86 @@ jobs:
           ./gradlew :ninedot-domain:test :ninedot-application:test :ninedot-api:test \
             -Dspring.profiles.active=test --no-daemon --stacktrace --info --no-watch-fs
 
+  coverage:
+    name: Coverage (JaCoCo, merged)
+    runs-on: ubuntu-latest
+    needs: [ test ]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v3
+        if: ${{ env.ACT != 'true' }}
+        with:
+          cache-read-only: ${{ github.event_name == 'pull_request' }}
+          gradle-home-cache-cleanup: true
+
+      - name: Generate merged coverage report (no fail on low coverage)
+        run: ./gradlew --no-daemon clean coverageAll --stacktrace --info --no-watch-fs
+
+      - name: Upload JaCoCo root HTML artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-root-html
+          path: build/reports/jacoco/rootHtml
+
+      - name: Upload JaCoCo XML
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-root-xml
+          path: build/reports/jacoco/jacocoRootReport.xml
+
+      - name: Calculate coverage %
+        id: calc
+        shell: bash
+        run: |
+          set -euo pipefail
+          XML="build/reports/jacoco/jacocoRootReport.xml"
+          
+          read -r LM LC < <(xmllint --xpath 'string(//counter[@type="LINE"]/@missed)' "$XML" ; echo " " ; xmllint --xpath 'string(//counter[@type="LINE"]/@covered)' "$XML")
+          L_TOTAL=$((LM + LC))
+          if [ "$L_TOTAL" -gt 0 ]; then
+            L_PCT=$(python - <<PY
+          from decimal import Decimal, ROUND_HALF_UP
+          print(str((Decimal($LC) / Decimal($L_TOTAL) * 100).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)))
+          PY
+          )
+          else
+          L_PCT="0.00"
+          fi
+          
+          BM=$(xmllint --xpath 'string(//counter[@type="BRANCH"]/@missed)' "$XML" 2>/dev/null || echo "")
+          BC=$(xmllint --xpath 'string(//counter[@type="BRANCH"]/@covered)' "$XML" 2>/dev/null || echo "")
+          if [ -z "$BM" ] || [ -z "$BC" ]; then
+          B_PCT="0.00"
+          else
+          B_TOTAL=$((BM + BC))
+          if [ "$B_TOTAL" -gt 0 ]; then
+          B_PCT=$(python - <<PY
+          from decimal import Decimal, ROUND_HALF_UP
+          print(str((Decimal($BC) / Decimal($B_TOTAL) * 100).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)))
+          PY
+          )
+          else
+          B_PCT="0.00"
+          fi
+          fi
+          
+          {
+            echo "line=$L_PCT"
+            echo "branch=$B_PCT"
+          } >> "$GITHUB_OUTPUT"
+  
   report:
     name: Report status to PR
     runs-on: ubuntu-latest
-    needs: [ assemble, test ]
+    needs: [ assemble, test, coverage ]
     if: ${{ always() && github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork }}
     steps:
       - name: Compose status message
@@ -78,22 +154,22 @@ jobs:
         run: |
           a="${{ needs.assemble.result }}"
           t="${{ needs.test.result }}"
+          c="${{ needs.coverage.result }}"
+          line="${{ needs.coverage.outputs.line }}"
+          branch="${{ needs.coverage.outputs.branch }}"
           
           {
             echo "message<<EOF"
             echo "**CI status**"
-            if [ "$a" = "success" ]; then
-              echo "✅ assemble: success"
-            else
-              echo "❌ assemble: $a"
-            fi
-            if [ "$t" = "success" ]; then
-              echo "✅ test: success"
-            else
-              echo "❌ test: $t"
-            fi
+            if [ "$a" = "success" ]; then echo "✅ assemble: success"; else echo "❌ assemble: $a"; fi
+            if [ "$t" = "success" ]; then echo "✅ test: success"; else echo "❌ test: $t"; fi
+            if [ "$c" = "success" ]; then echo "✅ coverage: success"; else echo "❌ coverage: $c"; fi
+            echo ""
+            echo "**Coverage**"
+            echo "- LINE: ${line}%"
+            echo "- BRANCH: ${branch}%"
             echo "EOF"
-          } >> "$GITHUB_OUTPUT" 
+          } >> "$GITHUB_OUTPUT"
 
       - name: Find existing comment
         if: ${{ env.ACT != 'true' }}
