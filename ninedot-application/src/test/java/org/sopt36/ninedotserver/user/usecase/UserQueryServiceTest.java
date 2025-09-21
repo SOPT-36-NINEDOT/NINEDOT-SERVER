@@ -12,11 +12,12 @@ import org.sopt36.ninedotserver.user.exception.UserErrorCode;
 import org.sopt36.ninedotserver.user.exception.UserException;
 import org.sopt36.ninedotserver.user.model.User;
 import org.sopt36.ninedotserver.user.port.out.UserQueryPort;
-import org.sopt36.ninedotserver.user.usecase.handler.GetUserInfoHandler;
+import org.sopt36.ninedotserver.user.service.GetUserInfoHandler;
 
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -50,7 +51,7 @@ public class UserQueryServiceTest {
         when(userQueryPort.findById(userId)).thenReturn(Optional.of(user));
 
         // when
-        UserInfoResult result = getUserInfoHandler.getUserInfo(query);
+        UserInfoResult result = getUserInfoHandler.execute(query);
 
         // then
         assertThat(result).isNotNull();
@@ -60,7 +61,7 @@ public class UserQueryServiceTest {
     }
 
     @Test
-    void 존재하지_않는_유지이면_예외가_발생한다() {
+    void 존재하지_않는_유저이면_예외가_발생한다() {
         // given
         Long userId = 99L;
         UserInfoQuery query = new UserInfoQuery(userId);
@@ -68,15 +69,9 @@ public class UserQueryServiceTest {
         when(userQueryPort.findById(userId)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> getUserInfoHandler.getUserInfo(query))
+        assertThatThrownBy(() -> getUserInfoHandler.execute(query))
                 .isInstanceOf(UserException.class)
                 .extracting("errorCode")
                 .isEqualTo(UserErrorCode.USER_NOT_FOUND);
     }
-
-
-
-
-
-
 }
