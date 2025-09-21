@@ -12,13 +12,13 @@ public record ProfileImageUrl(String value) {
         validateLength(value);
     }
 
-    private void validateLength(String value) {
+    private static void validateLength(String value) {
         if (value.length() > MAX_LENGTH) {
             throw new UserException(UserErrorCode.PROFILE_IMAGE_URL_TOO_LONG);
         }
     }
 
-    private void validateNotBlank(String value) {
+    private static void validateNotBlank(String value) {
         if (value == null || value.isBlank()) {
             throw new UserException(UserErrorCode.PROFILE_IMAGE_NOT_BLANK);
         }
