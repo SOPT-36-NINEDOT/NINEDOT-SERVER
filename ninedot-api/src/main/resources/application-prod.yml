@@ -11,7 +11,6 @@ spring:
       ddl-auto: none
     properties:
       hibernate:
-        show_sql: true
         format_sql: true
         dialect: org.hibernate.dialect.MySQL8Dialect
         jdbc:
@@ -49,7 +48,7 @@ google:
   redirect-uri: ${GOOGLE_REDIRECT_URI}
   token-uri: https://oauth2.googleapis.com/token
   userinfo-uri: https://openidconnect.googleapis.com/v1/userinfo
-  
+
 auth:
   redirect:
     whitelist:
