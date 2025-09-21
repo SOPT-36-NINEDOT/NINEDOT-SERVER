@@ -19,6 +19,7 @@ public record Birthday(String value) {
         validateNotBlank(value);
         validateLength(value);
         validateDateFormat(value);
+        validateNotFuture(value);
     }
 
     private static void validateDateFormat(String value) {
@@ -38,6 +39,13 @@ public record Birthday(String value) {
     private static void validateNotBlank(String value) {
         if (value == null || value.isBlank()) {
             throw new UserException(UserErrorCode.BIRTHDAY_NOT_BLANK);
+        }
+    }
+
+    private static void validateNotFuture(String value) {
+        LocalDate date = LocalDate.parse(value, FORMATTER);
+        if (date.isAfter(LocalDate.now())) {
+            throw new UserException(UserErrorCode.BIRTHDAY_IN_FUTURE);
         }
     }
 
