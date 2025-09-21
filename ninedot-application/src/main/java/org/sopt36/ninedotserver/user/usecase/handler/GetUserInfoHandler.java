@@ -1,7 +1,7 @@
 package org.sopt36.ninedotserver.user.usecase.handler;
 
 import lombok.RequiredArgsConstructor;
-import org.sopt36.ninedotserver.user.dto.query.GetUserInfoQuery;
+import org.sopt36.ninedotserver.user.dto.query.UserInfoQuery;
 import org.sopt36.ninedotserver.user.dto.result.UserInfoResult;
 import org.sopt36.ninedotserver.user.exception.UserErrorCode;
 import org.sopt36.ninedotserver.user.exception.UserException;
@@ -19,7 +19,7 @@ public class GetUserInfoHandler implements GetUserInfoUseCase {
     private final UserQueryPort userQueryPort;
 
     @Override
-    public UserInfoResult getUserInfo(GetUserInfoQuery query) {
+    public UserInfoResult getUserInfo(UserInfoQuery query) {
         User user = userQueryPort.findById(query.userId())
                 .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 

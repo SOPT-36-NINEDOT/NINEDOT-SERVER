@@ -1,13 +1,12 @@
 package org.sopt36.ninedotserver.user.usecase;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.sopt36.ninedotserver.user.dto.query.GetUserInfoQuery;
+import org.sopt36.ninedotserver.user.dto.query.UserInfoQuery;
 import org.sopt36.ninedotserver.user.dto.result.UserInfoResult;
 import org.sopt36.ninedotserver.user.exception.UserErrorCode;
 import org.sopt36.ninedotserver.user.exception.UserException;
@@ -46,7 +45,7 @@ public class UserQueryServiceTest {
     void 유저정보를_성공적으로_조회한다() {
         // given
         Long userId = 1L;
-        GetUserInfoQuery query = new GetUserInfoQuery(userId);
+        UserInfoQuery query = new UserInfoQuery(userId);
 
         when(userQueryPort.findById(userId)).thenReturn(Optional.of(user));
 
@@ -64,7 +63,7 @@ public class UserQueryServiceTest {
     void 존재하지_않는_유지이면_예외가_발생한다() {
         // given
         Long userId = 99L;
-        GetUserInfoQuery query = new GetUserInfoQuery(userId);
+        UserInfoQuery query = new UserInfoQuery(userId);
 
         when(userQueryPort.findById(userId)).thenReturn(Optional.empty());
 
