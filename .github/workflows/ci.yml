@@ -128,7 +128,7 @@ jobs:
             if [ "$a" = "success" ]; then echo "✅ assemble: success"; else echo "❌ assemble: $a"; fi
             if [ "$t" = "success" ]; then echo "✅ test & coverage: success"; else echo "❌ test & coverage: $t"; fi
             echo ""
-            echo "**Coverage (ninedot-api)**"
+            echo "**Coverage**"
             echo "- LINE: ${line}%"
             echo "- BRANCH: ${branch}%"
             echo "EOF"
