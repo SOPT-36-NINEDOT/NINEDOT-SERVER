@@ -58,12 +58,12 @@ jobs:
           cache-read-only: ${{ github.event_name == 'pull_request' }}
           gradle-home-cache-cleanup: true
 
-      - name: Run all tests and generate api module coverage report
+      - name: Run all tests and generate coverage report
         run: |
           ./gradlew test jacocoRootReport \
           -Dspring.profiles.active=test --no-daemon --stacktrace --info --no-watch-fs
 
-      - name: Calculate coverage % from api module report
+      - name: Calculate coverage %
         id: calc
         shell: bash
         run: |
