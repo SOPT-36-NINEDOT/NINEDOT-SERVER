@@ -16,10 +16,10 @@ public class TokenService {
     private final JwtProviderPort jwtProviderPort;
     private final RefreshTokenPort refreshTokenPort;
 
-    @Value("${spring.jwt.access-token-expiration-milliseconds}")
+    @Value("${jwt.access-token-expiration-milliseconds}")
     private long accessTokenExpirationMilliseconds;
 
-    @Value("${spring.jwt.refresh-token-expiration-milliseconds}")
+    @Value("${jwt.refresh-token-expiration-milliseconds}")
     private long refreshTokenExpirationMilliseconds;
 
     public IssuedTokens issueTokens(Long userId) {
