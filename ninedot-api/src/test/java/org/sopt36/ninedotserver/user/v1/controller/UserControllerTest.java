@@ -6,7 +6,6 @@ import org.sopt36.ninedotserver.user.dto.query.UserInfoQuery;
 import org.sopt36.ninedotserver.user.dto.result.UserInfoResult;
 import org.sopt36.ninedotserver.user.port.in.GetUserInfoUseCase;
 import org.sopt36.ninedotserver.user.v1.dto.response.UserInfoResponse;
-import org.sopt36.ninedotserver.user.v1.mapper.UserResponseMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -14,10 +13,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -33,11 +32,9 @@ public class UserControllerTest {
     @MockBean
     private GetUserInfoUseCase getUserInfoUseCase;
 
-    @MockBean
-    private UserResponseMapper userResponseMapper;
 
     @Test
-    @WithMockUser(username = "1") // Authentication.getName() → "1"
+    @WithMockUser(username = "1")
     void 유저정보를_성공적으로_조회한다() throws Exception {
         // given
         UserInfoResult result = new UserInfoResult(
@@ -56,8 +53,6 @@ public class UserControllerTest {
 
         given(getUserInfoUseCase.execute(any(UserInfoQuery.class)))
                 .willReturn(result);
-        given(userResponseMapper.toResponse(result))
-                .willReturn(response);
 
         // when & then
         mockMvc.perform(get("/api/v1/users/info")
