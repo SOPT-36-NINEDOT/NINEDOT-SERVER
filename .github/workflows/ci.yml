@@ -60,8 +60,8 @@ jobs:
 
       - name: Run all tests and generate api module coverage report
         run: |
-          ./gradlew test :ninedot-api:jacocoTestReport \
-            -Dspring.profiles.active=test --no-daemon --stacktrace --info --no-watch-fs
+          ./gradlew test jacocoRootReport \
+          -Dspring.profiles.active=test --no-daemon --stacktrace --info --no-watch-fs
 
       - name: Calculate coverage % from api module report
         id: calc
@@ -71,7 +71,7 @@ jobs:
           import xml.etree.ElementTree as ET
           from decimal import Decimal, ROUND_HALF_UP
           
-          xml_file = 'ninedot-api/build/reports/jacoco/test/jacocoTestReport.xml'
+          xml_file = 'build/reports/jacoco/jacocoRootReport/jacocoTestReport.xml'
           line_pct_str = '0.00'
           branch_pct_str = '0.00'
           
