@@ -35,7 +35,7 @@ public class RecommendationSchedulerService {
     private final MandalartRepositoryPort mandalartRepository;
     private final HistoryRepositoryPort historyRepository;
 
-    @Scheduled(cron = "0 0 2 * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
     @Transactional
     public void generateDailyRecommendations() {
         userRepository.findAll().forEach(user -> {
