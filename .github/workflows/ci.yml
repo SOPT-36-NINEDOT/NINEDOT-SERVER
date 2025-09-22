@@ -63,6 +63,9 @@ jobs:
           ./gradlew test :ninedot-api:jacocoTestReport \
             -Dspring.profiles.active=test --no-daemon --stacktrace --info --no-watch-fs
 
+      - name: Install xmllint
+        run: sudo apt-get update && sudo apt-get install -y libxml2-utils
+
       - name: Calculate coverage % from api module report
         id: calc
         shell: bash
