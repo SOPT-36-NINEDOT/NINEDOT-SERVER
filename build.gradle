@@ -5,6 +5,25 @@ plugins {
 ext {
     springBootVersion = '3.3.6'
     lombokVersion = '1.18.34'
+    coverageExcludes = [
+            // 메인
+            '**/*Application*',
+
+            // Query DSL Q 클래스
+            '**/Q*',
+
+            // dto
+            '**/*Request*', '**/*Response*', '**/*Command*', '**/*Query*', '**/*Result*',
+
+            // port (interface)
+            '**/*Port*',
+
+            // 설정 파일
+            '**/*Config*',
+
+            // 예외 처리
+            '**/*Exception*',
+    ]
 }
 
 allprojects {

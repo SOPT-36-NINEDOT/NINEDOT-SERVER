@@ -31,8 +31,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
     // lombok
-    compileOnly "org.projectlombok:lombok:1.18.34"
-    annotationProcessor "org.projectlombok:lombok:1.18.34"
+    compileOnly "org.projectlombok:lombok:${rootProject.ext.lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${rootProject.ext.lombokVersion}"
 
     // test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -56,39 +56,17 @@ tasks.named("jacocoTestReport", JacocoReport) {
 
     reports {
         xml.required = true
-        xml.outputLocation = layout.buildDirectory.file("reports/jacoco/jacocoTestReport.xml")
         html.required = true
-        html.outputLocation = layout.buildDirectory.dir("jacocoHtml")
-        csv.required = false
     }
 
-    def excludes = [
-            // 실행 파일
-            '**/*Application*',
+    def mainSourceSet = sourceSets.main
+    def excludes = rootProject.ext.coverageExcludes
 
-            // dto
-            '**/*Request*', '**/*Response*', '**/*Command*', '**/*Query*', '**/*Result*', '**/*Mapper*',
+    sourceDirectories.setFrom(files(mainSourceSet.allSource.srcDirs))
 
-            // 설정 파일
-            '**/*Config*',
+    classDirectories.setFrom(files(mainSourceSet.output.classesDirs.collect {
+        fileTree(dir: it, exclude: excludes)
+    }))
 
-            // 예외 관련 파일
-            '**/*Exception*', '**/*Error*',
-
-            // QueryDSL 생성 클래스
-            '**/Q*.*',
-    ]
-
-    doFirst {
-        classDirectories.setFrom(
-                files(sourceSets.main.output).collect { dir ->
-                    fileTree(dir: dir, exclude: excludes)
-                }
-        )
-        sourceDirectories.setFrom(files(sourceSets.main.allSource.srcDirs))
-        additionalSourceDirs.setFrom(files(sourceSets.main.allSource.srcDirs))
-        executionData.setFrom(fileTree(layout.buildDirectory.asFile.get()) {
-            include "jacoco/test.exec", "jacoco/*.exec", "outputs/unit_test_code_coverage/*/jacoco.exec"
-        })
-    }
+    executionData.setFrom(fileTree(dir: layout.buildDirectory, includes: ["jacoco/test.exec"]))
 }
