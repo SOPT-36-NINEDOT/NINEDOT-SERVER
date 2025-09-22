@@ -65,11 +65,13 @@ jobs:
 
       - name: Calculate coverage %
         id: calc
+        if: ${{ always() }}
         shell: bash
         run: |
-          python3 -c "
+          python3 - <<'PY'
           import xml.etree.ElementTree as ET
           from decimal import Decimal, ROUND_HALF_UP
+          import os, sys
           
           xml_file = 'build/reports/jacoco/jacocoRootReport/jacocoRootReport.xml'
           line_pct_str = '0.00'
@@ -98,11 +100,13 @@ jobs:
                       branch_pct_str = str(branch_pct)
           
           except (ET.ParseError, FileNotFoundError):
-              print('JaCoCo report file not found or is invalid. Reporting 0% coverage.')
+              print('JaCoCo report file not found or is invalid. Reporting 0% coverage.', file=sys.stderr)
           
-          print(f'line={line_pct_str}')
-          print(f'branch={branch_pct_str}')
-          " >> "$GITHUB_OUTPUT"
+          out = os.environ.get('GITHUB_OUTPUT')
+          with open(out, 'a', encoding='utf-8') as f:
+            f.write(f'line={line_pct_str}\\n')
+            f.write(f'branch={branch_pct_str}\\n')
+          PY
 
   report:
     name: Report status to PR
