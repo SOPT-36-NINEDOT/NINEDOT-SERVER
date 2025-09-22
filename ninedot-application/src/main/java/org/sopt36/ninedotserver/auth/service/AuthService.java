@@ -69,15 +69,15 @@ public class AuthService {
     private final MandalartRepositoryPort mandalartRepository;
     private final AnswerRepositoryPort answerRepository;
     private final QuestionRepositoryPort questionRepository;
-    @Value("${GOOGLE_CLIENT_ID}")
+    @Value("${google.client-id}")
     String clientId;
-    @Value("${GOOGLE_CLIENT_SECRET}")
+    @Value("${google.client-secret}")
     String clientSecret;
-    @Value("${GOOGLE_REDIRECT_URI}")
+    @Value("${auth.redirect.default-redirect-uri}")
     String defaultRedirectUri;
-    @Value("${spring.jwt.access-token-expiration-milliseconds}")
+    @Value("${jwt.access-token-expiration-milliseconds}")
     long accessTokenExpirationMilliseconds;
-    @Value("${spring.jwt.refresh-token-expiration-milliseconds}")
+    @Value("${jwt.refresh-token-expiration-milliseconds}")
     long refreshTokenExpirationMilliseconds;
 
     public AuthService(

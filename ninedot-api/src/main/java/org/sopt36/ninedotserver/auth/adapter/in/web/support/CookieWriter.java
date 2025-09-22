@@ -11,16 +11,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class CookieWriter {
 
-    @Value("${spring.cookie.domain}")
+    @Value("${cookie.domain}")
     private String cookieDomain;
 
-    @Value("${spring.cookie.secure}")
+    @Value("${cookie.secure}")
     private boolean secureCookie;
 
-    @Value("${spring.cookie.path}")
+    @Value("${cookie.path}")
     private String cookiePath;
 
-    @Value("${spring.jwt.refresh-token-expiration-milliseconds}")
+    @Value("${jwt.refresh-token-expiration-milliseconds}")
     private long refreshTokenExpirationMilliseconds;
 
     public void write(HttpServletResponse response, CookieInstruction instruction) {

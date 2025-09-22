@@ -27,7 +27,7 @@ public class JwtProvider implements JwtProviderPort {
 
     private final UserRepositoryPort userRepository;
 
-    @Value("${spring.jwt.secret}")
+    @Value("${jwt.secret}")
     private String secret;
     private SecretKey secretKey;
 

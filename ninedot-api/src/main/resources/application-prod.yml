@@ -20,20 +20,15 @@ spring:
   web:
     resources:
       add-mappings: false
-  jwt:
-    secret: ${JWT_SECRET_KEY}
-    access-token-expiration-milliseconds: 1800000
-    refresh-token-expiration-milliseconds: 1209600000
-  cookie:
-    domain: .ninedot.p-e.kr
-    secure: true
-    path: /
-  task:
-    scheduling:
-      time-zone: Asia/Seoul
-  ai:
-    model:
-      chat: none
+jwt:
+  secret: ${JWT_SECRET_KEY}
+  access-token-expiration-milliseconds: 1800000
+  refresh-token-expiration-milliseconds: 1209600000
+
+cookie:
+  domain: .ninedot.p-e.kr
+  secure: true
+  path: /
 
 gemini:
   api:
@@ -45,7 +40,6 @@ gemini:
 google:
   client-id: ${GOOGLE_CLIENT_ID}
   client-secret: ${GOOGLE_CLIENT_SECRET}
-  redirect-uri: ${GOOGLE_REDIRECT_URI}
   token-uri: https://oauth2.googleapis.com/token
   userinfo-uri: https://openidconnect.googleapis.com/v1/userinfo
 
@@ -53,5 +47,5 @@ auth:
   redirect:
     whitelist:
       - http://localhost:5173/auth/google/callback
-      - https://ninedot-client.vercel.app/auth/google/callback
-    default-redirect-uri: https://ninedot-client.vercel.app/auth/google/callback
+      - ${GOOGLE_REDIRECT_URI}
+    default-redirect-uri: ${GOOGLE_REDIRECT_URI}
