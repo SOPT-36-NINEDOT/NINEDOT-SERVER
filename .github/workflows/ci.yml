@@ -81,7 +81,7 @@ jobs:
               tree = ET.parse(xml_file)
               root = tree.getroot()
           
-              report_counter_line = root.find(\"./counter[@type='LINE']\")
+              report_counter_line = root.find('./counter[@type=\'LINE\']') 
               if report_counter_line is not None:
                   missed = Decimal(report_counter_line.get('missed', '0'))
                   covered = Decimal(report_counter_line.get('covered', '0'))
@@ -90,7 +90,7 @@ jobs:
                       line_pct = (covered / total * 100).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
                       line_pct_str = str(line_pct)
           
-              report_counter_branch = root.find(\"./counter[@type='BRANCH']\")
+              report_counter_branch = root.find('./counter[@type=\'BRANCH\']')
               if report_counter_branch is not None:
                   missed = Decimal(report_counter_branch.get('missed', '0'))
                   covered = Decimal(report_counter_branch.get('covered', '0'))
@@ -104,8 +104,8 @@ jobs:
           
           out = os.environ.get('GITHUB_OUTPUT')
           with open(out, 'a', encoding='utf-8') as f:
-            f.write(f'line={line_pct_str}\\n')
-            f.write(f'branch={branch_pct_str}\\n')
+            print(f'line={line_pct_str}', file=f)
+            print(f'branch={branch_pct_str}', file=f)
           PY
 
   report:
