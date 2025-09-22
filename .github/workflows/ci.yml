@@ -63,41 +63,46 @@ jobs:
           ./gradlew test :ninedot-api:jacocoTestReport \
             -Dspring.profiles.active=test --no-daemon --stacktrace --info --no-watch-fs
 
-      - name: Install xmllint
-        run: sudo apt-get update && sudo apt-get install -y libxml2-utils
-
       - name: Calculate coverage % from api module report
         id: calc
         shell: bash
         run: |
-          set -euo pipefail
-          XML="ninedot-api/build/reports/jacoco/jacocoTestReport.xml"
+          python3 -c "
+          import xml.etree.ElementTree as ET
+          from decimal import Decimal, ROUND_HALF_UP
           
-          read -r LM LC < <(xmllint --xpath 'string(//counter[@type="LINE"]/@missed)' "$XML" ; echo " " ; xmllint --xpath 'string(//counter[@type="LINE"]/@covered)' "$XML")
-          L_TOTAL=$((LM + LC))
-          if [ "$L_TOTAL" -gt 0 ]; then
-            L_PCT=$(python -c "from decimal import Decimal, ROUND_HALF_UP; print(str((Decimal($LC) / Decimal($L_TOTAL) * 100).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)))")
-          else
-            L_PCT="0.00"
-          fi
+          xml_file = 'ninedot-api/build/reports/jacoco/test/jacocoTestReport.xml'
+          line_pct_str = '0.00'
+          branch_pct_str = '0.00'
           
-          BM=$(xmllint --xpath 'string(//counter[@type="BRANCH"]/@missed)' "$XML" 2>/dev/null || echo "")
-          BC=$(xmllint --xpath 'string(//counter[@type="BRANCH"]/@covered)' "$XML" 2>/dev/null || echo "")
-          if [ -z "$BM" ] || [ -z "$BC" ]; then
-            B_PCT="0.00"
-          else
-            B_TOTAL=$((BM + BC))
-            if [ "$B_TOTAL" -gt 0 ]; then
-              B_PCT=$(python -c "from decimal import Decimal, ROUND_HALF_UP; print(str((Decimal($BC) / Decimal($B_TOTAL) * 100).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)))")
-            else
-              B_PCT="0.00"
-            fi
-          fi
+          try:
+              tree = ET.parse(xml_file)
+              root = tree.getroot()
           
-          {
-            echo "line=$L_PCT"
-            echo "branch=$B_PCT"
-          } >> "$GITHUB_OUTPUT"
+              report_counter_line = root.find(\"./counter[@type='LINE']\")
+              if report_counter_line is not None:
+                  missed = Decimal(report_counter_line.get('missed', '0'))
+                  covered = Decimal(report_counter_line.get('covered', '0'))
+                  total = missed + covered
+                  if total > 0:
+                      line_pct = (covered / total * 100).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+                      line_pct_str = str(line_pct)
+          
+              report_counter_branch = root.find(\"./counter[@type='BRANCH']\")
+              if report_counter_branch is not None:
+                  missed = Decimal(report_counter_branch.get('missed', '0'))
+                  covered = Decimal(report_counter_branch.get('covered', '0'))
+                  total = missed + covered
+                  if total > 0:
+                      branch_pct = (covered / total * 100).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+                      branch_pct_str = str(branch_pct)
+          
+          except (ET.ParseError, FileNotFoundError):
+              print('JaCoCo report file not found or is invalid. Reporting 0% coverage.')
+          
+          print(f'line={line_pct_str}')
+          print(f'branch={branch_pct_str}')
+          " >> "$GITHUB_OUTPUT"
 
   report:
     name: Report status to PR
