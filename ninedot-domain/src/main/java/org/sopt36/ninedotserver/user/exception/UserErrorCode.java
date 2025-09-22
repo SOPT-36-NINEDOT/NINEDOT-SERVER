@@ -13,7 +13,7 @@ public enum UserErrorCode implements ErrorCode {
 
     EMAIL_NOT_BLANK(HttpStatus.BAD_REQUEST, "이메일은 빈 칸일 수 없습니다."),
     INVALID_EMAIL_LENGTH(HttpStatus.BAD_REQUEST, "이메일은 최대 255자까지 작성 가능합니다."),
-    INVALID_EMAIL(HttpStatus.BAD_REQUEST, "유효하지 않은 이메일 형식입니다."),
+    INVALID_EMAIL_FORMAT(HttpStatus.BAD_REQUEST, "유효하지 않은 이메일 형식입니다."),
 
     PROFILE_IMAGE_NOT_BLANK(HttpStatus.BAD_REQUEST, "프로필 사진 URL은 빈 칸일 수 없습니다."),
     PROFILE_IMAGE_URL_TOO_LONG(HttpStatus.BAD_REQUEST, "프로필 사진 URL이 너무 깁니다."),

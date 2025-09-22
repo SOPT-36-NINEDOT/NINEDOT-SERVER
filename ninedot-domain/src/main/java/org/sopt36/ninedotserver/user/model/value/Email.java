@@ -30,7 +30,7 @@ public record Email(String value) {
 
     private static void validateFormat(String value) {
         if (!EMAIL_REGEX.matcher(value).matches()) {
-            throw new UserException(UserErrorCode.INVALID_EMAIL);
+            throw new UserException(UserErrorCode.INVALID_EMAIL_FORMAT);
         }
     }
 
