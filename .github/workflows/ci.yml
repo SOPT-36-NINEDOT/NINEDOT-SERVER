@@ -71,7 +71,7 @@ jobs:
           import xml.etree.ElementTree as ET
           from decimal import Decimal, ROUND_HALF_UP
           
-          xml_file = 'build/reports/jacoco/jacocoRootReport/jacocoTestReport.xml'
+          xml_file = 'build/reports/jacoco/jacocoRootReport/jacocoRootReport.xml'
           line_pct_str = '0.00'
           branch_pct_str = '0.00'
           
