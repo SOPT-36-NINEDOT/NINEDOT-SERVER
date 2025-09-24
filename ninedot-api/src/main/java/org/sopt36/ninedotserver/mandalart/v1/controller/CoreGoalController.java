@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.mandalart.v1;
+package org.sopt36.ninedotserver.mandalart.v1.controller;
 
 import static org.sopt36.ninedotserver.mandalart.v1.message.CoreGoalMessage.AI_RESPONSE_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.v1.message.CoreGoalMessage.CORE_GOAL_AI_CREATED_SUCCESS;
@@ -12,13 +12,12 @@ import static org.sopt36.ninedotserver.mandalart.v1.message.CoreGoalMessage.CORE
 import jakarta.validation.Valid;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
-import org.sopt36.ninedotserver.ai.dto.response.CoreGoalAiResponse;
+import org.sopt36.ninedotserver.ai.dto.result.AiCoreGoalResult;
 import org.sopt36.ninedotserver.ai.usecase.AiRecommendationService;
 import org.sopt36.ninedotserver.dto.response.ApiResponse;
 import org.sopt36.ninedotserver.mandalart.dto.request.CoreGoalAiCreateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.request.CoreGoalCreateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.request.CoreGoalUpdateRequest;
-import org.sopt36.ninedotserver.mandalart.dto.request.GenerateCoreGoalRequest;
 import org.sopt36.ninedotserver.mandalart.dto.request.MandalartUpdateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalAiListResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalCreateResponse;
@@ -26,6 +25,9 @@ import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalIdsResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.CoreGoalsResponse;
 import org.sopt36.ninedotserver.mandalart.usecase.command.CoreGoalCommandService;
 import org.sopt36.ninedotserver.mandalart.usecase.query.CoreGoalQueryService;
+import org.sopt36.ninedotserver.mandalart.v1.dto.request.AiCoreGoalRequest;
+import org.sopt36.ninedotserver.mandalart.v1.dto.response.AiCoreGoalResponse;
+import org.sopt36.ninedotserver.mandalart.v1.mapper.AiCoreGoalResponseMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -128,14 +130,14 @@ public class CoreGoalController {
 
     // TODO user, request 서비스 코드에 추가 (dto 분리 필요)
     @PostMapping("/mandalarts/{mandalartId}/ai")
-    public ResponseEntity<ApiResponse<CoreGoalAiResponse, Void>> createAi(
-        @PathVariable Long mandalartId,
-        @RequestBody(required = false) GenerateCoreGoalRequest generateRequest,
-        Authentication authentication
+    public ResponseEntity<ApiResponse<AiCoreGoalResponse, Void>> createAi(
+            @PathVariable Long mandalartId,
+            @RequestBody(required = false) @Valid AiCoreGoalRequest request,
+            Authentication authentication
     ) {
         Long userId = Long.parseLong(authentication.getName());
-        CoreGoalAiResponse response = aiRecommendationService.fetchAiRecommendation(mandalartId);
-
+        AiCoreGoalResponse response = AiCoreGoalResponseMapper
+                .toAiCoreGoalResponse(aiRecommendationService.fetchAiRecommendation(mandalartId));
         return ResponseEntity.ok(ApiResponse.created(response, AI_RESPONSE_SUCCESS));
     }
 

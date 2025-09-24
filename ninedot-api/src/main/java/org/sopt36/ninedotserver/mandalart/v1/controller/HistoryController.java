@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.mandalart.v1;
+package org.sopt36.ninedotserver.mandalart.v1.controller;
 
 import static org.sopt36.ninedotserver.mandalart.v1.message.HistoryMessage.HISTORY_CREATED_SUCCESS;
 import static org.sopt36.ninedotserver.mandalart.v1.message.HistoryMessage.HISTORY_DELETED_SUCCESS;
