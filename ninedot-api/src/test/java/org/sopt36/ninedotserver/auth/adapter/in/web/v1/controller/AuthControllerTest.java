@@ -13,7 +13,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.sopt36.ninedotserver.auth.adapter.in.web.support.CookieWriter;
+import org.sopt36.ninedotserver.global.web.CookieWriter;
 import org.sopt36.ninedotserver.auth.adapter.in.web.v1.dto.request.GoogleAuthCodeRequest;
 import org.sopt36.ninedotserver.auth.adapter.out.jwt.JwtProvider;
 import org.sopt36.ninedotserver.auth.dto.result.AuthResult;

@@ -4,11 +4,12 @@ import static org.sopt36.ninedotserver.auth.adapter.in.web.v1.message.AuthMessag
 import static org.sopt36.ninedotserver.auth.adapter.in.web.v1.message.AuthMessage.LOGIN_SIGNUP_SUCCESS;
 import static org.sopt36.ninedotserver.auth.adapter.in.web.v1.message.AuthMessage.REFRESH_TOKEN_DELETED;
 import static org.sopt36.ninedotserver.auth.adapter.in.web.v1.message.AuthMessage.SIGNUP_SUCCESS;
+import static org.sopt36.ninedotserver.auth.support.CookieInstruction.clearRefreshToken;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.sopt36.ninedotserver.auth.adapter.in.web.support.CookieWriter;
+import org.sopt36.ninedotserver.global.web.CookieWriter;
 import org.sopt36.ninedotserver.auth.adapter.in.web.v1.dto.request.GoogleAuthCodeRequest;
 import org.sopt36.ninedotserver.auth.adapter.in.web.v1.dto.request.SignupRequest;
 import org.sopt36.ninedotserver.auth.adapter.in.web.v1.dto.response.AuthResponse;
@@ -23,6 +24,8 @@ import org.sopt36.ninedotserver.auth.port.in.LoginOrSignupWithGoogleCodeUsecase;
 import org.sopt36.ninedotserver.auth.service.AuthService;
 import org.sopt36.ninedotserver.dto.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -74,8 +77,15 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Void, Void>> deleteRefreshToken() {
-        authService.deleteRefreshToken();
+    public ResponseEntity<ApiResponse<Void, Void>> deleteRefreshToken(
+        HttpServletResponse servletResponse
+    ) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long userId = Long.parseLong(auth.getName());
+
+        authService.deleteRefreshToken(userId);
+        cookieWriter.write(servletResponse, clearRefreshToken());
+
         return ResponseEntity.ok(ApiResponse.ok(REFRESH_TOKEN_DELETED));
     }
 

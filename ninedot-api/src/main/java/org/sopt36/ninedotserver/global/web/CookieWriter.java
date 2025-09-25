@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.auth.adapter.in.web.support;
+package org.sopt36.ninedotserver.global.web;
 
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.Duration;

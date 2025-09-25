@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.global.advice;
+package org.sopt36.ninedotserver.global.web;
 
 
 import jakarta.servlet.http.HttpServletRequest;
