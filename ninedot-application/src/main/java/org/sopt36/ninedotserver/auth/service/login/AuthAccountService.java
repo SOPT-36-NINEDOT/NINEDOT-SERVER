@@ -10,6 +10,7 @@ import org.sopt36.ninedotserver.auth.port.out.AuthProviderRepositoryPort;
 import org.sopt36.ninedotserver.auth.service.login.dto.ExchangeResult;
 import org.sopt36.ninedotserver.auth.service.login.dto.IssuedTokens;
 import org.sopt36.ninedotserver.auth.service.login.dto.OnboardingStatus;
+import org.sopt36.ninedotserver.auth.service.token.TokenService;
 import org.springframework.stereotype.Service;
 
 @Service

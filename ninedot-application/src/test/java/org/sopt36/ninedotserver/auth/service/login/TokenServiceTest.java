@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt36.ninedotserver.auth.port.out.RefreshTokenPort;
 import org.sopt36.ninedotserver.auth.port.out.token.JwtProviderPort;
 import org.sopt36.ninedotserver.auth.service.login.dto.IssuedTokens;
+import org.sopt36.ninedotserver.auth.service.token.TokenService;
 import org.sopt36.ninedotserver.auth.support.CookieInstruction;
 
 @ExtendWith(MockitoExtension.class)

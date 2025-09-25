@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.auth.service.login;
+package org.sopt36.ninedotserver.auth.service.token;
 
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
