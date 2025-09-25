@@ -4,11 +4,12 @@ import static org.sopt36.ninedotserver.auth.adapter.in.web.v1.message.AuthMessag
 import static org.sopt36.ninedotserver.auth.adapter.in.web.v1.message.AuthMessage.LOGIN_SIGNUP_SUCCESS;
 import static org.sopt36.ninedotserver.auth.adapter.in.web.v1.message.AuthMessage.REFRESH_TOKEN_DELETED;
 import static org.sopt36.ninedotserver.auth.adapter.in.web.v1.message.AuthMessage.SIGNUP_SUCCESS;
-import static org.sopt36.ninedotserver.auth.support.CookieInstruction.clearRefreshToken;
+import static org.sopt36.ninedotserver.global.web.CookieInstruction.clearRefreshToken;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.sopt36.ninedotserver.global.web.CookieInstruction;
 import org.sopt36.ninedotserver.global.web.CookieWriter;
 import org.sopt36.ninedotserver.auth.adapter.in.web.v1.dto.request.GoogleAuthCodeRequest;
 import org.sopt36.ninedotserver.auth.adapter.in.web.v1.dto.request.SignupRequest;
@@ -55,8 +56,8 @@ public class AuthController {
 
         AuthResult authResult = loginOrSignupWithGoogleCodeUsecase.execute(command);
 
-        authResult.refreshTokenCookie().ifPresent(instruction ->
-            cookieWriter.write(servletResponse, instruction)
+        authResult.refreshToken().ifPresent(refreshToken ->
+            cookieWriter.write(servletResponse, CookieInstruction.setRefreshToken(refreshToken))
         );
         AuthResponse body = AuthResponseMapper.toResponse(authResult);
 

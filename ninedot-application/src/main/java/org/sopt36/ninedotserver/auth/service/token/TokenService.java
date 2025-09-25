@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.auth.port.out.RefreshTokenPort;
 import org.sopt36.ninedotserver.auth.port.out.token.TokenIssuePort;
 import org.sopt36.ninedotserver.auth.service.login.dto.IssuedTokens;
-import org.sopt36.ninedotserver.auth.support.CookieInstruction;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -32,12 +31,6 @@ public class TokenService {
             .plusMillis(refreshTokenExpirationMilliseconds);
         refreshTokenPort.saveOrRotate(userId, refreshToken, refreshTokenExpiresAt);
 
-        CookieInstruction refreshTokenCookieInstruction = CookieInstruction.setRefreshToken(
-            refreshToken);
-        return new IssuedTokens(accessToken, refreshTokenCookieInstruction);
-    }
-
-    public CookieInstruction clearRefreshTokenInstruction() {
-        return CookieInstruction.clearRefreshToken();
+        return new IssuedTokens(accessToken, refreshToken);
     }
 }

@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.auth.support;
+package org.sopt36.ninedotserver.global.web;
 
 public sealed interface CookieInstruction
     permits CookieInstruction.SetRefreshToken, CookieInstruction.ClearRefreshToken {

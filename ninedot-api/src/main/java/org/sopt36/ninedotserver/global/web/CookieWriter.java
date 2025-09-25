@@ -2,7 +2,6 @@ package org.sopt36.ninedotserver.global.web;
 
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.Duration;
-import org.sopt36.ninedotserver.auth.support.CookieInstruction;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;

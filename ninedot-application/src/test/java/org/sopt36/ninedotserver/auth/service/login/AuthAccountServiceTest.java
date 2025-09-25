@@ -7,7 +7,6 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.sopt36.ninedotserver.auth.model.OnboardingPage.ONBOARDING_COMPLETED;
-import static org.sopt36.ninedotserver.auth.support.CookieInstruction.setRefreshToken;
 
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +27,6 @@ import org.sopt36.ninedotserver.auth.service.login.dto.ExchangeResult;
 import org.sopt36.ninedotserver.auth.service.login.dto.IssuedTokens;
 import org.sopt36.ninedotserver.auth.service.login.dto.OnboardingStatus;
 import org.sopt36.ninedotserver.auth.service.token.TokenService;
-import org.sopt36.ninedotserver.auth.support.CookieInstruction;
 import org.sopt36.ninedotserver.user.model.User;
 
 @ExtendWith(MockitoExtension.class) // Mockito 기능을 JUnit 5 테스트에 활성화
@@ -63,7 +61,7 @@ class AuthAccountServiceTest {
             Long userId = 1L;
             String providerSubject = "google-12345";
             String expectedAccessToken = "test-access-token";
-            String expectedRefreshTokenCookie = "test-refresh-token-cookie";
+            String expectedRefreshToken = "test-refresh-token-cookie";
 
             IdentityUserInfo identityUserInfo = new IdentityUserInfo(providerSubject, "홍길동",
                 "test@example.com", "picture.url");
@@ -78,8 +76,7 @@ class AuthAccountServiceTest {
                 providerSubject))
                 .willReturn(Optional.of(mockAuthProvider));
 
-            CookieInstruction cookieInstruction = setRefreshToken(expectedRefreshTokenCookie);
-            IssuedTokens issuedTokens = new IssuedTokens(expectedAccessToken, cookieInstruction);
+            IssuedTokens issuedTokens = new IssuedTokens(expectedAccessToken, expectedRefreshToken);
             given(tokenService.issueTokens(userId)).willReturn(issuedTokens);
 
             OnboardingStatus onboardingStatus = new OnboardingStatus(true, ONBOARDING_COMPLETED);
@@ -97,7 +94,7 @@ class AuthAccountServiceTest {
             assertThat(loginResult.accessToken()).isEqualTo(expectedAccessToken);
             assertThat(loginResult.onboardingCompleted()).isTrue();
             assertThat(loginResult.nextPage()).isEqualTo(ONBOARDING_COMPLETED);
-            assertThat(loginResult.refreshTokenCookie()).contains(cookieInstruction);
+            assertThat(loginResult.refreshToken()).contains(expectedRefreshToken);
 
             then(authProviderRepositoryPort).should()
                 .findByProviderAndProviderUserId(ProviderType.GOOGLE, providerSubject);
@@ -134,7 +131,7 @@ class AuthAccountServiceTest {
             assertThat(signupResult.name()).isEqualTo("김소연");
             assertThat(signupResult.email()).isEqualTo("new@example.com");
             assertThat(signupResult.picture()).isEqualTo("new_picture.url");
-            assertThat(signupResult.refreshTokenCookie()).isEmpty();
+            assertThat(signupResult.refreshToken()).isEmpty();
 
             then(tokenService).should(never()).issueTokens(anyLong());
             then(onboardingStatusService).should(never()).determineOnboardingStatus(anyLong());

@@ -20,7 +20,6 @@ import org.sopt36.ninedotserver.auth.port.out.RefreshTokenPort;
 import org.sopt36.ninedotserver.auth.port.out.token.TokenIssuePort;
 import org.sopt36.ninedotserver.auth.service.login.dto.IssuedTokens;
 import org.sopt36.ninedotserver.auth.service.token.TokenService;
-import org.sopt36.ninedotserver.auth.support.CookieInstruction;
 
 @ExtendWith(MockitoExtension.class)
 class TokenServiceTest {
@@ -69,7 +68,7 @@ class TokenServiceTest {
         // then
         assertThat(issued).isNotNull();
         assertThat(issued.accessToken()).isEqualTo(accessToken);
-        assertThat(issued.refreshTokenCookie()).isNotNull();
+        assertThat(issued.refreshToken()).isNotNull();
 
         verify(tokenIssuePort, times(1)).createToken(userId, accessExpiration);
         verify(tokenIssuePort, times(1)).createToken(userId, refreshExpiration);
@@ -82,15 +81,5 @@ class TokenServiceTest {
         Instant expectedMin = before.plusMillis(refreshExpiration).minusSeconds(2);
         Instant expectedMax = after.plusMillis(refreshExpiration).plusSeconds(2);
         assertThat(captured).isAfterOrEqualTo(expectedMin).isBeforeOrEqualTo(expectedMax);
-    }
-
-    @Test
-    @DisplayName("clearRefreshTokenInstruction: 리프레시 쿠키 제거 지시문을 반환한다")
-    void clearRefreshTokenInstruction_returnsClearCookie() {
-        // when
-        CookieInstruction cookieInstruction = tokenService.clearRefreshTokenInstruction();
-
-        // then
-        assertThat(cookieInstruction).isNotNull();
     }
 }

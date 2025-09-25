@@ -13,7 +13,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.sopt36.ninedotserver.global.web.CookieWriter;
 import org.sopt36.ninedotserver.auth.adapter.in.web.v1.dto.request.GoogleAuthCodeRequest;
 import org.sopt36.ninedotserver.auth.adapter.out.jwt.JwtProvider;
 import org.sopt36.ninedotserver.auth.dto.result.AuthResult;
@@ -22,7 +21,7 @@ import org.sopt36.ninedotserver.auth.dto.result.SignupResult;
 import org.sopt36.ninedotserver.auth.model.ProviderType;
 import org.sopt36.ninedotserver.auth.port.in.LoginOrSignupWithGoogleCodeUsecase;
 import org.sopt36.ninedotserver.auth.service.AuthService;
-import org.sopt36.ninedotserver.auth.support.CookieInstruction;
+import org.sopt36.ninedotserver.global.web.CookieWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -64,9 +63,7 @@ class AuthControllerTest {
         void googleCallback_login_with_cookie_success() throws Exception {
             // given
             AuthResult loginResult = Mockito.mock(LoginResult.class);
-            CookieInstruction cookieInstruction = CookieInstruction.setRefreshToken(
-                "dummy-refresh-token");
-            when(loginResult.refreshTokenCookie()).thenReturn(Optional.of(cookieInstruction));
+            when(loginResult.refreshToken()).thenReturn(Optional.of("dummy-refresh-token"));
             when(loginOrSignupWithGoogleCodeUsecase.execute(any())).thenReturn(loginResult);
 
             // when & then
@@ -88,7 +85,7 @@ class AuthControllerTest {
         void googleCallback_signup_success() throws Exception {
             // given
             SignupResult signupResult = Mockito.mock(SignupResult.class);
-            when(signupResult.refreshTokenCookie()).thenReturn(Optional.empty());
+            when(signupResult.refreshToken()).thenReturn(Optional.empty());
 
             when(signupResult.provider()).thenReturn(ProviderType.GOOGLE);
 
