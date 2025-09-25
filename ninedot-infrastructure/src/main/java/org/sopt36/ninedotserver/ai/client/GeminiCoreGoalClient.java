@@ -11,8 +11,8 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt36.ninedotserver.ai.exception.AiErrorCode;
 import org.sopt36.ninedotserver.ai.port.AiClient;
-import org.sopt36.ninedotserver.ai.dto.response.GenerateContentRequest;
-import org.sopt36.ninedotserver.ai.dto.response.GenerationConfig;
+import org.sopt36.ninedotserver.ai.dto.external.GenerateContentRequest;
+import org.sopt36.ninedotserver.ai.dto.external.GenerationConfig;
 import org.sopt36.ninedotserver.ai.exception.AiException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,15 +21,15 @@ import org.springframework.web.client.RestClient;
 
 @Slf4j
 @Component("geminiClient")
-public class GeminiClient implements AiClient {
+public class GeminiCoreGoalClient implements AiClient {
 
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
     @Value("${gemini.api.response-schema}")
     private String responseSchema;
 
-    public GeminiClient(@Qualifier("geminiRestClient") RestClient restClient,
-        ObjectMapper objectMapper) {
+    public GeminiCoreGoalClient(@Qualifier("geminiRestClient") RestClient restClient,
+                                ObjectMapper objectMapper) {
         this.restClient = restClient;
         this.objectMapper = objectMapper;
     }
