@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.ai.dto.response;
+package org.sopt36.ninedotserver.ai.dto.external;
 
 import java.util.List;
 
