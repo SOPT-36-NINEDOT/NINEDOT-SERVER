@@ -9,7 +9,9 @@ import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.sopt36.ninedotserver.auth.adapter.out.jwt.JwtProvider;
+import org.sopt36.ninedotserver.auth.dto.security.PrincipalDto;
+import org.sopt36.ninedotserver.auth.port.in.ResolvePrincipalByTokenUsecase;
+import org.sopt36.ninedotserver.auth.port.out.token.TokenVerifyPort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -20,7 +22,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtProvider jwtProvider;
+    private final TokenVerifyPort tokenVerifyPort;
+    private final ResolvePrincipalByTokenUsecase resolvePrincipalByTokenUsecase;
+    private final JwtAuthenticationFactory jwtAuthenticationFactory;
 
     @Override
     protected void doFilterInternal(
@@ -45,8 +49,9 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         }
         String token = resolveToken(request);
         log.debug("추출된 토큰: {}", token);
-        if (token != null && jwtProvider.validateToken(token)) {
-            Authentication auth = jwtProvider.getAuthentication(token);
+        if (token != null && tokenVerifyPort.validateToken(token)) {
+            PrincipalDto principal = resolvePrincipalByTokenUsecase.execute(token);
+            Authentication auth = jwtAuthenticationFactory.getAuthentication(principal);
             SecurityContextHolder.getContext().setAuthentication(auth);
             log.debug("인증 성공: {}", auth.getName());
         } else {

@@ -1,15 +1,14 @@
 package org.sopt36.ninedotserver.auth.service;
 
-import io.jsonwebtoken.Claims;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt36.ninedotserver.auth.dto.command.SignupCommand;
 import org.sopt36.ninedotserver.auth.dto.response.NewAccessTokenResult;
 import org.sopt36.ninedotserver.auth.dto.response.SignupResult;
+import org.sopt36.ninedotserver.auth.dto.security.TokenClaims;
 import org.sopt36.ninedotserver.auth.exception.AuthErrorCode;
 import org.sopt36.ninedotserver.auth.exception.AuthException;
 import org.sopt36.ninedotserver.auth.model.AuthProvider;
@@ -52,16 +51,11 @@ public class AuthService {
     @Value("${jwt.refresh-token-expiration-milliseconds}")
     long refreshTokenExpirationMilliseconds;
 
-    public AuthService(
-        TokenIssuePort tokenIssuePort,
-        TokenParsePort tokenParsePort,
+    public AuthService(TokenIssuePort tokenIssuePort, TokenParsePort tokenParsePort,
         AuthProviderRepositoryPort authProviderRepository,
-        RefreshTokenRepositoryPort refreshTokenRepository,
-        UserQueryPort userQueryPort,
-        UserCommandPort userCommandPort,
-        AnswerRepositoryPort answerRepository,
-        QuestionRepositoryPort questionRepository
-    ) {
+        RefreshTokenRepositoryPort refreshTokenRepository, UserQueryPort userQueryPort,
+        UserCommandPort userCommandPort, AnswerRepositoryPort answerRepository,
+        QuestionRepositoryPort questionRepository) {
         this.tokenIssuePort = tokenIssuePort;
         this.tokenParsePort = tokenParsePort;
         this.authProviderRepository = authProviderRepository;
@@ -92,23 +86,15 @@ public class AuthService {
 
     @Transactional
     public SignupResult registerUser(SignupCommand request) {
-        User user = User.create(
-            request.name(),
-            request.email(),
-            request.profileImageUrl(),
-            request.birthday(),
-            request.job()
-        );
+        User user = User.create(request.name(), request.email(), request.profileImageUrl(),
+            request.birthday(), request.job());
         userCommandPort.save(user);
 
         List<Answer> answers = getAnswers(request, user);
         answerRepository.saveAll(answers);
 
-        AuthProvider authProvider = AuthProvider.create(
-            user,
-            ProviderType.valueOf(request.socialProvider().toUpperCase()),
-            request.socialToken()
-        );
+        AuthProvider authProvider = AuthProvider.create(user,
+            ProviderType.valueOf(request.socialProvider().toUpperCase()), request.socialToken());
         authProviderRepository.save(authProvider);
 
         String accessToken = tokenIssuePort.createToken(user.getId(),
@@ -128,39 +114,26 @@ public class AuthService {
     }
 
     private RefreshToken isRefreshTokenValid(String refreshToken) {
-        return refreshTokenRepository
-            .findByRefreshTokenAndExpiresAtAfter(refreshToken, LocalDateTime.now())
+        return refreshTokenRepository.findByRefreshTokenAndExpiresAtAfter(refreshToken,
+                LocalDateTime.now())
             .orElseThrow(() -> new AuthException(AuthErrorCode.INVALID_REFRESH_TOKEN));
     }
 
-    // 로그인 시 데이터베이스에 리프레시 토큰 생성
     private void addRefreshTokenToDB(Long userId, String refreshToken) {
-        Claims claims = tokenParsePort.parseClaims(refreshToken).getPayload();
+        TokenClaims claims = tokenParsePort.parseClaims(refreshToken);
         User user = userQueryPort.findById(userId)
             .orElseThrow(() -> new AuthException(AuthErrorCode.USER_NOT_FOUND));
-        refreshTokenRepository.save(
-            RefreshToken.create(
-                user,
-                refreshToken,
-                expirationDateToLocalDateTime(claims.getExpiration())
-            )
-        );
-    }
 
-    private LocalDateTime expirationDateToLocalDateTime(Date expirationDate) {
-        return expirationDate.toInstant()
-            .atZone(ZoneId.systemDefault())
-            .toLocalDateTime();
+        refreshTokenRepository.save(RefreshToken.create(user, refreshToken,
+            claims.expiresAt().atZone(ZoneId.systemDefault()).toLocalDateTime()));
     }
 
     private List<Answer> getAnswers(SignupCommand request, User user) {
-        return request.answers().stream()
-            .map(answer -> {
-                Question question = questionRepository.findById(answer.questionId())
-                    .orElseThrow(() -> new QuestionException(QuestionErrorCode.QUESTION_NOT_FOUND));
-                String content = ChoiceInfo.getShortSentenceById(answer.choiceId());
-                return Answer.create(question, user, content);
-            })
-            .collect(Collectors.toList());
+        return request.answers().stream().map(answer -> {
+            Question question = questionRepository.findById(answer.questionId())
+                .orElseThrow(() -> new QuestionException(QuestionErrorCode.QUESTION_NOT_FOUND));
+            String content = ChoiceInfo.getShortSentenceById(answer.choiceId());
+            return Answer.create(question, user, content);
+        }).collect(Collectors.toList());
     }
 }

@@ -1,5 +1,7 @@
 package org.sopt36.ninedotserver.auth.adapter.out.jwt;
 
+import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.INVALID_TOKEN_FORMAT;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
@@ -11,6 +13,8 @@ import java.util.Date;
 import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.sopt36.ninedotserver.auth.dto.security.TokenClaims;
+import org.sopt36.ninedotserver.auth.exception.AuthException;
 import org.sopt36.ninedotserver.auth.port.out.token.TokenIssuePort;
 import org.sopt36.ninedotserver.auth.port.out.token.TokenParsePort;
 import org.sopt36.ninedotserver.auth.port.out.token.TokenVerifyPort;
@@ -49,11 +53,30 @@ public class JwtProvider implements TokenIssuePort, TokenParsePort, TokenVerifyP
             .compact();
     }
 
-    public Jws<Claims> parseClaims(String token) {
-        return Jwts.parser()
-            .verifyWith(secretKey)
-            .build()
-            .parseSignedClaims(token);
+    public TokenClaims parseClaims(String token) {
+        try {
+            Jws<Claims> jws = Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token);
+
+            Claims claims = jws.getPayload();
+
+            long userId;
+            try {
+                userId = Long.parseLong(claims.getSubject());
+            } catch (NumberFormatException e) {
+                throw new AuthException(INVALID_TOKEN_FORMAT, e.getMessage());
+            }
+
+            return new TokenClaims(
+                userId,
+                claims.getIssuedAt() == null ? null : claims.getIssuedAt().toInstant(),
+                claims.getExpiration() == null ? null : claims.getExpiration().toInstant()
+            );
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new AuthException(INVALID_TOKEN_FORMAT, e.getMessage());
+        }
     }
 
     public boolean validateToken(String token) {

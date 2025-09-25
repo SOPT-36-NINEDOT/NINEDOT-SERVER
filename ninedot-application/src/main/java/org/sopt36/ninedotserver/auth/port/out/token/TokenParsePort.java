@@ -1,10 +1,9 @@
 package org.sopt36.ninedotserver.auth.port.out.token;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
+import org.sopt36.ninedotserver.auth.dto.security.TokenClaims;
 
 public interface TokenParsePort {
 
-    Jws<Claims> parseClaims(String token);
+    TokenClaims parseClaims(String token);
 
 }
