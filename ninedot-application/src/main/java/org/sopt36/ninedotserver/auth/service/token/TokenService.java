@@ -3,7 +3,7 @@ package org.sopt36.ninedotserver.auth.service.token;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.auth.port.out.RefreshTokenPort;
-import org.sopt36.ninedotserver.auth.port.out.token.JwtProviderPort;
+import org.sopt36.ninedotserver.auth.port.out.token.TokenIssuePort;
 import org.sopt36.ninedotserver.auth.service.login.dto.IssuedTokens;
 import org.sopt36.ninedotserver.auth.support.CookieInstruction;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class TokenService {
 
-    private final JwtProviderPort jwtProviderPort;
+    private final TokenIssuePort tokenIssuePort;
     private final RefreshTokenPort refreshTokenPort;
 
     @Value("${jwt.access-token-expiration-milliseconds}")
@@ -23,10 +23,11 @@ public class TokenService {
     private long refreshTokenExpirationMilliseconds;
 
     public IssuedTokens issueTokens(Long userId) {
-        String accessToken = jwtProviderPort.createToken(userId, accessTokenExpirationMilliseconds);
-
-        String refreshToken = jwtProviderPort.createToken(userId,
-            refreshTokenExpirationMilliseconds);
+        String accessToken = tokenIssuePort.createToken(userId, accessTokenExpirationMilliseconds);
+        String refreshToken = tokenIssuePort.createToken(
+            userId,
+            refreshTokenExpirationMilliseconds
+        );
         Instant refreshTokenExpiresAt = Instant.now()
             .plusMillis(refreshTokenExpirationMilliseconds);
         refreshTokenPort.saveOrRotate(userId, refreshToken, refreshTokenExpiresAt);

@@ -17,7 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt36.ninedotserver.auth.port.out.RefreshTokenPort;
-import org.sopt36.ninedotserver.auth.port.out.token.JwtProviderPort;
+import org.sopt36.ninedotserver.auth.port.out.token.TokenIssuePort;
 import org.sopt36.ninedotserver.auth.service.login.dto.IssuedTokens;
 import org.sopt36.ninedotserver.auth.service.token.TokenService;
 import org.sopt36.ninedotserver.auth.support.CookieInstruction;
@@ -29,7 +29,7 @@ class TokenServiceTest {
     private final Long refreshExpiration = 1_209_600_000L;
 
     @Mock
-    JwtProviderPort jwtProviderPort;
+    TokenIssuePort tokenIssuePort;
 
     @Mock
     RefreshTokenPort refreshTokenPort;
@@ -57,8 +57,8 @@ class TokenServiceTest {
         String accessToken = "AT.header.payload.sig";
         String refreshToken = "RT.header.payload.sig";
 
-        when(jwtProviderPort.createToken(eq(userId), eq(accessExpiration))).thenReturn(accessToken);
-        when(jwtProviderPort.createToken(eq(userId), eq(refreshExpiration)))
+        when(tokenIssuePort.createToken(eq(userId), eq(accessExpiration))).thenReturn(accessToken);
+        when(tokenIssuePort.createToken(eq(userId), eq(refreshExpiration)))
             .thenReturn(refreshToken);
 
         // when
@@ -71,8 +71,8 @@ class TokenServiceTest {
         assertThat(issued.accessToken()).isEqualTo(accessToken);
         assertThat(issued.refreshTokenCookie()).isNotNull();
 
-        verify(jwtProviderPort, times(1)).createToken(userId, accessExpiration);
-        verify(jwtProviderPort, times(1)).createToken(userId, refreshExpiration);
+        verify(tokenIssuePort, times(1)).createToken(userId, accessExpiration);
+        verify(tokenIssuePort, times(1)).createToken(userId, refreshExpiration);
 
         ArgumentCaptor<Instant> expCaptor = ArgumentCaptor.forClass(Instant.class);
         verify(refreshTokenPort, times(1))
