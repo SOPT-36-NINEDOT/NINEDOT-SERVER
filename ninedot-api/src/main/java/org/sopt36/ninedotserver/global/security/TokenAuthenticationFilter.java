@@ -10,8 +10,10 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt36.ninedotserver.auth.dto.security.PrincipalDto;
+import org.sopt36.ninedotserver.auth.exception.AuthException;
 import org.sopt36.ninedotserver.auth.port.in.ResolvePrincipalByTokenUsecase;
 import org.sopt36.ninedotserver.auth.port.out.token.TokenVerifyPort;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -25,6 +27,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     private final TokenVerifyPort tokenVerifyPort;
     private final ResolvePrincipalByTokenUsecase resolvePrincipalByTokenUsecase;
     private final JwtAuthenticationFactory jwtAuthenticationFactory;
+    private final JsonAuthenticationEntryPoint jsonAuthenticationEntryPoint;
 
     @Override
     protected void doFilterInternal(
@@ -47,19 +50,26 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-        String token = resolveToken(request);
-        log.debug("추출된 토큰: {}", token);
-        if (token != null && tokenVerifyPort.validateToken(token)) {
-            PrincipalDto principal = resolvePrincipalByTokenUsecase.execute(token);
-            Authentication auth = jwtAuthenticationFactory.getAuthentication(principal);
-            SecurityContextHolder.getContext().setAuthentication(auth);
-            log.debug("인증 성공: {}", auth.getName());
-        } else {
-            log.debug("토큰이 없거나, 유효하지 않습니다.");
-        }
 
-        // 5) 필터 체인 계속 진행
-        filterChain.doFilter(request, response);
+        try {
+            String token = resolveToken(request);
+            log.debug("추출된 토큰: {}", token);
+
+            if (token != null && tokenVerifyPort.validateToken(token)) {
+                PrincipalDto principal = resolvePrincipalByTokenUsecase.execute(token);
+                Authentication auth = jwtAuthenticationFactory.getAuthentication(principal);
+                SecurityContextHolder.getContext().setAuthentication(auth);
+                log.debug("인증 성공: {}", auth.getName());
+            } else {
+                log.debug("토큰이 없거나, 유효하지 않습니다.");
+            }
+            filterChain.doFilter(request, response);
+        } catch (AuthException e) {
+            SecurityContextHolder.clearContext();
+            jsonAuthenticationEntryPoint.commence(
+                request, response, new InsufficientAuthenticationException(e.getMessage(), e)
+            );
+        }
     }
 
     private String resolveToken(HttpServletRequest request) {

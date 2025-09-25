@@ -48,7 +48,8 @@ public class SecurityConfig {
     private final TokenAuthenticationFilter tokenAuthenticationFilter;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http,
+        JsonAuthenticationEntryPoint jsonAuthenticationEntryPoint) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .cors(c -> c.configurationSource(corsConfigurationSource()))
@@ -58,6 +59,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/*/auth/logout").authenticated()
                 .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                 .anyRequest().authenticated()
+            )
+            .exceptionHandling(e -> e
+                .authenticationEntryPoint(jsonAuthenticationEntryPoint)
             )
             .addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
