@@ -11,7 +11,7 @@ import org.sopt36.ninedotserver.user.dto.result.UserInfoResult;
 import org.sopt36.ninedotserver.user.exception.UserErrorCode;
 import org.sopt36.ninedotserver.user.exception.UserException;
 import org.sopt36.ninedotserver.user.model.User;
-import org.sopt36.ninedotserver.user.port.out.UserQueryPort;
+import org.sopt36.ninedotserver.user.port.out.UserQueryRepositoryPort;
 import org.sopt36.ninedotserver.user.service.GetUserInfoHandler;
 
 import java.util.Optional;
@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 public class UserQueryServiceTest {
 
     @Mock
-    private UserQueryPort userQueryPort;
+    private UserQueryRepositoryPort userQueryRepositoryPort;
 
     @InjectMocks
     private GetUserInfoHandler getUserInfoHandler;
@@ -48,7 +48,7 @@ public class UserQueryServiceTest {
         Long userId = 1L;
         UserInfoQuery query = new UserInfoQuery(userId);
 
-        when(userQueryPort.findById(userId)).thenReturn(Optional.of(user));
+        when(userQueryRepositoryPort.findById(userId)).thenReturn(Optional.of(user));
 
         // when
         UserInfoResult result = getUserInfoHandler.execute(query);
@@ -66,7 +66,7 @@ public class UserQueryServiceTest {
         Long userId = 99L;
         UserInfoQuery query = new UserInfoQuery(userId);
 
-        when(userQueryPort.findById(userId)).thenReturn(Optional.empty());
+        when(userQueryRepositoryPort.findById(userId)).thenReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> getUserInfoHandler.execute(query))

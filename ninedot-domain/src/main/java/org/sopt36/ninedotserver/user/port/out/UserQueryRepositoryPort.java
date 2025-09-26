@@ -4,7 +4,7 @@ import java.util.Optional;
 import java.util.List;
 import org.sopt36.ninedotserver.user.model.User;
 
-public interface UserQueryPort {
+public interface UserQueryRepositoryPort {
 
     Optional<User> findById(Long userId);
 
