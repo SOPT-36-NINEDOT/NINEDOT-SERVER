@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.auth.adapter.in.web.v1.dto.request;
+package org.sopt36.ninedotserver.auth.v1.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

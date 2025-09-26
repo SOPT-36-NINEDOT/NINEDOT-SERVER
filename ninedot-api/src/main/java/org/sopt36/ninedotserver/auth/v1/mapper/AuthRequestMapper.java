@@ -1,7 +1,7 @@
-package org.sopt36.ninedotserver.auth.adapter.in.web.v1.mapper;
+package org.sopt36.ninedotserver.auth.v1.mapper;
 
-import org.sopt36.ninedotserver.auth.adapter.in.web.v1.dto.request.GoogleAuthCodeRequest;
-import org.sopt36.ninedotserver.auth.adapter.in.web.v1.dto.request.SignupRequest;
+import org.sopt36.ninedotserver.auth.v1.dto.request.GoogleAuthCodeRequest;
+import org.sopt36.ninedotserver.auth.v1.dto.request.SignupRequest;
 import org.sopt36.ninedotserver.auth.dto.command.GoogleLoginCommand;
 import org.sopt36.ninedotserver.auth.dto.command.SignupCommand;
 

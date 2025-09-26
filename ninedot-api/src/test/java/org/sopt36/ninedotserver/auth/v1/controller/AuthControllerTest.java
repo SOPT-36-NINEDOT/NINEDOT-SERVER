@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.auth.adapter.in.web.v1.controller;
+package org.sopt36.ninedotserver.auth.v1.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -13,7 +13,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.sopt36.ninedotserver.auth.adapter.in.web.v1.dto.request.GoogleAuthCodeRequest;
 import org.sopt36.ninedotserver.auth.adapter.out.jwt.JwtProvider;
 import org.sopt36.ninedotserver.auth.dto.result.AuthResult;
 import org.sopt36.ninedotserver.auth.dto.result.LoginResult;
@@ -21,6 +20,7 @@ import org.sopt36.ninedotserver.auth.dto.result.SignupResult;
 import org.sopt36.ninedotserver.auth.model.ProviderType;
 import org.sopt36.ninedotserver.auth.port.in.LoginOrSignupWithGoogleCodeUsecase;
 import org.sopt36.ninedotserver.auth.service.AuthService;
+import org.sopt36.ninedotserver.auth.v1.dto.request.GoogleAuthCodeRequest;
 import org.sopt36.ninedotserver.global.web.CookieWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
