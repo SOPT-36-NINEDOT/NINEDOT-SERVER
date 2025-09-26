@@ -6,7 +6,7 @@ import org.sopt36.ninedotserver.user.dto.result.UserInfoResult;
 import org.sopt36.ninedotserver.user.exception.UserErrorCode;
 import org.sopt36.ninedotserver.user.exception.UserException;
 import org.sopt36.ninedotserver.user.model.User;
-import org.sopt36.ninedotserver.user.port.out.UserQueryPort;
+import org.sopt36.ninedotserver.user.port.out.UserQueryRepositoryPort;
 import org.sopt36.ninedotserver.user.port.in.GetUserInfoUseCase;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,11 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class GetUserInfoHandler implements GetUserInfoUseCase {
 
-    private final UserQueryPort userQueryPort;
+    private final UserQueryRepositoryPort userQueryRepositoryPort;
 
     @Override
     public UserInfoResult execute(UserInfoQuery query) {
-        User user = userQueryPort.findById(query.userId())
+        User user = userQueryRepositoryPort.findById(query.userId())
                 .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 
         return UserInfoResult.from(user);

@@ -11,7 +11,7 @@ import org.sopt36.ninedotserver.auth.port.out.RefreshTokenPort;
 import org.sopt36.ninedotserver.user.exception.UserErrorCode;
 import org.sopt36.ninedotserver.user.exception.UserException;
 import org.sopt36.ninedotserver.user.model.User;
-import org.sopt36.ninedotserver.user.port.out.UserQueryPort;
+import org.sopt36.ninedotserver.user.port.out.UserQueryRepositoryPort;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class RefreshTokenAdapter implements RefreshTokenPort {
 
     private final RefreshTokenRepository refreshTokenJpaRepository;
-    private final UserQueryPort userRepository;
+    private final UserQueryRepositoryPort userRepository;
 
     @Override
     public void saveOrRotate(Long userId, String plainRefreshToken, Instant expiresAt) {

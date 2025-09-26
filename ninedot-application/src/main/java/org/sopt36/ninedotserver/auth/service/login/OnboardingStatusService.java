@@ -5,7 +5,7 @@ import org.sopt36.ninedotserver.auth.service.login.dto.OnboardingStatus;
 import org.sopt36.ninedotserver.mandalart.port.out.CoreGoalRepositoryPort;
 import org.sopt36.ninedotserver.mandalart.port.out.MandalartRepositoryPort;
 import org.sopt36.ninedotserver.user.exception.UserException;
-import org.sopt36.ninedotserver.user.port.out.UserQueryPort;
+import org.sopt36.ninedotserver.user.port.out.UserQueryRepositoryPort;
 import org.springframework.stereotype.Service;
 
 import static org.sopt36.ninedotserver.auth.model.OnboardingPage.*;
@@ -15,7 +15,7 @@ import static org.sopt36.ninedotserver.user.exception.UserErrorCode.USER_NOT_FOU
 @Service
 public class OnboardingStatusService {
 
-    private final UserQueryPort userRepositoryPort;
+    private final UserQueryRepositoryPort userRepositoryPort;
     private final CoreGoalRepositoryPort coreGoalRepositoryPort;
     private final MandalartRepositoryPort mandalartRepositoryPort;
 

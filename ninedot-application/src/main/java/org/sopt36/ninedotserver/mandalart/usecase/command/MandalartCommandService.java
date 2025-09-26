@@ -9,7 +9,7 @@ import org.sopt36.ninedotserver.mandalart.dto.response.MandalartCreateResponse;
 import org.sopt36.ninedotserver.mandalart.port.out.MandalartRepositoryPort;
 import org.sopt36.ninedotserver.user.model.User;
 import org.sopt36.ninedotserver.user.exception.UserException;
-import org.sopt36.ninedotserver.user.port.out.UserQueryPort;
+import org.sopt36.ninedotserver.user.port.out.UserQueryRepositoryPort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +20,7 @@ public class MandalartCommandService {
     private static final boolean AI_GENERATABLE = true;
 
     private final MandalartRepositoryPort mandalartRepository;
-    private final UserQueryPort userRepository;
+    private final UserQueryRepositoryPort userRepository;
 
     @Transactional
     public MandalartCreateResponse createMandalart(

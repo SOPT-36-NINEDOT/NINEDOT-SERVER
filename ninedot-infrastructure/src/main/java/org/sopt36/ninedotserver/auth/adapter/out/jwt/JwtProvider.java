@@ -13,7 +13,7 @@ import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt36.ninedotserver.auth.port.out.token.JwtProviderPort;
-import org.sopt36.ninedotserver.user.port.out.UserQueryPort;
+import org.sopt36.ninedotserver.user.port.out.UserQueryRepositoryPort;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class JwtProvider implements JwtProviderPort {
 
-    private final UserQueryPort userRepository;
+    private final UserQueryRepositoryPort userRepository;
 
     @Value("${spring.jwt.secret}")
     private String secret;
