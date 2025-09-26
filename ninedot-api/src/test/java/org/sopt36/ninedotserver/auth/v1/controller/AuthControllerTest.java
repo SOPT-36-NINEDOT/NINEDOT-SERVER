@@ -21,6 +21,7 @@ import org.sopt36.ninedotserver.auth.model.ProviderType;
 import org.sopt36.ninedotserver.auth.port.in.LoginOrSignupWithGoogleCodeUsecase;
 import org.sopt36.ninedotserver.auth.service.AuthService;
 import org.sopt36.ninedotserver.auth.v1.dto.request.GoogleAuthCodeRequest;
+import org.sopt36.ninedotserver.global.security.TokenAuthenticationFilter;
 import org.sopt36.ninedotserver.global.web.CookieWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -50,6 +51,9 @@ class AuthControllerTest {
 
     @MockBean
     private JwtProvider jwtProvider;
+
+    @MockBean
+    private TokenAuthenticationFilter tokenAuthenticationFilter;
 
     @Nested
     @DisplayName("구글 소셜 인증 API (/api/v1/auth/oauth2/google/callback)")
