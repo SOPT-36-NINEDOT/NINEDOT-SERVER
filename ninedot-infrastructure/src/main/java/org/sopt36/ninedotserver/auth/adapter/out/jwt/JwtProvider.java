@@ -18,7 +18,6 @@ import org.sopt36.ninedotserver.auth.exception.AuthException;
 import org.sopt36.ninedotserver.auth.port.out.token.TokenIssuePort;
 import org.sopt36.ninedotserver.auth.port.out.token.TokenParsePort;
 import org.sopt36.ninedotserver.auth.port.out.token.TokenVerifyPort;
-import org.sopt36.ninedotserver.user.port.out.UserQueryPort;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -26,8 +25,6 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class JwtProvider implements TokenIssuePort, TokenParsePort, TokenVerifyPort {
-
-    private final UserQueryPort userRepository;
 
     @Value("${jwt.secret}")
     private String secret;
