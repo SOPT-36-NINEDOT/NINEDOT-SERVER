@@ -1,9 +1,14 @@
 package org.sopt36.ninedotserver.user.v1.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import org.junit.jupiter.api.Test;
 import org.sopt36.ninedotserver.auth.adapter.out.jwt.JwtProvider;
 import org.sopt36.ninedotserver.auth.port.in.ResolvePrincipalByTokenUsecase;
-import org.sopt36.ninedotserver.auth.port.out.token.TokenVerifyPort;
 import org.sopt36.ninedotserver.global.security.JsonAuthenticationEntryPoint;
 import org.sopt36.ninedotserver.global.security.JwtAuthenticationFactory;
 import org.sopt36.ninedotserver.user.dto.query.UserInfoQuery;
@@ -18,15 +23,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 @WebMvcTest(UserController.class)
 @AutoConfigureMockMvc
 public class UserControllerTest {
@@ -36,9 +32,6 @@ public class UserControllerTest {
 
     @MockBean
     private GetUserInfoUseCase getUserInfoUseCase;
-
-    @MockBean
-    private UserResponseMapper userResponseMapper;
 
     @MockBean
     private JwtProvider jwtProvider;
@@ -54,7 +47,6 @@ public class UserControllerTest {
 
     @Test
     @WithMockUser(username = "1")
-
     void 유저정보를_성공적으로_조회한다() throws Exception {
         // given
         UserInfoResult result = new UserInfoResult(
@@ -64,17 +56,8 @@ public class UserControllerTest {
             "http://image.png"
         );
 
-        UserInfoResponse response = new UserInfoResponse(
-            1L,
-            "홍길동",
-            "test@example.com",
-            "http://image.png"
-        );
-
         given(getUserInfoUseCase.execute(any(UserInfoQuery.class)))
             .willReturn(result);
-        given(userResponseMapper.toResponse(result))
-            .willReturn(response);
 
         // when & then
         mockMvc.perform(get("/api/v1/users/info")
@@ -87,4 +70,3 @@ public class UserControllerTest {
             .andExpect(jsonPath("$.data.profileImageUrl").value("http://image.png"));
     }
 }
-
