@@ -45,4 +45,15 @@ public class EmailTest {
                 .extracting(e -> ((UserException) e).getErrorCode())
                 .isEqualTo(UserErrorCode.INVALID_EMAIL_LENGTH);
     }
+
+    @Test
+    void 잘못된_형식의_이메일은_예외발생() {
+        // given
+        String invalidEmail = "invalid-email.com";
+
+        // when & then
+        assertThatThrownBy(() -> new Email(invalidEmail))
+                .isInstanceOf(UserException.class)
+                .hasMessageContaining(UserErrorCode.INVALID_EMAIL_FORMAT.getMessage());
+    }
 }

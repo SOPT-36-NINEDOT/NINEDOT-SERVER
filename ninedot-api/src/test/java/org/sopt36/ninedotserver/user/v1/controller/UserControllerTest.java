@@ -10,7 +10,6 @@ import org.sopt36.ninedotserver.user.dto.query.UserInfoQuery;
 import org.sopt36.ninedotserver.user.dto.result.UserInfoResult;
 import org.sopt36.ninedotserver.user.port.in.GetUserInfoUseCase;
 import org.sopt36.ninedotserver.user.v1.dto.response.UserInfoResponse;
-import org.sopt36.ninedotserver.user.v1.mapper.UserResponseMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -21,8 +20,10 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -53,7 +54,7 @@ public class UserControllerTest {
 
     @Test
     @WithMockUser(username = "1")
-        // Authentication.getName() → "1"
+
     void 유저정보를_성공적으로_조회한다() throws Exception {
         // given
         UserInfoResult result = new UserInfoResult(

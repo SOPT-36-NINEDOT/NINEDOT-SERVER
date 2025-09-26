@@ -6,6 +6,7 @@ import org.sopt36.ninedotserver.user.dto.query.UserInfoQuery;
 import org.sopt36.ninedotserver.user.dto.result.UserInfoResult;
 import org.sopt36.ninedotserver.user.port.in.GetUserInfoUseCase;
 import org.sopt36.ninedotserver.user.v1.dto.response.UserInfoResponse;
+import org.sopt36.ninedotserver.user.v1.mapper.UserRequestMapper;
 import org.sopt36.ninedotserver.user.v1.mapper.UserResponseMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -21,16 +22,15 @@ import static org.sopt36.ninedotserver.user.v1.message.UserMessage.USER_INFO_RET
 public class UserController {
 
     private final GetUserInfoUseCase getUserInfoUseCase;
-    private final UserResponseMapper userResponseMapper;
 
     @GetMapping("/users/info")
     public ResponseEntity<ApiResponse<UserInfoResponse, Void>> getUserInfo(
             Authentication authentication
     ) {
         Long userId = Long.parseLong(authentication.getName());
-        UserInfoQuery query = new UserInfoQuery(userId);
+        UserInfoQuery query = UserRequestMapper.toUserInfoQuery(userId);
         UserInfoResult result = getUserInfoUseCase.execute(query);
-        UserInfoResponse response = userResponseMapper.toResponse(result);
+        UserInfoResponse response = UserResponseMapper.toUserInfoResponse(result);
         return ResponseEntity.ok(ApiResponse.ok(USER_INFO_RETRIEVED_SUCCESS, response));
     }
 
