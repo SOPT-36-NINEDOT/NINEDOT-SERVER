@@ -13,14 +13,17 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.sopt36.ninedotserver.auth.adapter.out.jwt.JwtProvider;
 import org.sopt36.ninedotserver.auth.dto.result.AuthResult;
 import org.sopt36.ninedotserver.auth.dto.result.LoginResult;
 import org.sopt36.ninedotserver.auth.dto.result.SignupResult;
 import org.sopt36.ninedotserver.auth.model.ProviderType;
 import org.sopt36.ninedotserver.auth.port.in.LoginOrSignupWithGoogleCodeUsecase;
+import org.sopt36.ninedotserver.auth.port.in.ResolvePrincipalByTokenUsecase;
+import org.sopt36.ninedotserver.auth.port.out.token.TokenVerifyPort; // Import the missing dependency
 import org.sopt36.ninedotserver.auth.service.AuthService;
 import org.sopt36.ninedotserver.auth.v1.dto.request.GoogleAuthCodeRequest;
+import org.sopt36.ninedotserver.global.security.JsonAuthenticationEntryPoint;
+import org.sopt36.ninedotserver.global.security.JwtAuthenticationFactory;
 import org.sopt36.ninedotserver.global.web.CookieWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -49,8 +52,17 @@ class AuthControllerTest {
     private CookieWriter cookieWriter;
 
     @MockBean
-    private JwtProvider jwtProvider;
+    private TokenVerifyPort tokenVerifyPort;
 
+    @MockBean
+    private ResolvePrincipalByTokenUsecase resolvePrincipalByTokenUsecase;
+
+    @MockBean
+    private JwtAuthenticationFactory jwtAuthenticationFactory;
+
+    @MockBean
+    private JsonAuthenticationEntryPoint jsonAuthenticationEntryPoint;
+    
     @Nested
     @DisplayName("구글 소셜 인증 API (/api/v1/auth/oauth2/google/callback)")
     class GoogleCallbackTest {
@@ -106,4 +118,3 @@ class AuthControllerTest {
         }
     }
 }
-
