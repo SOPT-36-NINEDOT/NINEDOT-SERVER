@@ -40,7 +40,7 @@ public class UserControllerTest {
     private UserResponseMapper userResponseMapper;
 
     @MockBean
-    private TokenVerifyPort tokenVerifyPort;
+    private JwtProvider jwtProvider;
 
     @MockBean
     private ResolvePrincipalByTokenUsecase resolvePrincipalByTokenUsecase;
