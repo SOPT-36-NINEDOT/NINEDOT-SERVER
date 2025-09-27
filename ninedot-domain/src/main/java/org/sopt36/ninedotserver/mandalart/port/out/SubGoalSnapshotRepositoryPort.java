@@ -1,6 +1,7 @@
 package org.sopt36.ninedotserver.mandalart.port.out;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.sopt36.ninedotserver.mandalart.model.CoreGoal;
@@ -41,4 +42,6 @@ public interface SubGoalSnapshotRepositoryPort {
     int countActiveSubGoalSnapshotByCoreGoal(Long coreGoalId);
 
     List<Integer> findActiveSubGoalPositionsByCoreGoal(Long coreGoalId);
+
+    boolean existsBySubGoal_CoreGoal_Mandalart_IdAndValidFromLessThanEqual(Long mandalartId, LocalDateTime targetDate);
 }

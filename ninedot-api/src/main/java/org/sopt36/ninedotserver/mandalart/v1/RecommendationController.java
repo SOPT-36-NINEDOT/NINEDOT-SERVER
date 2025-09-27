@@ -6,6 +6,7 @@ import static org.sopt36.ninedotserver.mandalart.v1.message.RecommendationMessag
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.dto.response.ApiResponse;
+import org.sopt36.ninedotserver.mandalart.dto.response.RecommendationListResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalListResponse;
 import org.sopt36.ninedotserver.mandalart.usecase.command.RecommendationSchedulerService;
 import org.sopt36.ninedotserver.mandalart.usecase.query.RecommendationQueryService;
@@ -28,7 +29,7 @@ public class RecommendationController {
     private final RecommendationSchedulerService schedulerService;
 
     @GetMapping("/mandalarts/{mandalartId}/histories/recommendation")
-    public ResponseEntity<ApiResponse<SubGoalListResponse, Void>> getRecommendations(
+    public ResponseEntity<ApiResponse<RecommendationListResponse, Void>> getRecommendations(
         Authentication authentication,
         @PathVariable Long mandalartId,
         @RequestParam(value = "date", required = false)
@@ -37,7 +38,7 @@ public class RecommendationController {
         Long userId = Long.parseLong(authentication.getName());
         LocalDate recommendationDate = (date != null ? date : LocalDate.now());
 
-        SubGoalListResponse response = recommendationQueryService.getRecommendations(
+        RecommendationListResponse response = recommendationQueryService.getRecommendations(
             userId,
             mandalartId,
             recommendationDate
