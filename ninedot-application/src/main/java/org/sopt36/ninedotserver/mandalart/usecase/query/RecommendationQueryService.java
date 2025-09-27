@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.sopt36.ninedotserver.mandalart.dto.response.RecommendationListResponse;
 import org.sopt36.ninedotserver.mandalart.model.Mandalart;
 import org.sopt36.ninedotserver.mandalart.model.Recommendation;
 import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalDetailResponse;
@@ -26,7 +27,7 @@ public class RecommendationQueryService {
     private final MandalartRepositoryPort mandalartRepository;
     private final HistoryRepositoryPort historyRepository;
 
-    public SubGoalListResponse getRecommendations(Long userId, Long mandalartId, LocalDate date) {
+    public RecommendationListResponse getRecommendations(Long userId, Long mandalartId, LocalDate date) {
         Mandalart mandalart = getExistingMandalart(mandalartId);
         mandalart.ensureOwnedBy(userId);
 
@@ -46,7 +47,7 @@ public class RecommendationQueryService {
             })
             .collect(Collectors.toList());
 
-        return SubGoalListResponse.of(subGoals);
+        return RecommendationListResponse.of(subGoals);
     }
 
     private Mandalart getExistingMandalart(Long mandalartId) {
