@@ -10,6 +10,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Version;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -23,7 +25,9 @@ import org.sopt36.ninedotserver.user.model.User;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder(access = AccessLevel.PROTECTED)
-@Table(name = "refresh_token")
+@Table(name = "refresh_token", uniqueConstraints = {
+    @UniqueConstraint(name = "uq_refresh_token_user", columnNames = "user_id")
+})
 @Entity
 public class RefreshToken extends BaseEntity {
 
@@ -42,11 +46,20 @@ public class RefreshToken extends BaseEntity {
     @Column(name = "expires_at", nullable = false)
     private LocalDateTime expiresAt;
 
+    @Version
+    @Column(nullable = false)
+    private Long version;
+
     public static RefreshToken create(User user, String refreshToken, LocalDateTime expiresAt) {
         return RefreshToken.builder()
             .user(user)
             .refreshToken(refreshToken)
             .expiresAt(expiresAt)
             .build();
+    }
+
+    public void rotate(String refreshToken, LocalDateTime expiresAt) {
+        this.refreshToken = refreshToken;
+        this.expiresAt = expiresAt;
     }
 }
