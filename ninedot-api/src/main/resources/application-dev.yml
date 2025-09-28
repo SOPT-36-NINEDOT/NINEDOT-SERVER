@@ -26,6 +26,15 @@ spring:
   web:
     resources:
       add-mappings: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    baseline-version: 0
+    validate-on-migrate: true
+    out-of-order: false
+    mixed: true
+    clean-disabled: true
 
 jwt:
   secret: ${JWT_SECRET_KEY}
