@@ -12,6 +12,9 @@ dependencies {
     // Web -> 추후 삭제
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
+    // cache
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+
     // Security & OAuth2
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'

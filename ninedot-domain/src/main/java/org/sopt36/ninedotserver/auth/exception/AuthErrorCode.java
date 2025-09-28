@@ -21,9 +21,15 @@ public enum AuthErrorCode implements ErrorCode {
     //404
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자 정보를 찾을 수 없습니다."),
 
+    // 429
+    TOO_MANY_REQUESTS(HttpStatus.TOO_MANY_REQUESTS, "토큰 발급이 진행 중입니다. 잠시 후 다시 시도해주세요."),
+
     //500
     GOOGLE_USER_INFO_RETRIEVAL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "구글 사용자 정보 조회에 실패했습니다."),
-    GOOGLE_TOKEN_RETRIEVAL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "구글 토큰 발급에 실패했습니다.");
+    GOOGLE_TOKEN_RETRIEVAL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "구글 토큰 발급에 실패했습니다."),
+
+    // 503
+    SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "요청이 지연되었습니다. 다시 시도해주세요.");
 
     @Getter
     private final HttpStatus status;
