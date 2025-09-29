@@ -1,12 +1,9 @@
 package org.sopt36.ninedotserver.auth.service;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt36.ninedotserver.auth.dto.command.SignupCommand;
-import org.sopt36.ninedotserver.auth.dto.response.NewAccessTokenResult;
 import org.sopt36.ninedotserver.auth.dto.response.SignupResult;
 import org.sopt36.ninedotserver.auth.dto.security.TokenClaims;
 import org.sopt36.ninedotserver.auth.exception.AuthErrorCode;
@@ -67,21 +64,8 @@ public class AuthService {
     }
 
     @Transactional
-    public NewAccessTokenResult createNewAccessToken(String refreshToken) {
-        RefreshToken rt = isRefreshTokenValid(refreshToken);
-
-        Long userId = rt.getUser().getId();
-        String newAccessToken = tokenIssuePort.createToken(userId,
-            accessTokenExpirationMilliseconds);
-
-        refreshTokenRepository.delete(rt);
-        generateAndStoreRefreshToken(userId);
-        return new NewAccessTokenResult(newAccessToken, "새로운 액세스토큰이 생성되었습니다.");
-    }
-
-    @Transactional
     public void deleteRefreshToken(Long userId) {
-        refreshTokenRepository.deleteByUserId(userId);
+        refreshTokenRepository.deleteByUser_Id(userId);
     }
 
     @Transactional
@@ -113,19 +97,15 @@ public class AuthService {
         return refreshToken;
     }
 
-    private RefreshToken isRefreshTokenValid(String refreshToken) {
-        return refreshTokenRepository.findByRefreshTokenAndExpiresAtAfter(refreshToken,
-                LocalDateTime.now())
-            .orElseThrow(() -> new AuthException(AuthErrorCode.INVALID_REFRESH_TOKEN));
-    }
 
     private void addRefreshTokenToDB(Long userId, String refreshToken) {
         TokenClaims claims = tokenParsePort.parseClaims(refreshToken);
         User user = userQueryPort.findById(userId)
             .orElseThrow(() -> new AuthException(AuthErrorCode.USER_NOT_FOUND));
 
-        refreshTokenRepository.save(RefreshToken.create(user, refreshToken,
-            claims.expiresAt().atZone(ZoneId.systemDefault()).toLocalDateTime()));
+        refreshTokenRepository.save(
+            RefreshToken.create(user, refreshToken, claims.expiresAt()));
+
     }
 
     private List<Answer> getAnswers(SignupCommand request, User user) {
