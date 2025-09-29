@@ -9,18 +9,22 @@ import static org.sopt36.ninedotserver.global.web.CookieInstruction.clearRefresh
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.sopt36.ninedotserver.auth.dto.command.GoogleLoginCommand;
+import org.sopt36.ninedotserver.auth.dto.command.RefreshCommand;
+import org.sopt36.ninedotserver.auth.dto.command.SignupCommand;
+import org.sopt36.ninedotserver.auth.dto.response.SignupResult;
+import org.sopt36.ninedotserver.auth.dto.result.AuthResult;
+import org.sopt36.ninedotserver.auth.dto.result.RefreshResult;
+import org.sopt36.ninedotserver.auth.port.in.LoginOrSignupWithGoogleCodeUsecase;
+import org.sopt36.ninedotserver.auth.port.in.RefreshAccessTokenUsecase;
+import org.sopt36.ninedotserver.auth.service.AuthService;
 import org.sopt36.ninedotserver.auth.v1.dto.request.GoogleAuthCodeRequest;
 import org.sopt36.ninedotserver.auth.v1.dto.request.SignupRequest;
 import org.sopt36.ninedotserver.auth.v1.dto.response.AuthResponse;
+import org.sopt36.ninedotserver.auth.v1.dto.response.RefreshResponse;
 import org.sopt36.ninedotserver.auth.v1.mapper.AuthRequestMapper;
 import org.sopt36.ninedotserver.auth.v1.mapper.AuthResponseMapper;
-import org.sopt36.ninedotserver.auth.dto.command.GoogleLoginCommand;
-import org.sopt36.ninedotserver.auth.dto.command.SignupCommand;
-import org.sopt36.ninedotserver.auth.dto.response.NewAccessTokenResult;
-import org.sopt36.ninedotserver.auth.dto.response.SignupResult;
-import org.sopt36.ninedotserver.auth.dto.result.AuthResult;
-import org.sopt36.ninedotserver.auth.port.in.LoginOrSignupWithGoogleCodeUsecase;
-import org.sopt36.ninedotserver.auth.service.AuthService;
 import org.sopt36.ninedotserver.dto.response.ApiResponse;
 import org.sopt36.ninedotserver.global.web.CookieInstruction;
 import org.sopt36.ninedotserver.global.web.CookieWriter;
@@ -34,6 +38,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 @RestController
@@ -41,6 +46,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final LoginOrSignupWithGoogleCodeUsecase loginOrSignupWithGoogleCodeUsecase;
+    private final RefreshAccessTokenUsecase refreshAccessTokenUsecase;
     private final CookieWriter cookieWriter;
 
     @PostMapping("/oauth2/google/callback")
@@ -49,6 +55,7 @@ public class AuthController {
         @RequestParam(value = "redirect_uri", required = false) String clientRedirectUri,
         HttpServletResponse servletResponse
     ) {
+        log.info("[로그인 요청 시작]");
         GoogleLoginCommand command = AuthRequestMapper.toGoogleLoginCommand(
             request,
             clientRedirectUri
@@ -59,22 +66,30 @@ public class AuthController {
         authResult.refreshToken().ifPresent(refreshToken ->
             cookieWriter.write(servletResponse, CookieInstruction.setRefreshToken(refreshToken))
         );
-        AuthResponse body = AuthResponseMapper.toResponse(authResult);
+        AuthResponse body = AuthResponseMapper.toOAuthResponse(authResult);
+        log.info("[로그인 요청 완료]");
 
         return ResponseEntity.ok(ApiResponse.ok(LOGIN_SIGNUP_SUCCESS, body));
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<ApiResponse<NewAccessTokenResult, Void>> tokenRefresh(
+    public ResponseEntity<ApiResponse<RefreshResponse, Void>> tokenRefresh(
         @CookieValue("refreshToken") String refreshToken,
-        HttpServletResponse response
+        HttpServletResponse servletResponse
     ) {
-        NewAccessTokenResult newAccessTokenResult = authService.createNewAccessToken(
-            refreshToken
+        log.info("[토큰 재발급 요청 시작]");
+        RefreshCommand refreshCommand = AuthRequestMapper.toRefreshCommand(refreshToken);
+        RefreshResult refreshResult = refreshAccessTokenUsecase.execute(refreshCommand);
+
+        cookieWriter.write(
+            servletResponse,
+            CookieInstruction.setRefreshToken(refreshResult.refreshToken())
         );
-        return ResponseEntity.ok(
-            ApiResponse.ok(ACCESS_TOKEN_REFRESH_SUCCESS, newAccessTokenResult)
-        );
+
+        RefreshResponse body = AuthResponseMapper.toRefreshResponse(refreshResult);
+
+        log.info("[토큰 재발급 완료]");
+        return ResponseEntity.ok(ApiResponse.ok(ACCESS_TOKEN_REFRESH_SUCCESS, body));
     }
 
     @PostMapping("/logout")

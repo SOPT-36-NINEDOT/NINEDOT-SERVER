@@ -1,5 +1,6 @@
 package org.sopt36.ninedotserver.auth.v1.mapper;
 
+import org.sopt36.ninedotserver.auth.dto.command.RefreshCommand;
 import org.sopt36.ninedotserver.auth.v1.dto.request.GoogleAuthCodeRequest;
 import org.sopt36.ninedotserver.auth.v1.dto.request.SignupRequest;
 import org.sopt36.ninedotserver.auth.dto.command.GoogleLoginCommand;
@@ -28,6 +29,10 @@ public class AuthRequestMapper {
             apiRequest.code(),
             clientRedirectUri
         );
+    }
+
+    public static RefreshCommand toRefreshCommand(String refreshToken) {
+        return new RefreshCommand(refreshToken);
     }
 
 }
