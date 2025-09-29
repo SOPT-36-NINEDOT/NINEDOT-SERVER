@@ -14,12 +14,14 @@ public class LockConfig {
     @Bean
     public Cache<String, ReentrantLock> refreshTokenLockCache() {
         return Caffeine.newBuilder()
+            .weakValues()
             .build();
     }
 
     @Bean
     public Cache<String, ReentrantLock> authCodeLockCache() {
         return Caffeine.newBuilder()
+            .weakValues()
             .build();
     }
 
