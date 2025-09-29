@@ -24,6 +24,8 @@ spring:
           time_zone: Asia/Seoul
         timezone:
           default_storage: NORMALIZE
+  flyway:
+    enabled: false
 
   web:
     resources:
