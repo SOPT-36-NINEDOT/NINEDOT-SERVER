@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.auth.service.login;
+package org.sopt36.ninedotserver.auth.service.token;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -19,7 +19,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt36.ninedotserver.auth.port.out.RefreshTokenPort;
 import org.sopt36.ninedotserver.auth.port.out.token.TokenIssuePort;
 import org.sopt36.ninedotserver.auth.dto.token.IssuedTokens;
-import org.sopt36.ninedotserver.auth.service.token.TokenService;
 
 @ExtendWith(MockitoExtension.class)
 class TokenServiceTest {
