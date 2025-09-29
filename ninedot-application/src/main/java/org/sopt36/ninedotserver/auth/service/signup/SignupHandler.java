@@ -21,6 +21,7 @@ import org.sopt36.ninedotserver.onboarding.port.out.QuestionRepositoryPort;
 import org.sopt36.ninedotserver.user.model.User;
 import org.sopt36.ninedotserver.user.port.out.UserCommandPort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -32,6 +33,7 @@ public class SignupHandler implements SignupUsecase {
     private final AuthProviderRepositoryPort authProviderRepositoryPort;
     private final TokenService tokenService;
 
+    @Transactional
     public SignupThenLoginResult execute(SignupCommand signupCommand) {
         User user = User.create(
             signupCommand.name(),
