@@ -54,7 +54,6 @@ public class RefreshAccessTokenHandler implements RefreshAccessTokenUsecase {
             }
 
             log.info("기존 토큰 확인");
-            // --- 락 획득 후 비즈니스 로직 시작 ---
             RefreshToken oldRefreshToken = getValidRefreshToken(refreshCommand.refreshToken());
             Long userId = oldRefreshToken.getUserId();
 
@@ -62,8 +61,6 @@ public class RefreshAccessTokenHandler implements RefreshAccessTokenUsecase {
             IssuedTokens issuedTokens = tokenService.issueTokens(userId);
 
             return RefreshResult.from(issuedTokens);
-            // --- 비즈니스 로직 종료 ---
-
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new AuthException(SERVICE_UNAVAILABLE);
@@ -79,6 +76,6 @@ public class RefreshAccessTokenHandler implements RefreshAccessTokenUsecase {
                 refreshToken,
                 Instant.now()
             )
-            .orElseThrow(() -> new AuthException(AuthErrorCode.INVALID_REFRESH_TOKEN));
+            .orElseThrow(() -> new AuthException(AuthErrorCode.EXPIRED_REFRESH_TOKEN));
     }
 }

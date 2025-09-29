@@ -1,8 +1,10 @@
 package org.sopt36.ninedotserver.auth.adapter.out.jwt;
 
+import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.EXPIRED_TOKEN;
 import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.INVALID_TOKEN_FORMAT;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -71,6 +73,8 @@ public class JwtProvider implements TokenIssuePort, TokenParsePort, TokenVerifyP
                 claims.getIssuedAt() == null ? null : claims.getIssuedAt().toInstant(),
                 claims.getExpiration() == null ? null : claims.getExpiration().toInstant()
             );
+        } catch (ExpiredJwtException e) {
+            throw new AuthException(EXPIRED_TOKEN);
         } catch (JwtException | IllegalArgumentException e) {
             throw new AuthException(INVALID_TOKEN_FORMAT, e.getMessage());
         }
@@ -80,7 +84,7 @@ public class JwtProvider implements TokenIssuePort, TokenParsePort, TokenVerifyP
         try {
             parseClaims(token);
             return true;
-        } catch (JwtException | IllegalArgumentException e) {
+        } catch (AuthException e) {
             log.error("Invalid JWT token: {}", e.getMessage());
             return false;
         }

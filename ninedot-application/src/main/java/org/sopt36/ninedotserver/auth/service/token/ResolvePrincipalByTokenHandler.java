@@ -24,10 +24,6 @@ public class ResolvePrincipalByTokenHandler implements ResolvePrincipalByTokenUs
 
     @Override
     public PrincipalDto execute(String token) {
-        if (!tokenVerifyPort.validateToken(token)) {
-            throw new AuthException(INVALID_TOKEN_FORMAT);
-        }
-
         TokenClaims claimsResult = tokenParsePort.parseClaims(token);
         Long userId = claimsResult.userId();
 

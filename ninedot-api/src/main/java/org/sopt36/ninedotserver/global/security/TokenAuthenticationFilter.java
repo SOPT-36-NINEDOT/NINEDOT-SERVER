@@ -1,5 +1,9 @@
 package org.sopt36.ninedotserver.global.security;
 
+import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.EXPIRED_ACCESS_TOKEN;
+import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.EXPIRED_TOKEN;
+import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.INVALID_TOKEN_FORMAT;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,11 +16,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.sopt36.ninedotserver.auth.dto.security.PrincipalDto;
 import org.sopt36.ninedotserver.auth.exception.AuthException;
 import org.sopt36.ninedotserver.auth.port.in.ResolvePrincipalByTokenUsecase;
-import org.sopt36.ninedotserver.auth.port.out.token.TokenVerifyPort;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Slf4j
@@ -24,7 +28,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
-    private final TokenVerifyPort tokenVerifyPort;
     private final ResolvePrincipalByTokenUsecase resolvePrincipalByTokenUsecase;
     private final JwtAuthenticationFactory jwtAuthenticationFactory;
     private final JsonAuthenticationEntryPoint jsonAuthenticationEntryPoint;
@@ -46,7 +49,8 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             "/api/*/auth/oauth2/google/callback"
         );
         String uri = request.getRequestURI();
-        if (skipPaths.contains(uri)) {
+        if (skipPaths.stream()
+            .anyMatch(p -> new AntPathMatcher().match(p, uri))) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -54,19 +58,31 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         try {
             String token = resolveToken(request);
 
-            if (token != null && tokenVerifyPort.validateToken(token)) {
+            if (token != null) {
                 PrincipalDto principal = resolvePrincipalByTokenUsecase.execute(token);
                 Authentication auth = jwtAuthenticationFactory.getAuthentication(principal);
                 SecurityContextHolder.getContext().setAuthentication(auth);
                 log.debug("인증 성공: {}", auth.getName());
-            } else {
-                log.debug("토큰이 없거나, 유효하지 않습니다.");
             }
+
             filterChain.doFilter(request, response);
+
         } catch (AuthException e) {
             SecurityContextHolder.clearContext();
+            AuthException specificException;
+            if (e.getErrorCode() == EXPIRED_TOKEN) {
+                specificException = new AuthException(EXPIRED_ACCESS_TOKEN);
+            } else {
+                specificException = new AuthException(INVALID_TOKEN_FORMAT);
+            }
+
             jsonAuthenticationEntryPoint.commence(
-                request, response, new InsufficientAuthenticationException(e.getMessage(), e)
+                request,
+                response,
+                new InsufficientAuthenticationException(
+                    specificException.getMessage(),
+                    specificException
+                )
             );
         }
     }
