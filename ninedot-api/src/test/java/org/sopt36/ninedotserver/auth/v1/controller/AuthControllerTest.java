@@ -18,6 +18,7 @@ import org.sopt36.ninedotserver.auth.dto.result.LoginResult;
 import org.sopt36.ninedotserver.auth.dto.result.SignupResult;
 import org.sopt36.ninedotserver.auth.model.ProviderType;
 import org.sopt36.ninedotserver.auth.port.in.LoginOrSignupWithGoogleCodeUsecase;
+import org.sopt36.ninedotserver.auth.port.in.LogoutUsecase;
 import org.sopt36.ninedotserver.auth.port.in.RefreshAccessTokenUsecase;
 import org.sopt36.ninedotserver.auth.port.in.ResolvePrincipalByTokenUsecase;
 import org.sopt36.ninedotserver.auth.service.AuthService;
@@ -50,6 +51,9 @@ class AuthControllerTest {
 
     @MockBean
     private RefreshAccessTokenUsecase refreshAccessTokenUsecase;
+
+    @MockBean
+    private LogoutUsecase logoutUsecase;
 
     @MockBean
     private CookieWriter cookieWriter;
