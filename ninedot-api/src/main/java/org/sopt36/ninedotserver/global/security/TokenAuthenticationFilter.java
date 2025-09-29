@@ -2,7 +2,7 @@ package org.sopt36.ninedotserver.global.security;
 
 import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.EXPIRED_ACCESS_TOKEN;
 import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.EXPIRED_TOKEN;
-import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.INVALID_TOKEN_FORMAT;
+import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.UNAUTHORIZED;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -14,8 +14,10 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt36.ninedotserver.auth.dto.security.PrincipalDto;
+import org.sopt36.ninedotserver.auth.exception.AuthErrorCode;
 import org.sopt36.ninedotserver.auth.exception.AuthException;
 import org.sopt36.ninedotserver.auth.port.in.ResolvePrincipalByTokenUsecase;
+import org.sopt36.ninedotserver.exception.ErrorCode;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -58,23 +60,21 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         try {
             String token = resolveToken(request);
 
-            if (token != null) {
-                PrincipalDto principal = resolvePrincipalByTokenUsecase.execute(token);
-                Authentication auth = jwtAuthenticationFactory.getAuthentication(principal);
-                SecurityContextHolder.getContext().setAuthentication(auth);
-                log.debug("인증 성공: {}", auth.getName());
+            if (token == null) {
+                throw new AuthException(UNAUTHORIZED);
             }
+
+            PrincipalDto principal = resolvePrincipalByTokenUsecase.execute(token);
+            Authentication auth = jwtAuthenticationFactory.getAuthentication(principal);
+            SecurityContextHolder.getContext().setAuthentication(auth);
+
+            log.debug("인증 성공");
 
             filterChain.doFilter(request, response);
-
         } catch (AuthException e) {
             SecurityContextHolder.clearContext();
-            AuthException specificException;
-            if (e.getErrorCode() == EXPIRED_TOKEN) {
-                specificException = new AuthException(EXPIRED_ACCESS_TOKEN);
-            } else {
-                specificException = new AuthException(INVALID_TOKEN_FORMAT);
-            }
+
+            AuthException specificException = getAuthException(e);
 
             jsonAuthenticationEntryPoint.commence(
                 request,
@@ -94,5 +94,18 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             return token.isEmpty() ? null : token;
         }
         return null;
+    }
+
+    private AuthException getAuthException(AuthException e) {
+        ErrorCode errorCode = e.getErrorCode();
+        AuthException specificException;
+
+        if (errorCode instanceof AuthErrorCode authErrorCode &&
+            authErrorCode == EXPIRED_TOKEN) {
+            specificException = new AuthException(EXPIRED_ACCESS_TOKEN);
+        } else {
+            specificException = e;
+        }
+        return specificException;
     }
 }
