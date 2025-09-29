@@ -20,7 +20,6 @@ import org.sopt36.ninedotserver.auth.model.ProviderType;
 import org.sopt36.ninedotserver.auth.port.in.LoginOrSignupWithGoogleCodeUsecase;
 import org.sopt36.ninedotserver.auth.port.in.RefreshAccessTokenUsecase;
 import org.sopt36.ninedotserver.auth.port.in.ResolvePrincipalByTokenUsecase;
-import org.sopt36.ninedotserver.auth.port.out.token.TokenVerifyPort; // Import the missing dependency
 import org.sopt36.ninedotserver.auth.service.AuthService;
 import org.sopt36.ninedotserver.auth.v1.dto.request.GoogleAuthCodeRequest;
 import org.sopt36.ninedotserver.global.security.JsonAuthenticationEntryPoint;
@@ -54,9 +53,6 @@ class AuthControllerTest {
 
     @MockBean
     private CookieWriter cookieWriter;
-
-    @MockBean
-    private TokenVerifyPort tokenVerifyPort;
 
     @MockBean
     private ResolvePrincipalByTokenUsecase resolvePrincipalByTokenUsecase;

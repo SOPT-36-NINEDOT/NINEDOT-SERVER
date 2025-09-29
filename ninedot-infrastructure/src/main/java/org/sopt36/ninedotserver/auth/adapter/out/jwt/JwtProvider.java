@@ -19,14 +19,13 @@ import org.sopt36.ninedotserver.auth.dto.security.TokenClaims;
 import org.sopt36.ninedotserver.auth.exception.AuthException;
 import org.sopt36.ninedotserver.auth.port.out.token.TokenIssuePort;
 import org.sopt36.ninedotserver.auth.port.out.token.TokenParsePort;
-import org.sopt36.ninedotserver.auth.port.out.token.TokenVerifyPort;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class JwtProvider implements TokenIssuePort, TokenParsePort, TokenVerifyPort {
+public class JwtProvider implements TokenIssuePort, TokenParsePort {
 
     @Value("${jwt.secret}")
     private String secret;
@@ -80,15 +79,6 @@ public class JwtProvider implements TokenIssuePort, TokenParsePort, TokenVerifyP
         }
     }
 
-    public boolean validateToken(String token) {
-        try {
-            parseClaims(token);
-            return true;
-        } catch (AuthException e) {
-            log.error("Invalid JWT token: {}", e.getMessage());
-            return false;
-        }
-    }
 
     private void validateKeyLength(byte[] keyBytes) {
         if (keyBytes.length < 32) {
