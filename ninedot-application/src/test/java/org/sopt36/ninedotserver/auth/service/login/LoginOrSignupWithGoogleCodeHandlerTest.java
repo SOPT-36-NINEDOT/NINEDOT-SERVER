@@ -13,7 +13,10 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sopt36.ninedotserver.auth.model.OnboardingPage.ONBOARDING_COMPLETED;
 
+import com.github.benmanes.caffeine.cache.Cache;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -33,10 +36,15 @@ class LoginOrSignupWithGoogleCodeHandlerTest {
 
     @Mock
     RedirectUriValidationPort redirectUriValidationPort;
+
     @Mock
     OAuthService oAuthService;
+
     @Mock
     AuthAccountService authAccountService;
+
+    @Mock
+    Cache<String, ReentrantLock> authCodeLockCache;
 
     @InjectMocks
     LoginOrSignupWithGoogleCodeHandler loginOrSignupWithGoogleCodeHandler;
@@ -70,6 +78,7 @@ class LoginOrSignupWithGoogleCodeHandlerTest {
                 .thenReturn(exchangeResult);
             when(authAccountService.loginOrStartSignup(exchangeResult))
                 .thenReturn(expected);
+            when(authCodeLockCache.asMap()).thenReturn(new ConcurrentHashMap<>());
 
             // when
             AuthResult actual = loginOrSignupWithGoogleCodeHandler.execute(command);
@@ -92,6 +101,7 @@ class LoginOrSignupWithGoogleCodeHandlerTest {
             GoogleLoginCommand command = new GoogleLoginCommand("CODE", "bad://uri");
             when(redirectUriValidationPort.resolveAndValidate("bad://uri"))
                 .thenThrow(new IllegalArgumentException("invalid redirect"));
+            when(authCodeLockCache.asMap()).thenReturn(new ConcurrentHashMap<>());
 
             // when & then
             assertThrows(IllegalArgumentException.class,
@@ -110,6 +120,7 @@ class LoginOrSignupWithGoogleCodeHandlerTest {
                 .thenReturn("https://srv/cb");
             when(oAuthService.exchangeAuthorizationCodeAndFetchUser("https://srv/cb", "CODE"))
                 .thenThrow(new RuntimeException("oauth error"));
+            when(authCodeLockCache.asMap()).thenReturn(new ConcurrentHashMap<>());
 
             // when & then
             assertThrows(RuntimeException.class,

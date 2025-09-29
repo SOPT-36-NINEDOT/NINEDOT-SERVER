@@ -53,7 +53,6 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             String token = resolveToken(request);
-            log.debug("추출된 토큰: {}", token);
 
             if (token != null && tokenVerifyPort.validateToken(token)) {
                 PrincipalDto principal = resolvePrincipalByTokenUsecase.execute(token);
