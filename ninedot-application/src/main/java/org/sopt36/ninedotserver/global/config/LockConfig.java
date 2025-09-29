@@ -29,6 +29,7 @@ public class LockConfig {
     public Cache<String, AuthResult> authResultCache() {
         return Caffeine.newBuilder()
             .expireAfterWrite(1, TimeUnit.MINUTES)
+            .maximumSize(1_000)
             .build();
     }
 }
