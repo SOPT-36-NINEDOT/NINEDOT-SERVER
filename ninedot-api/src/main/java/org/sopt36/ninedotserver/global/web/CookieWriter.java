@@ -28,7 +28,7 @@ public class CookieWriter {
                     setRefreshToken.refreshToken())
                 .httpOnly(true)
                 .secure(secureCookie)
-                .sameSite("None")
+                .sameSite(secureCookie ? "None" : "Lax")
                 .maxAge(Duration.ofSeconds(refreshTokenExpirationMilliseconds / 1000))
                 .domain(cookieDomain)
                 .path(cookiePath)
