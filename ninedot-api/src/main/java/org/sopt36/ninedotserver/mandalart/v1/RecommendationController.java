@@ -7,13 +7,11 @@ import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.auth.dto.security.PrincipalDto;
 import org.sopt36.ninedotserver.dto.response.ApiResponse;
-import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalListResponse;
+import org.sopt36.ninedotserver.mandalart.dto.response.RecommendationListResponse;
 import org.sopt36.ninedotserver.mandalart.usecase.command.RecommendationSchedulerService;
 import org.sopt36.ninedotserver.mandalart.usecase.query.RecommendationQueryService;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,7 +29,7 @@ public class RecommendationController {
     private final RecommendationSchedulerService schedulerService;
 
     @GetMapping("/mandalarts/{mandalartId}/histories/recommendation")
-    public ResponseEntity<ApiResponse<SubGoalListResponse, Void>> getRecommendations(
+    public ResponseEntity<ApiResponse<RecommendationListResponse, Void>> getRecommendations(
         @AuthenticationPrincipal PrincipalDto principal,
         @PathVariable Long mandalartId,
         @RequestParam(value = "date", required = false)
@@ -40,7 +38,7 @@ public class RecommendationController {
         Long userId = principal.userId();
         LocalDate recommendationDate = (date != null ? date : LocalDate.now());
 
-        SubGoalListResponse response = recommendationQueryService.getRecommendations(
+        RecommendationListResponse response = recommendationQueryService.getRecommendations(
             userId,
             mandalartId,
             recommendationDate
