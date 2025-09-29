@@ -44,8 +44,7 @@ public class LoginOrSignupWithGoogleCodeHandler implements LoginOrSignupWithGoog
             return cachedResult;
         }
 
-        ReentrantLock lock = authCodeLockCache.asMap()
-            .computeIfAbsent(authCode, k -> new ReentrantLock());
+        ReentrantLock lock = authCodeLockCache.get(authCode, k -> new ReentrantLock());
 
         lock.lock();
         try {
@@ -68,7 +67,11 @@ public class LoginOrSignupWithGoogleCodeHandler implements LoginOrSignupWithGoog
             return result;
 
         } finally {
-            lock.unlock();
+            try {
+                lock.unlock();
+            } finally {
+                authCodeLockCache.asMap().remove(authCode, lock);
+            }
         }
     }
 }
