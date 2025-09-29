@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.auth.dto.response;
+package org.sopt36.ninedotserver.auth.dto.result;
 
 import org.sopt36.ninedotserver.user.model.User;
 
@@ -12,7 +12,8 @@ public record UserRetrievedResult(
 
     public static UserRetrievedResult of(User user) {
         return new UserRetrievedResult(
-            user.getId(), user.emailAsString(), user.nameAsString(), user.jobAsString(), user.birthdayAsString()
+            user.getId(), user.emailAsString(), user.nameAsString(), user.jobAsString(),
+            user.birthdayAsString()
         );
     }
 

@@ -15,7 +15,7 @@ import org.sopt36.ninedotserver.auth.dto.command.GoogleLoginCommand;
 import org.sopt36.ninedotserver.auth.dto.command.LogoutCommand;
 import org.sopt36.ninedotserver.auth.dto.command.RefreshCommand;
 import org.sopt36.ninedotserver.auth.dto.command.SignupCommand;
-import org.sopt36.ninedotserver.auth.dto.response.SignupThenLoginResult;
+import org.sopt36.ninedotserver.auth.dto.result.SignupThenLoginResult;
 import org.sopt36.ninedotserver.auth.dto.result.AuthResult;
 import org.sopt36.ninedotserver.auth.dto.result.RefreshResult;
 import org.sopt36.ninedotserver.auth.dto.security.PrincipalDto;

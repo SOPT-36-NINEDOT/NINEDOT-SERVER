@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.auth.dto.command.SignupCommand;
-import org.sopt36.ninedotserver.auth.dto.response.SignupThenLoginResult;
+import org.sopt36.ninedotserver.auth.dto.result.SignupThenLoginResult;
 import org.sopt36.ninedotserver.auth.dto.token.IssuedTokens;
 import org.sopt36.ninedotserver.auth.model.AuthProvider;
 import org.sopt36.ninedotserver.auth.model.ProviderType;

@@ -1,4 +1,4 @@
-package org.sopt36.ninedotserver.auth.dto.response;
+package org.sopt36.ninedotserver.auth.dto.result;
 
 import org.sopt36.ninedotserver.auth.dto.token.IssuedTokens;
 import org.sopt36.ninedotserver.user.model.User;

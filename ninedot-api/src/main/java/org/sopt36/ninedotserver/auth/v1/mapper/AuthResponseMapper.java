@@ -2,7 +2,7 @@ package org.sopt36.ninedotserver.auth.v1.mapper;
 
 import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.BAD_MAPPING_TYPE;
 
-import org.sopt36.ninedotserver.auth.dto.response.SignupThenLoginResult;
+import org.sopt36.ninedotserver.auth.dto.result.SignupThenLoginResult;
 import org.sopt36.ninedotserver.auth.dto.result.RefreshResult;
 import org.sopt36.ninedotserver.auth.v1.dto.response.AuthLoginResponse;
 import org.sopt36.ninedotserver.auth.v1.dto.response.AuthResponse;
