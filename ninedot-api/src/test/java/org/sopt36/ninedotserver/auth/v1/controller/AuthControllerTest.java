@@ -21,7 +21,7 @@ import org.sopt36.ninedotserver.auth.port.in.LoginOrSignupWithGoogleCodeUsecase;
 import org.sopt36.ninedotserver.auth.port.in.LogoutUsecase;
 import org.sopt36.ninedotserver.auth.port.in.RefreshAccessTokenUsecase;
 import org.sopt36.ninedotserver.auth.port.in.ResolvePrincipalByTokenUsecase;
-import org.sopt36.ninedotserver.auth.service.AuthService;
+import org.sopt36.ninedotserver.auth.port.in.SignupUsecase;
 import org.sopt36.ninedotserver.auth.v1.dto.request.GoogleAuthCodeRequest;
 import org.sopt36.ninedotserver.global.security.JsonAuthenticationEntryPoint;
 import org.sopt36.ninedotserver.global.security.JwtAuthenticationFactory;
@@ -44,9 +44,6 @@ class AuthControllerTest {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private AuthService authService;
-
-    @MockBean
     private LoginOrSignupWithGoogleCodeUsecase loginOrSignupWithGoogleCodeUsecase;
 
     @MockBean
@@ -54,6 +51,9 @@ class AuthControllerTest {
 
     @MockBean
     private LogoutUsecase logoutUsecase;
+
+    @MockBean
+    private SignupUsecase signupUsecase;
 
     @MockBean
     private CookieWriter cookieWriter;

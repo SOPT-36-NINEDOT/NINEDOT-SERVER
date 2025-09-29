@@ -15,29 +15,27 @@ import org.sopt36.ninedotserver.auth.dto.command.GoogleLoginCommand;
 import org.sopt36.ninedotserver.auth.dto.command.LogoutCommand;
 import org.sopt36.ninedotserver.auth.dto.command.RefreshCommand;
 import org.sopt36.ninedotserver.auth.dto.command.SignupCommand;
-import org.sopt36.ninedotserver.auth.dto.response.SignupResult;
+import org.sopt36.ninedotserver.auth.dto.response.SignupThenLoginResult;
 import org.sopt36.ninedotserver.auth.dto.result.AuthResult;
 import org.sopt36.ninedotserver.auth.dto.result.RefreshResult;
 import org.sopt36.ninedotserver.auth.dto.security.PrincipalDto;
-import org.sopt36.ninedotserver.auth.exception.AuthErrorCode;
 import org.sopt36.ninedotserver.auth.exception.AuthException;
 import org.sopt36.ninedotserver.auth.port.in.LoginOrSignupWithGoogleCodeUsecase;
 import org.sopt36.ninedotserver.auth.port.in.LogoutUsecase;
 import org.sopt36.ninedotserver.auth.port.in.RefreshAccessTokenUsecase;
-import org.sopt36.ninedotserver.auth.service.AuthService;
+import org.sopt36.ninedotserver.auth.port.in.SignupUsecase;
 import org.sopt36.ninedotserver.auth.v1.dto.request.GoogleAuthCodeRequest;
 import org.sopt36.ninedotserver.auth.v1.dto.request.SignupRequest;
 import org.sopt36.ninedotserver.auth.v1.dto.response.AuthResponse;
 import org.sopt36.ninedotserver.auth.v1.dto.response.RefreshResponse;
+import org.sopt36.ninedotserver.auth.v1.dto.response.SignupThenLoginResponse;
 import org.sopt36.ninedotserver.auth.v1.mapper.AuthRequestMapper;
 import org.sopt36.ninedotserver.auth.v1.mapper.AuthResponseMapper;
 import org.sopt36.ninedotserver.dto.response.ApiResponse;
 import org.sopt36.ninedotserver.global.web.CookieInstruction;
 import org.sopt36.ninedotserver.global.web.CookieWriter;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -51,10 +49,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class AuthController {
 
-    private final AuthService authService;
     private final LoginOrSignupWithGoogleCodeUsecase loginOrSignupWithGoogleCodeUsecase;
     private final RefreshAccessTokenUsecase refreshAccessTokenUsecase;
     private final LogoutUsecase logoutUsecase;
+    private final SignupUsecase signupUsecase;
     private final CookieWriter cookieWriter;
 
     @PostMapping("/oauth2/google/callback")
@@ -125,12 +123,22 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<SignupResult, Void>> registerUser(
+    public ResponseEntity<ApiResponse<SignupThenLoginResponse, Void>> registerUser(
         @RequestBody @Valid SignupRequest request,
-        HttpServletResponse response
+        HttpServletResponse servletResponse
     ) {
+        log.info("[회원가입 요청 시작]");
         SignupCommand serviceRequest = AuthRequestMapper.toSignupServiceRequest(request);
-        SignupResult signupResult = authService.registerUser(serviceRequest);
-        return ResponseEntity.ok(ApiResponse.ok(SIGNUP_SUCCESS, signupResult));
+        SignupThenLoginResult signupResult = signupUsecase.execute(serviceRequest);
+        SignupThenLoginResponse body = AuthResponseMapper.toSignupThenLoginResponse(signupResult);
+
+        cookieWriter.write(
+            servletResponse,
+            CookieInstruction.setRefreshToken(signupResult.issuedTokens().refreshToken())
+        );
+
+        log.info("[회원가입 요청 완료]");
+
+        return ResponseEntity.ok(ApiResponse.ok(SIGNUP_SUCCESS, body));
     }
 }
