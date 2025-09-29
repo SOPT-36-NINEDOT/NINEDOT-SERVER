@@ -20,7 +20,7 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.MySQL8Dialect
         jdbc:
-          time_zone: Asia/Seoul
+          time_zone: UTC
         timezone:
           default_storage: NORMALIZE
   web:

@@ -21,7 +21,7 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.MySQL8Dialect
         jdbc:
-          time_zone: Asia/Seoul
+          time_zone: UTC
         timezone:
           default_storage: NORMALIZE
   web:
@@ -39,7 +39,7 @@ spring:
 
 jwt:
   secret: ${JWT_SECRET_KEY}
-  access-token-expiration-milliseconds: 3600000
+  access-token-expiration-milliseconds: 3600
   refresh-token-expiration-milliseconds: 604800000
 
 cookie:
