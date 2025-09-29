@@ -1,5 +1,6 @@
 package org.sopt36.ninedotserver.auth.v1.controller;
 
+import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.UNAUTHORIZED;
 import static org.sopt36.ninedotserver.auth.v1.message.AuthMessage.ACCESS_TOKEN_REFRESH_SUCCESS;
 import static org.sopt36.ninedotserver.auth.v1.message.AuthMessage.LOGIN_SIGNUP_SUCCESS;
 import static org.sopt36.ninedotserver.auth.v1.message.AuthMessage.REFRESH_TOKEN_DELETED;
@@ -11,12 +12,17 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt36.ninedotserver.auth.dto.command.GoogleLoginCommand;
+import org.sopt36.ninedotserver.auth.dto.command.LogoutCommand;
 import org.sopt36.ninedotserver.auth.dto.command.RefreshCommand;
 import org.sopt36.ninedotserver.auth.dto.command.SignupCommand;
 import org.sopt36.ninedotserver.auth.dto.response.SignupResult;
 import org.sopt36.ninedotserver.auth.dto.result.AuthResult;
 import org.sopt36.ninedotserver.auth.dto.result.RefreshResult;
+import org.sopt36.ninedotserver.auth.dto.security.PrincipalDto;
+import org.sopt36.ninedotserver.auth.exception.AuthErrorCode;
+import org.sopt36.ninedotserver.auth.exception.AuthException;
 import org.sopt36.ninedotserver.auth.port.in.LoginOrSignupWithGoogleCodeUsecase;
+import org.sopt36.ninedotserver.auth.port.in.LogoutUsecase;
 import org.sopt36.ninedotserver.auth.port.in.RefreshAccessTokenUsecase;
 import org.sopt36.ninedotserver.auth.service.AuthService;
 import org.sopt36.ninedotserver.auth.v1.dto.request.GoogleAuthCodeRequest;
@@ -30,6 +36,7 @@ import org.sopt36.ninedotserver.global.web.CookieInstruction;
 import org.sopt36.ninedotserver.global.web.CookieWriter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,6 +54,7 @@ public class AuthController {
     private final AuthService authService;
     private final LoginOrSignupWithGoogleCodeUsecase loginOrSignupWithGoogleCodeUsecase;
     private final RefreshAccessTokenUsecase refreshAccessTokenUsecase;
+    private final LogoutUsecase logoutUsecase;
     private final CookieWriter cookieWriter;
 
     @PostMapping("/oauth2/google/callback")
@@ -56,6 +64,7 @@ public class AuthController {
         HttpServletResponse servletResponse
     ) {
         log.info("[로그인 요청 시작]");
+
         GoogleLoginCommand command = AuthRequestMapper.toGoogleLoginCommand(
             request,
             clientRedirectUri
@@ -67,6 +76,7 @@ public class AuthController {
             cookieWriter.write(servletResponse, CookieInstruction.setRefreshToken(refreshToken))
         );
         AuthResponse body = AuthResponseMapper.toOAuthResponse(authResult);
+
         log.info("[로그인 요청 완료]");
 
         return ResponseEntity.ok(ApiResponse.ok(LOGIN_SIGNUP_SUCCESS, body));
@@ -78,6 +88,7 @@ public class AuthController {
         HttpServletResponse servletResponse
     ) {
         log.info("[토큰 재발급 요청 시작]");
+
         RefreshCommand refreshCommand = AuthRequestMapper.toRefreshCommand(refreshToken);
         RefreshResult refreshResult = refreshAccessTokenUsecase.execute(refreshCommand);
 
@@ -89,18 +100,22 @@ public class AuthController {
         RefreshResponse body = AuthResponseMapper.toRefreshResponse(refreshResult);
 
         log.info("[토큰 재발급 완료]");
+
         return ResponseEntity.ok(ApiResponse.ok(ACCESS_TOKEN_REFRESH_SUCCESS, body));
     }
 
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Void, Void>> deleteRefreshToken(
+        @AuthenticationPrincipal PrincipalDto principal,
         HttpServletResponse servletResponse
     ) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Long userId = Long.parseLong(auth.getName());
+        log.info("[로그아웃 요청 시작]");
 
-        authService.deleteRefreshToken(userId);
+        LogoutCommand logoutCommand = AuthRequestMapper.toLogoutCommand(principal.userId());
+        logoutUsecase.execute(logoutCommand);
         cookieWriter.write(servletResponse, clearRefreshToken());
+
+        log.info("[로그아웃 요청 완료]");
 
         return ResponseEntity.ok(ApiResponse.ok(REFRESH_TOKEN_DELETED));
     }

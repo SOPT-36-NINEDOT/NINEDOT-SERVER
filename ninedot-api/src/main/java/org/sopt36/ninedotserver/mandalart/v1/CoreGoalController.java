@@ -14,6 +14,7 @@ import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.ai.dto.response.CoreGoalAiResponse;
 import org.sopt36.ninedotserver.ai.usecase.AiRecommendationService;
+import org.sopt36.ninedotserver.auth.dto.security.PrincipalDto;
 import org.sopt36.ninedotserver.dto.response.ApiResponse;
 import org.sopt36.ninedotserver.mandalart.dto.request.CoreGoalAiCreateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.request.CoreGoalCreateRequest;
@@ -28,6 +29,7 @@ import org.sopt36.ninedotserver.mandalart.usecase.command.CoreGoalCommandService
 import org.sopt36.ninedotserver.mandalart.usecase.query.CoreGoalQueryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -50,9 +52,9 @@ public class CoreGoalController {
     public ResponseEntity<ApiResponse<CoreGoalCreateResponse, Void>> createCoreGoal(
         @PathVariable Long mandalartId,
         @Valid @RequestBody CoreGoalCreateRequest createRequest,
-        Authentication authentication
+        @AuthenticationPrincipal PrincipalDto principal
     ) {
-        Long userId = Long.parseLong(authentication.getName());
+        Long userId = principal.userId();
         CoreGoalCreateResponse response = coreGoalCommandService.createCoreGoal(userId,
             mandalartId,
             createRequest
@@ -68,9 +70,9 @@ public class CoreGoalController {
     @GetMapping("/mandalarts/{mandalartId}/core-goals/id-positions")
     public ResponseEntity<ApiResponse<CoreGoalIdsResponse, Void>> getCoreGoalIds(
         @PathVariable Long mandalartId,
-        Authentication authentication
+        @AuthenticationPrincipal PrincipalDto principal
     ) {
-        Long userId = Long.parseLong(authentication.getName());
+        Long userId = principal.userId();
         CoreGoalIdsResponse response = coreGoalQueryService.getCoreGoalIds(userId, mandalartId);
 
         return ResponseEntity.ok(ApiResponse.ok(CORE_GOAL_IDS_RETRIEVED_SUCCESS, response));
@@ -79,9 +81,9 @@ public class CoreGoalController {
     @GetMapping("/onboarding/mandalarts/{mandalartId}/core-goals")
     public ResponseEntity<ApiResponse<CoreGoalsResponse, Void>> getCoreGoals(
         @PathVariable Long mandalartId,
-        Authentication authentication
+        @AuthenticationPrincipal PrincipalDto principal
     ) {
-        Long userId = Long.parseLong(authentication.getName());
+        Long userId = principal.userId();
         CoreGoalsResponse response = coreGoalQueryService.getCoreGoals(userId, mandalartId);
 
         return ResponseEntity.ok(ApiResponse.ok(CORE_GOAL_LIST_RETRIEVED_SUCCESS, response));
@@ -91,9 +93,9 @@ public class CoreGoalController {
     public ResponseEntity<ApiResponse<Void, Void>> updateCoreGoal(
         @PathVariable Long coreGoalId,
         @Valid @RequestBody CoreGoalUpdateRequest updateRequest,
-        Authentication authentication
+        @AuthenticationPrincipal PrincipalDto principal
     ) {
-        Long userId = Long.parseLong(authentication.getName());
+        Long userId = principal.userId();
         coreGoalCommandService.updateCoreGoal(userId, coreGoalId, updateRequest);
 
         return ResponseEntity.ok(ApiResponse.ok(CORE_GOAL_ONBOARDING_UPDATED_SUCCESS));
@@ -102,9 +104,9 @@ public class CoreGoalController {
     @DeleteMapping("/onboarding/core-goals/{coreGoalId}")
     public ResponseEntity<ApiResponse<Void, Void>> deleteCoreGoal(
         @PathVariable Long coreGoalId,
-        Authentication authentication
+        @AuthenticationPrincipal PrincipalDto principal
     ) {
-        Long userId = Long.parseLong(authentication.getName());
+        Long userId = principal.userId();
         coreGoalCommandService.deleteCoreGoal(userId, coreGoalId);
 
         return ResponseEntity.ok(ApiResponse.ok(CORE_GOAL_ONBOARDING_DELETED_SUCCESS));
@@ -114,9 +116,9 @@ public class CoreGoalController {
     public ResponseEntity<ApiResponse<CoreGoalAiListResponse, Void>> createAiCoreGoals(
         @PathVariable Long mandalartId,
         @Valid @RequestBody CoreGoalAiCreateRequest aiCreateRequest,
-        Authentication authentication
+        @AuthenticationPrincipal PrincipalDto principal
     ) {
-        Long userId = Long.parseLong(authentication.getName());
+        Long userId = principal.userId();
         CoreGoalAiListResponse response = coreGoalCommandService.createAiCoreGoals(
             userId,
             mandalartId,
@@ -131,9 +133,9 @@ public class CoreGoalController {
     public ResponseEntity<ApiResponse<CoreGoalAiResponse, Void>> createAi(
         @PathVariable Long mandalartId,
         @RequestBody(required = false) GenerateCoreGoalRequest generateRequest,
-        Authentication authentication
+        @AuthenticationPrincipal PrincipalDto principal
     ) {
-        Long userId = Long.parseLong(authentication.getName());
+        Long userId = principal.userId();
         CoreGoalAiResponse response = aiRecommendationService.fetchAiRecommendation(mandalartId);
 
         return ResponseEntity.ok(ApiResponse.created(response, AI_RESPONSE_SUCCESS));
@@ -143,9 +145,9 @@ public class CoreGoalController {
     public ResponseEntity<ApiResponse<Void, Void>> updateMandalart(
         @PathVariable Long mandalartId,
         @Valid @RequestBody MandalartUpdateRequest updateRequest,
-        Authentication authentication
+        @AuthenticationPrincipal PrincipalDto principal
     ) {
-        Long userId = Long.parseLong(authentication.getName());
+        Long userId = principal.userId();
         coreGoalCommandService.updateMandalart(userId, mandalartId, updateRequest);
 
         return ResponseEntity.ok(ApiResponse.ok(CORE_GOAL_UPDATED_WITH_SUB_GOALS_SUCCESS));

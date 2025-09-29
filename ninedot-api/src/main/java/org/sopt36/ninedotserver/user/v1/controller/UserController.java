@@ -1,6 +1,7 @@
 package org.sopt36.ninedotserver.user.v1.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt36.ninedotserver.auth.dto.security.PrincipalDto;
 import org.sopt36.ninedotserver.dto.response.ApiResponse;
 import org.sopt36.ninedotserver.user.dto.query.UserInfoQuery;
 import org.sopt36.ninedotserver.user.dto.result.UserInfoResult;
@@ -10,6 +11,7 @@ import org.sopt36.ninedotserver.user.v1.mapper.UserRequestMapper;
 import org.sopt36.ninedotserver.user.v1.mapper.UserResponseMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,9 +27,9 @@ public class UserController {
 
     @GetMapping("/users/info")
     public ResponseEntity<ApiResponse<UserInfoResponse, Void>> getUserInfo(
-            Authentication authentication
+        @AuthenticationPrincipal PrincipalDto principal
     ) {
-        Long userId = Long.parseLong(authentication.getName());
+        Long userId = principal.userId();
         UserInfoQuery query = UserRequestMapper.toUserInfoQuery(userId);
         UserInfoResult result = getUserInfoUseCase.execute(query);
         UserInfoResponse response = UserResponseMapper.toUserInfoResponse(result);

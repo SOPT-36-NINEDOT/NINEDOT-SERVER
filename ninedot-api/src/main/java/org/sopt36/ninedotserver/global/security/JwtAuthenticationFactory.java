@@ -13,7 +13,7 @@ public class JwtAuthenticationFactory {
 
     public Authentication getAuthentication(PrincipalDto principal) {
         return new UsernamePasswordAuthenticationToken(
-            principal.userId(),
+            principal,
             null,
             Collections.emptyList());
     }
