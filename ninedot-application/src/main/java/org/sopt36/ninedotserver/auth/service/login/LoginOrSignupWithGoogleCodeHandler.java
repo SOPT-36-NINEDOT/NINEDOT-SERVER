@@ -9,7 +9,6 @@ import org.sopt36.ninedotserver.auth.port.out.policy.RedirectUriValidationPort;
 import org.sopt36.ninedotserver.auth.service.login.dto.ExchangeResult;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class LoginOrSignupWithGoogleCodeHandler implements LoginOrSignupWithGoogleCodeUsecase {
@@ -34,7 +33,6 @@ public class LoginOrSignupWithGoogleCodeHandler implements LoginOrSignupWithGoog
         this.authResultCache = authResultCache;
     }
 
-    @Transactional
     @Override
     public AuthResult execute(GoogleLoginCommand googleLoginCommand) {
         String authCode = googleLoginCommand.code();
