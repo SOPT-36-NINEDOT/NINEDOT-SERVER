@@ -84,10 +84,14 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<RefreshResponse, Void>> tokenRefresh(
-        @CookieValue("refreshToken") String refreshToken,
+        @CookieValue(value = "refreshToken", required = false) String refreshToken,
         HttpServletResponse servletResponse
     ) {
         log.info("[토큰 재발급 요청 시작]");
+
+        if (refreshToken == null || refreshToken.isBlank()) {
+            throw new AuthException(UNAUTHORIZED);
+        }
 
         RefreshCommand refreshCommand = AuthRequestMapper.toRefreshCommand(refreshToken);
         RefreshResult refreshResult = refreshAccessTokenUsecase.execute(refreshCommand);
