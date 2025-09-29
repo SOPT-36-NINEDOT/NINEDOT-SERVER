@@ -1,10 +1,8 @@
 package org.sopt36.ninedotserver.auth.adapter.out.persistence.jpa;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.Optional;
 import jakarta.persistence.EntityManager;
+import java.time.Instant;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.auth.adapter.out.persistence.jpa.repository.RefreshTokenRepository;
 import org.sopt36.ninedotserver.auth.model.RefreshToken;
@@ -28,17 +26,15 @@ public class RefreshTokenAdapter implements RefreshTokenPort {
 
     @Override
     public void saveOrRotate(Long userId, String plainRefreshToken, Instant expiresAt) {
-        LocalDateTime expirationUtc = toLocalDateTimeUtc(expiresAt);
-
-        RefreshToken token = refreshTokenJpaRepository.findByUserId(userId)
+        RefreshToken token = refreshTokenJpaRepository.findByUser_Id(userId)
             .orElseGet(() -> {
                 User user = userRepository.findById(userId)
                     .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
-                return RefreshToken.create(user, plainRefreshToken, expirationUtc);
+                return RefreshToken.create(user, plainRefreshToken, expiresAt);
             });
 
         if (token.getId() != null) {
-            token.rotate(plainRefreshToken, expirationUtc);
+            token.rotate(plainRefreshToken, expiresAt);
         }
 
         refreshTokenJpaRepository.save(token);
@@ -48,24 +44,19 @@ public class RefreshTokenAdapter implements RefreshTokenPort {
 
     @Override
     public Optional<Long> findUserIdByToken(String plainRefreshToken) {
-        LocalDateTime nowUtc = LocalDateTime.now(ZoneOffset.UTC);
         return refreshTokenJpaRepository
-            .findByRefreshTokenAndExpiresAtAfter(plainRefreshToken, nowUtc)
+            .findByRefreshTokenAndExpiresAtAfter(plainRefreshToken, Instant.now())
             .map(RefreshToken::getUser)
             .map(User::getId);
     }
 
     @Override
     public void revokeByUserId(Long userId) {
-        refreshTokenJpaRepository.deleteByUserId(userId);
+        refreshTokenJpaRepository.deleteByUser_Id(userId);
     }
 
     @Override
     public void deleteExpired(Instant now) {
-        refreshTokenJpaRepository.deleteByExpiresAtBefore(toLocalDateTimeUtc(now));
-    }
-
-    private LocalDateTime toLocalDateTimeUtc(Instant instant) {
-        return LocalDateTime.ofInstant(instant, ZoneOffset.UTC);
+        refreshTokenJpaRepository.deleteByExpiresAtBefore(now);
     }
 }
