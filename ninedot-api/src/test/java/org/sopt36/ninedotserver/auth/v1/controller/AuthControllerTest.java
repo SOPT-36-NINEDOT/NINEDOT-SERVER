@@ -18,6 +18,7 @@ import org.sopt36.ninedotserver.auth.dto.result.LoginResult;
 import org.sopt36.ninedotserver.auth.dto.result.SignupResult;
 import org.sopt36.ninedotserver.auth.model.ProviderType;
 import org.sopt36.ninedotserver.auth.port.in.LoginOrSignupWithGoogleCodeUsecase;
+import org.sopt36.ninedotserver.auth.port.in.RefreshAccessTokenUsecase;
 import org.sopt36.ninedotserver.auth.port.in.ResolvePrincipalByTokenUsecase;
 import org.sopt36.ninedotserver.auth.port.out.token.TokenVerifyPort; // Import the missing dependency
 import org.sopt36.ninedotserver.auth.service.AuthService;
@@ -49,6 +50,9 @@ class AuthControllerTest {
     private LoginOrSignupWithGoogleCodeUsecase loginOrSignupWithGoogleCodeUsecase;
 
     @MockBean
+    private RefreshAccessTokenUsecase refreshAccessTokenUsecase;
+
+    @MockBean
     private CookieWriter cookieWriter;
 
     @MockBean
@@ -62,7 +66,7 @@ class AuthControllerTest {
 
     @MockBean
     private JsonAuthenticationEntryPoint jsonAuthenticationEntryPoint;
-    
+
     @Nested
     @DisplayName("구글 소셜 인증 API (/api/v1/auth/oauth2/google/callback)")
     class GoogleCallbackTest {
