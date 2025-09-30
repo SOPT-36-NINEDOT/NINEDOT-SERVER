@@ -1,3 +1,8 @@
+logging:
+  level:
+    root: INFO
+    org.sopt36.ninedotserver: DEBUG
+
 spring:
   config:
     import: optional:file:.env[.properties]
@@ -10,33 +15,37 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
-        show_sql: true
         format_sql: true
         dialect: org.hibernate.dialect.MySQL8Dialect
         jdbc:
-          time_zone: Asia/Seoul
+          time_zone: UTC
         timezone:
           default_storage: NORMALIZE
   web:
     resources:
       add-mappings: false
-  jwt:
-    secret: ${JWT_SECRET_KEY}
-    access-token-expiration-milliseconds: 3600000
-    refresh-token-expiration-milliseconds: 604800000
-  cookie:
-    domain: localhost # .
-    secure: false
-    path: /
-  task:
-    scheduling:
-      time-zone: Asia/Seoul
-  ai:
-    model:
-      chat: none
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    baseline-version: 0
+    validate-on-migrate: true
+    out-of-order: false
+    mixed: true
+    clean-disabled: true
+
+jwt:
+  secret: ${JWT_SECRET_KEY}
+  access-token-expiration-milliseconds: 1800000
+  refresh-token-expiration-milliseconds: 604800000
+
+cookie:
+  domain: localhost # .
+  secure: false
+  path: /
 
 gemini:
   api:
@@ -48,7 +57,6 @@ gemini:
 google:
   client-id: ${GOOGLE_CLIENT_ID}
   client-secret: ${GOOGLE_CLIENT_SECRET}
-  redirect-uri: ${GOOGLE_REDIRECT_URI}
   token-uri: https://oauth2.googleapis.com/token
   userinfo-uri: https://openidconnect.googleapis.com/v1/userinfo
 
@@ -56,5 +64,5 @@ auth:
   redirect:
     whitelist:
       - http://localhost:5173/auth/google/callback
-      - https://ninedot-client.vercel.app/auth/google/callback
-    default-redirect-uri: https://ninedot-client.vercel.app/auth/google/callback
+      - ${GOOGLE_REDIRECT_URI}
+    default-redirect-uri: ${GOOGLE_REDIRECT_URI}

@@ -30,42 +30,83 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
-
       - uses: gradle/actions/setup-gradle@v3
-        if: ${{ env.ACT != 'true' }}
         with:
           cache-read-only: ${{ github.event_name == 'pull_request' }}
           gradle-home-cache-cleanup: true
-
       - name: Gradle assemble (no tests)
         run: ./gradlew :ninedot-api:assemble --no-daemon --stacktrace --info --no-watch-fs
 
   test:
-    name: Unit tests
+    name: Test & Report Coverage
     runs-on: ubuntu-latest
+    outputs:
+      line: ${{ steps.calc.outputs.line }}
+      branch: ${{ steps.calc.outputs.branch }}
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
-
       - uses: gradle/actions/setup-gradle@v3
-        if: ${{ env.ACT != 'true' }}
         with:
           cache-read-only: ${{ github.event_name == 'pull_request' }}
           gradle-home-cache-cleanup: true
 
-      - name: Gradle unit tests (domain + application + api)
+      - name: Run all tests and generate coverage report
         run: |
-          ./gradlew :ninedot-domain:test :ninedot-application:test :ninedot-api:test \
-            -Dspring.profiles.active=test --no-daemon --stacktrace --info --no-watch-fs
+          ./gradlew test jacocoRootReport \
+          -Dspring.profiles.active=test --no-daemon --stacktrace --info --no-watch-fs
+
+      - name: Calculate coverage %
+        id: calc
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import xml.etree.ElementTree as ET
+          from decimal import Decimal, ROUND_HALF_UP
+          import os, sys
+          
+          xml_file = 'build/reports/jacoco/jacocoRootReport/jacocoRootReport.xml'
+          line_pct_str = '0.00'
+          branch_pct_str = '0.00'
+          
+          try:
+              tree = ET.parse(xml_file)
+              root = tree.getroot()
+          
+              report_counter_line = root.find('./counter[@type=\'LINE\']') 
+              if report_counter_line is not None:
+                  missed = Decimal(report_counter_line.get('missed', '0'))
+                  covered = Decimal(report_counter_line.get('covered', '0'))
+                  total = missed + covered
+                  if total > 0:
+                      line_pct = (covered / total * 100).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+                      line_pct_str = str(line_pct)
+          
+              report_counter_branch = root.find('./counter[@type=\'BRANCH\']')
+              if report_counter_branch is not None:
+                  missed = Decimal(report_counter_branch.get('missed', '0'))
+                  covered = Decimal(report_counter_branch.get('covered', '0'))
+                  total = missed + covered
+                  if total > 0:
+                      branch_pct = (covered / total * 100).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+                      branch_pct_str = str(branch_pct)
+          
+          except (ET.ParseError, FileNotFoundError):
+              print('JaCoCo report file not found or is invalid. Reporting 0% coverage.', file=sys.stderr)
+          
+          out = os.environ.get('GITHUB_OUTPUT')
+          with open(out, 'a', encoding='utf-8') as f:
+            print(f'line={line_pct_str}', file=f)
+            print(f'branch={branch_pct_str}', file=f)
+          PY
 
   report:
     name: Report status to PR
@@ -78,25 +119,22 @@ jobs:
         run: |
           a="${{ needs.assemble.result }}"
           t="${{ needs.test.result }}"
+          line="${{ needs.test.outputs.line }}"
+          branch="${{ needs.test.outputs.branch }}"
           
           {
             echo "message<<EOF"
             echo "**CI status**"
-            if [ "$a" = "success" ]; then
-              echo "✅ assemble: success"
-            else
-              echo "❌ assemble: $a"
-            fi
-            if [ "$t" = "success" ]; then
-              echo "✅ test: success"
-            else
-              echo "❌ test: $t"
-            fi
+            if [ "$a" = "success" ]; then echo "✅ assemble: success"; else echo "❌ assemble: $a"; fi
+            if [ "$t" = "success" ]; then echo "✅ test & coverage: success"; else echo "❌ test & coverage: $t"; fi
+            echo ""
+            echo "**Coverage**"
+            echo "- LINE: ${line}%"
+            echo "- BRANCH: ${branch}%"
             echo "EOF"
-          } >> "$GITHUB_OUTPUT" 
+          } >> "$GITHUB_OUTPUT"
 
       - name: Find existing comment
-        if: ${{ env.ACT != 'true' }}
         id: find-comment
         uses: peter-evans/find-comment@v3
         with:
@@ -105,7 +143,6 @@ jobs:
           body-includes: '**CI status**'
 
       - name: Create or update PR comment
-        if: ${{ env.ACT != 'true' }}
         uses: peter-evans/create-or-update-comment@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

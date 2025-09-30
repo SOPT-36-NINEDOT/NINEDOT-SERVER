@@ -5,14 +5,14 @@ import static org.sopt36.ninedotserver.mandalart.v1.message.RecommendationMessag
 
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
+import org.sopt36.ninedotserver.auth.dto.security.PrincipalDto;
 import org.sopt36.ninedotserver.dto.response.ApiResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.RecommendationListResponse;
-import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalListResponse;
 import org.sopt36.ninedotserver.mandalart.usecase.command.RecommendationSchedulerService;
 import org.sopt36.ninedotserver.mandalart.usecase.query.RecommendationQueryService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,12 +30,12 @@ public class RecommendationController {
 
     @GetMapping("/mandalarts/{mandalartId}/histories/recommendation")
     public ResponseEntity<ApiResponse<RecommendationListResponse, Void>> getRecommendations(
-        Authentication authentication,
+        @AuthenticationPrincipal PrincipalDto principal,
         @PathVariable Long mandalartId,
         @RequestParam(value = "date", required = false)
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
-        Long userId = Long.parseLong(authentication.getName());
+        Long userId = principal.userId();
         LocalDate recommendationDate = (date != null ? date : LocalDate.now());
 
         RecommendationListResponse response = recommendationQueryService.getRecommendations(
@@ -49,10 +49,10 @@ public class RecommendationController {
 
     @PostMapping("/mandalarts/{mandalartId}/onboarding/recommendation")
     public ResponseEntity<ApiResponse<Void, Void>> createRecommendation(
-        Authentication authentication,
+        @AuthenticationPrincipal PrincipalDto principal,
         @PathVariable Long mandalartId
     ) {
-        Long userId = Long.parseLong(authentication.getName());
+        Long userId = principal.userId();
         schedulerService.computeRecommendations(userId, mandalartId);
 
         return ResponseEntity.ok(ApiResponse.ok(RECOMMENDATION_CREATED_SUCCESS));

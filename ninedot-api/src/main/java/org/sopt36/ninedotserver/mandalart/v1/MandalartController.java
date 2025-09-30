@@ -8,6 +8,7 @@ import static org.sopt36.ninedotserver.mandalart.v1.message.MandalartMessage.PRO
 import jakarta.validation.Valid;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
+import org.sopt36.ninedotserver.auth.dto.security.PrincipalDto;
 import org.sopt36.ninedotserver.dto.response.ApiResponse;
 import org.sopt36.ninedotserver.mandalart.dto.request.MandalartCreateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.response.MandalartBoardResponse;
@@ -18,6 +19,7 @@ import org.sopt36.ninedotserver.mandalart.usecase.command.MandalartCommandServic
 import org.sopt36.ninedotserver.mandalart.usecase.query.MandalartQueryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,9 +38,9 @@ public class MandalartController {
     @PostMapping("/mandalarts")
     public ResponseEntity<ApiResponse<MandalartCreateResponse, Void>> createMandalart(
         @Valid @RequestBody MandalartCreateRequest createRequest,
-        Authentication authentication
+        @AuthenticationPrincipal PrincipalDto principal
     ) {
-        Long userId = Long.parseLong(authentication.getName());
+        Long userId = principal.userId();
         MandalartCreateResponse response = mandalartCommandService.createMandalart(
             userId,
             createRequest
@@ -53,9 +55,9 @@ public class MandalartController {
     @GetMapping("/mandalarts/{mandalartId}/histories")
     public ResponseEntity<ApiResponse<MandalartHistoryResponse, Void>> getMandalartProgressHistory(
         @PathVariable Long mandalartId,
-        Authentication authentication
+        @AuthenticationPrincipal PrincipalDto principal
     ) {
-        Long userId = Long.parseLong(authentication.getName());
+        Long userId = principal.userId();
         MandalartHistoryResponse response = mandalartQueryService.getMandalartHistory(
             userId,
             mandalartId
@@ -67,9 +69,9 @@ public class MandalartController {
     @GetMapping("/mandalarts/{mandalartId}")
     public ResponseEntity<ApiResponse<MandalartResponse, Void>> getMandalart(
         @PathVariable Long mandalartId,
-        Authentication authentication
+        @AuthenticationPrincipal PrincipalDto principal
     ) {
-        Long userId = Long.parseLong(authentication.getName());
+        Long userId = principal.userId();
         MandalartResponse response = mandalartQueryService.getMandalart(userId, mandalartId);
 
         return ResponseEntity.ok(ApiResponse.ok(MANDALART_RETRIEVED_SUCCESS, response));
@@ -78,9 +80,9 @@ public class MandalartController {
     @GetMapping("/mandalarts/{mandalartId}/board")
     public ResponseEntity<ApiResponse<MandalartBoardResponse, Void>> getMandalartBoard(
         @PathVariable Long mandalartId,
-        Authentication authentication
+        @AuthenticationPrincipal PrincipalDto principal
     ) {
-        Long userId = Long.parseLong(authentication.getName());
+        Long userId = principal.userId();
         MandalartBoardResponse response = mandalartQueryService.getMandalartBoard(
             userId,
             mandalartId

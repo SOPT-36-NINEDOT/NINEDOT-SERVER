@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.ai.dto.request.SubGoalAiRequest;
 import org.sopt36.ninedotserver.ai.dto.response.SubGoalAiResponse;
 import org.sopt36.ninedotserver.ai.usecase.AiSubGoalRecommendationService;
+import org.sopt36.ninedotserver.auth.dto.security.PrincipalDto;
 import org.sopt36.ninedotserver.dto.response.ApiResponse;
 import org.sopt36.ninedotserver.mandalart.model.Cycle;
 import org.sopt36.ninedotserver.mandalart.dto.request.SubGoalAiListCreateRequest;
@@ -29,8 +30,10 @@ import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalListResponse;
 import org.sopt36.ninedotserver.mandalart.usecase.command.SubGoalCommandService;
 import org.sopt36.ninedotserver.mandalart.usecase.query.SubGoalQueryService;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -53,9 +56,9 @@ public class SubGoalController {
     @GetMapping("/core-goals/{coreGoalId}/sub-goals")
     public ResponseEntity<ApiResponse<SubGoalIdListResponse, Void>> getSubGoalIds(
         @PathVariable Long coreGoalId,
-        Authentication authentication
+        @AuthenticationPrincipal PrincipalDto principal
     ) {
-        Long userId = Long.parseLong(authentication.getName());
+        Long userId = principal.userId();
         List<SubGoalIdResponse> subGoalIds = subGoalQueryService.getSubGoalIds(userId, coreGoalId);
 
         return ResponseEntity.ok(
@@ -65,11 +68,11 @@ public class SubGoalController {
 
     @PostMapping("/core-goals/{coreGoalId}/sub-goals")
     public ResponseEntity<ApiResponse<SubGoalCreateResponse, Void>> createSubGoal(
-        Authentication authentication,
+        @AuthenticationPrincipal PrincipalDto principal,
         @PathVariable Long coreGoalId,
         @Valid @RequestBody SubGoalCreateRequest request
     ) {
-        Long userId = Long.parseLong(authentication.getName());
+        Long userId = principal.userId();
         SubGoalCreateResponse response = subGoalCommandService.createSubGoal(
             userId, coreGoalId, request
         );
@@ -83,11 +86,11 @@ public class SubGoalController {
 
     @PatchMapping("/sub-goals/{subGoalId}")
     public ResponseEntity<ApiResponse<Void, Void>> updateSubGoal(
-        Authentication authentication,
+        @AuthenticationPrincipal PrincipalDto principal,
         @PathVariable Long subGoalId,
         @Valid @RequestBody SubGoalUpdateRequest request
     ) {
-        Long userId = Long.parseLong(authentication.getName());
+        Long userId = principal.userId();
         subGoalCommandService.updateSubGoal(userId, subGoalId, request);
 
         return ResponseEntity.ok().body(ApiResponse.ok(SUB_GOAL_UPDATE_SUCCESS));
@@ -95,10 +98,10 @@ public class SubGoalController {
 
     @DeleteMapping("/sub-goals/{subGoalId}")
     public ResponseEntity<ApiResponse<Void, Void>> deleteSubGoal(
-        Authentication authentication,
+        @AuthenticationPrincipal PrincipalDto principal,
         @PathVariable Long subGoalId
     ) {
-        Long userId = Long.parseLong(authentication.getName());
+        Long userId = principal.userId();
         subGoalCommandService.deleteSubGoal(userId, subGoalId);
 
         return ResponseEntity.ok().body(ApiResponse.ok(SUB_GOAL_DELETE_SUCCESS));
@@ -106,11 +109,11 @@ public class SubGoalController {
 
     @PostMapping("/core-goals/{coreGoalId}/ai")
     public ResponseEntity<ApiResponse<SubGoalAiResponse, Void>> generateSubGoalByAi(
-        Authentication authentication,
+        @AuthenticationPrincipal PrincipalDto principal,
         @PathVariable("coreGoalId") Long coreGoalId,
         @RequestBody @Valid SubGoalAiRequest request
     ) {
-        Long userId = Long.parseLong(authentication.getName());
+        Long userId = principal.userId();
         SubGoalAiResponse response = aiSubGoalService.fetchAiSubGoalRecommendation(
             userId,
             coreGoalId,
@@ -121,13 +124,13 @@ public class SubGoalController {
 
     @GetMapping("/mandalarts/{mandalartId}/sub-goals")
     public ResponseEntity<ApiResponse<SubGoalListResponse, Void>> getSubGoal(
-        Authentication authentication,
+        @AuthenticationPrincipal PrincipalDto principal,
         @PathVariable Long mandalartId,
         @RequestParam(required = false) Long coreGoalId,
         @RequestParam(required = false) Cycle cycle,
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
-        Long userId = Long.parseLong(authentication.getName());
+        Long userId = principal.userId();
         LocalDate targetDate = (date != null ? date : LocalDate.now());
 
         SubGoalListResponse response = subGoalQueryService.getSubGoalWithFilter(
@@ -143,11 +146,11 @@ public class SubGoalController {
 
     @PostMapping("/core-goals/{coreGoalId}/sub-goals/ai")
     public ResponseEntity<ApiResponse<SubGoalAiListResponse, Void>> addAiSubGoals(
-        Authentication authentication,
+        @AuthenticationPrincipal PrincipalDto principal,
         @PathVariable Long coreGoalId,
         @Valid @RequestBody SubGoalAiListCreateRequest aiCreateRequest
     ) {
-        Long userId = Long.parseLong(authentication.getName());
+        Long userId = principal.userId();
         SubGoalAiListResponse response = subGoalCommandService.createAiSubGoals(
             userId,
             coreGoalId,

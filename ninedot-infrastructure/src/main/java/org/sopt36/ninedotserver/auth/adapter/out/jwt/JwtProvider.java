@@ -1,33 +1,33 @@
 package org.sopt36.ninedotserver.auth.adapter.out.jwt;
 
+import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.EXPIRED_TOKEN;
+import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.INVALID_TOKEN_FORMAT;
+
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.Date;
 import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.sopt36.ninedotserver.auth.port.out.token.JwtProviderPort;
-import org.sopt36.ninedotserver.user.port.out.UserQueryPort;
+import org.sopt36.ninedotserver.auth.dto.security.TokenClaims;
+import org.sopt36.ninedotserver.auth.exception.AuthException;
+import org.sopt36.ninedotserver.auth.port.out.token.TokenIssuePort;
+import org.sopt36.ninedotserver.auth.port.out.token.TokenParsePort;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class JwtProvider implements JwtProviderPort {
+public class JwtProvider implements TokenIssuePort, TokenParsePort {
 
-    private final UserQueryPort userRepository;
-
-    @Value("${spring.jwt.secret}")
+    @Value("${jwt.secret}")
     private String secret;
     private SecretKey secretKey;
 
@@ -51,35 +51,34 @@ public class JwtProvider implements JwtProviderPort {
             .compact();
     }
 
-    public Jws<Claims> parseClaims(String token) {
-        return Jwts.parser()
-            .verifyWith(secretKey)
-            .build()
-            .parseSignedClaims(token);
-    }
-
-    public boolean validateToken(String token) {
+    public TokenClaims parseClaims(String token) {
         try {
-            parseClaims(token);
-            return true;
+            Jws<Claims> jws = Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token);
+
+            Claims claims = jws.getPayload();
+
+            long userId;
+            try {
+                userId = Long.parseLong(claims.getSubject());
+            } catch (NumberFormatException e) {
+                throw new AuthException(INVALID_TOKEN_FORMAT, e.getMessage());
+            }
+
+            return new TokenClaims(
+                userId,
+                claims.getIssuedAt() == null ? null : claims.getIssuedAt().toInstant(),
+                claims.getExpiration() == null ? null : claims.getExpiration().toInstant()
+            );
+        } catch (ExpiredJwtException e) {
+            throw new AuthException(EXPIRED_TOKEN);
         } catch (JwtException | IllegalArgumentException e) {
-            log.error("Invalid JWT token: {}", e.getMessage());
-            return false;
+            throw new AuthException(INVALID_TOKEN_FORMAT, e.getMessage());
         }
     }
 
-    public Authentication getAuthentication(String token) {
-        Jws<Claims> jws = parseClaims(token);
-        Claims claims = jws.getPayload();
-        String userId = claims.getSubject();
-
-        validateIsUser(userId);
-
-        return new UsernamePasswordAuthenticationToken(
-            userId,
-            null,
-            Collections.emptyList());
-    }
 
     private void validateKeyLength(byte[] keyBytes) {
         if (keyBytes.length < 32) {
@@ -87,12 +86,6 @@ public class JwtProvider implements JwtProviderPort {
                 "JWT secret key must be at least 32 bytes for HS256 (current: "
                     + keyBytes.length + " bytes)"
             );
-        }
-    }
-
-    private void validateIsUser(String userId) {
-        if (!userRepository.existsById(Long.valueOf(userId))) {
-            throw new UsernameNotFoundException("User not found: " + userId);
         }
     }
 }

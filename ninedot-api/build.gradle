@@ -2,6 +2,7 @@ plugins {
     id 'org.springframework.boot' version '3.3.6'
     id 'io.spring.dependency-management'
     id 'java'
+    id 'jacoco'
 }
 
 java { toolchain { languageVersion = JavaLanguageVersion.of(17) } }
@@ -11,6 +12,11 @@ dependencies {
     implementation project(':ninedot-domain')
     implementation project(':ninedot-global')
     implementation project(':ninedot-infrastructure')
+
+    // flyway
+    implementation "org.flywaydb:flyway-core:11.13.2"
+    implementation "org.flywaydb:flyway-mysql:11.13.2"
+    runtimeOnly "com.mysql:mysql-connector-j:9.0.0"
 
     // Web & API
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -30,8 +36,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
     // lombok
-    compileOnly "org.projectlombok:lombok:1.18.34"
-    annotationProcessor "org.projectlombok:lombok:1.18.34"
+    compileOnly "org.projectlombok:lombok:${rootProject.ext.lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${rootProject.ext.lombokVersion}"
 
     // test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -40,6 +46,32 @@ dependencies {
 
 tasks.named('jar') { enabled = false }
 tasks.named('bootJar') { enabled = true }
+
+jacoco {
+    toolVersion = "0.8.11"
+}
+
 tasks.withType(Test).configureEach {
     useJUnitPlatform()
+    finalizedBy(tasks.named("jacocoTestReport"))
+}
+
+tasks.named("jacocoTestReport", JacocoReport) {
+    dependsOn tasks.named("test")
+
+    reports {
+        xml.required = true
+        html.required = true
+    }
+
+    def mainSourceSet = sourceSets.main
+    def excludes = rootProject.ext.coverageExcludes
+
+    sourceDirectories.setFrom(files(mainSourceSet.allSource.srcDirs))
+
+    classDirectories.setFrom(files(mainSourceSet.output.classesDirs.collect {
+        fileTree(dir: it, exclude: excludes)
+    }))
+
+    executionData.setFrom(fileTree(dir: layout.buildDirectory, includes: ["jacoco/test.exec"]))
 }

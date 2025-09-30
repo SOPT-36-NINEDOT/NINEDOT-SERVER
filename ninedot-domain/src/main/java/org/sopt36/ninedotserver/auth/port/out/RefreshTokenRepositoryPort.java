@@ -1,6 +1,6 @@
 package org.sopt36.ninedotserver.auth.port.out;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Optional;
 import org.sopt36.ninedotserver.auth.model.RefreshToken;
 
@@ -8,10 +8,10 @@ public interface RefreshTokenRepositoryPort {
 
     Optional<RefreshToken> findByRefreshTokenAndExpiresAtAfter(
         String refreshToken,
-        LocalDateTime now
+        Instant now
     );
 
-    void deleteByUserId(Long userId);
+    void deleteByUser_Id(Long userId);
 
     void delete(RefreshToken refreshToken);
 

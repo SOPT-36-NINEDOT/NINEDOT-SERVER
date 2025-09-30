@@ -8,9 +8,11 @@ import org.sopt36.ninedotserver.auth.model.AuthProvider;
 import org.sopt36.ninedotserver.auth.model.ProviderType;
 import org.sopt36.ninedotserver.auth.port.out.AuthProviderRepositoryPort;
 import org.sopt36.ninedotserver.auth.service.login.dto.ExchangeResult;
-import org.sopt36.ninedotserver.auth.service.login.dto.IssuedTokens;
+import org.sopt36.ninedotserver.auth.dto.token.IssuedTokens;
 import org.sopt36.ninedotserver.auth.service.login.dto.OnboardingStatus;
+import org.sopt36.ninedotserver.auth.service.token.TokenService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AuthAccountService {
@@ -29,6 +31,7 @@ public class AuthAccountService {
         this.onboardingStatusService = onboardingStatusService;
     }
 
+    @Transactional
     public AuthResult loginOrStartSignup(ExchangeResult exchangeResult) {
         String providerSubject = exchangeResult.identityUserInfo().sub();
 
@@ -49,7 +52,7 @@ public class AuthAccountService {
                 issuedTokens.accessToken(),
                 onboardingStatus.onboardingCompleted(),
                 onboardingStatus.nextPage(),
-                Optional.of(issuedTokens.refreshTokenCookie())
+                Optional.of(issuedTokens.refreshToken())
             );
         }
 

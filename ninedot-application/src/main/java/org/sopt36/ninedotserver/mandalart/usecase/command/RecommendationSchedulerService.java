@@ -3,6 +3,7 @@ package org.sopt36.ninedotserver.mandalart.usecase.command;
 import static org.sopt36.ninedotserver.user.exception.UserErrorCode.USER_NOT_FOUND;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +36,7 @@ public class RecommendationSchedulerService {
     private final MandalartRepositoryPort mandalartRepository;
     private final HistoryRepositoryPort historyRepository;
 
-    @Scheduled(cron = "0 0 2 * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
     @Transactional
     public void generateDailyRecommendations() {
         userRepository.findAll().forEach(user -> {
@@ -52,7 +53,7 @@ public class RecommendationSchedulerService {
 
     @Transactional
     public void computeRecommendations(Long userId, Long mandalartId) {
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
 
         // 1) 가입일 기준으로 filterDays 계산
         User user = userRepository.findById(userId)

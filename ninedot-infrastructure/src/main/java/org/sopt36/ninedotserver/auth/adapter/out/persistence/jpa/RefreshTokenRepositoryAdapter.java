@@ -1,6 +1,6 @@
 package org.sopt36.ninedotserver.auth.adapter.out.persistence.jpa;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.auth.adapter.out.persistence.jpa.repository.RefreshTokenRepository;
@@ -17,14 +17,14 @@ class RefreshTokenRepositoryAdapter implements RefreshTokenRepositoryPort {
     @Override
     public Optional<RefreshToken> findByRefreshTokenAndExpiresAtAfter(
         String refreshToken,
-        LocalDateTime now
+        Instant now
     ) {
         return jpa.findByRefreshTokenAndExpiresAtAfter(refreshToken, now);
     }
 
     @Override
-    public void deleteByUserId(Long userId) {
-        jpa.deleteByUserId(userId);
+    public void deleteByUser_Id(Long userId) {
+        jpa.deleteByUser_Id(userId);
     }
 
     @Override

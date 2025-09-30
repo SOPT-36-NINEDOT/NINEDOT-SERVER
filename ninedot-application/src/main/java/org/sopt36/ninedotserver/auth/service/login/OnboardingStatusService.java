@@ -15,12 +15,12 @@ import static org.sopt36.ninedotserver.user.exception.UserErrorCode.USER_NOT_FOU
 @Service
 public class OnboardingStatusService {
 
-    private final UserQueryPort userRepositoryPort;
+    private final UserQueryPort userQueryPort;
     private final CoreGoalRepositoryPort coreGoalRepositoryPort;
     private final MandalartRepositoryPort mandalartRepositoryPort;
 
     public OnboardingStatus determineOnboardingStatus(Long userId) {
-        boolean onboardingCompleted = userRepositoryPort.findById(userId)
+        boolean onboardingCompleted = userQueryPort.findById(userId)
                 .map(user -> Boolean.TRUE.equals(user.getOnboardingCompleted()))
                 .orElseThrow(() -> new UserException(USER_NOT_FOUND));
 

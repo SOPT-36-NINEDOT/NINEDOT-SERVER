@@ -7,11 +7,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.mandalart.dto.response.RecommendationListResponse;
+import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalDetailResponse;
+import org.sopt36.ninedotserver.mandalart.exception.MandalartException;
 import org.sopt36.ninedotserver.mandalart.model.Mandalart;
 import org.sopt36.ninedotserver.mandalart.model.Recommendation;
-import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalDetailResponse;
-import org.sopt36.ninedotserver.mandalart.dto.response.SubGoalListResponse;
-import org.sopt36.ninedotserver.mandalart.exception.MandalartException;
 import org.sopt36.ninedotserver.mandalart.port.out.HistoryRepositoryPort;
 import org.sopt36.ninedotserver.mandalart.port.out.MandalartRepositoryPort;
 import org.sopt36.ninedotserver.mandalart.port.out.RecommendationRepositoryPort;
@@ -27,7 +26,8 @@ public class RecommendationQueryService {
     private final MandalartRepositoryPort mandalartRepository;
     private final HistoryRepositoryPort historyRepository;
 
-    public RecommendationListResponse getRecommendations(Long userId, Long mandalartId, LocalDate date) {
+    public RecommendationListResponse getRecommendations(Long userId, Long mandalartId,
+        LocalDate date) {
         Mandalart mandalart = getExistingMandalart(mandalartId);
         mandalart.ensureOwnedBy(userId);
 

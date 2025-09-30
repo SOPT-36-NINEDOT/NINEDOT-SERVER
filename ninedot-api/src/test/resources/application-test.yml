@@ -24,37 +24,39 @@ spring:
           time_zone: Asia/Seoul
         timezone:
           default_storage: NORMALIZE
+  flyway:
+    enabled: false
 
   web:
     resources:
       add-mappings: false
 
-  google:
-    client-id: ${GOOGLE_CLIENT_ID:test-google-client-id}
-    client-secret: ${GOOGLE_CLIENT_SECRET:test-google-client-secret}
-    redirect-uri: ${GOOGLE_REDIRECT_URI:http://localhost/login/oauth2/code/google}
+jwt:
+  secret: ${JWT_SECRET_KEY:MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}
+  access-token-expiration-milliseconds: 1800000
+  refresh-token-expiration-milliseconds: 1209600000
 
-  jwt:
-    secret: ${JWT_SECRET_KEY:MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}
-    access-token-expiration-milliseconds: 1800000
-    refresh-token-expiration-milliseconds: 1209600000
-
-  cookie:
-    domain: ${SPRING_COOKIE_DOMAIN:localhost}
-    secure: ${SPRING_COOKIE_SECURE:false}
-    path: ${SPRING_COOKIE_PATH:/}
-
-  task:
-    scheduling:
-      time-zone: Asia/Seoul
-
-  ai:
-    model:
-      chat: none
+cookie:
+  domain: ${SPRING_COOKIE_DOMAIN:localhost}
+  secure: ${SPRING_COOKIE_SECURE:false}
+  path: ${SPRING_COOKIE_PATH:/}
 
 gemini:
   api:
     key: ${GEMINI_API_KEY:test-gemini-key}
     url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite-preview-06-17:generateContent
-    response-schema: ${GEMINI_RESPONSE_STRUCTURE:}
-    subgoal-response-schema: ${GEMINI_SUB_GOAL_RESPONSE_STRUCTURE:}
+    response-schema: ${GEMINI_RESPONSE_STRUCTURE:abc}
+    subgoal-response-schema: ${GEMINI_SUB_GOAL_RESPONSE_STRUCTURE:abd}
+
+google:
+  client-id: ${GOOGLE_CLIENT_ID:test-google-client-id}
+  client-secret: ${GOOGLE_CLIENT_SECRET:test-google-client-secret}
+  token-uri: https://oauth2.googleapis.com/token
+  userinfo-uri: https://openidconnect.googleapis.com/v1/userinfo
+
+auth:
+  redirect:
+    whitelist:
+      - http://localhost:5173/auth/google/callback
+      - ${GOOGLE_REDIRECT_URI:https://google.com}
+    default-redirect-uri: ${GOOGLE_REDIRECT_URI:https://google.com}
