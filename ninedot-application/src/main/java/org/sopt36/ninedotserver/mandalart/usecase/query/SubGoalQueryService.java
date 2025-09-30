@@ -14,15 +14,18 @@ import org.sopt36.ninedotserver.mandalart.port.out.CoreGoalSnapshotRepositoryPor
 import org.sopt36.ninedotserver.mandalart.port.out.HistoryRepositoryPort;
 import org.sopt36.ninedotserver.mandalart.port.out.MandalartRepositoryPort;
 import org.sopt36.ninedotserver.mandalart.port.out.SubGoalSnapshotRepositoryPort;
+import org.sopt36.ninedotserver.user.exception.UserException;
+import org.sopt36.ninedotserver.user.model.User;
+import org.sopt36.ninedotserver.user.port.out.UserQueryPort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.sopt36.ninedotserver.mandalart.exception.MandalartErrorCode.MANDALART_NOT_FOUND;
 import static org.sopt36.ninedotserver.mandalart.exception.SubGoalErrorCode.CORE_GOAL_NOT_FOUND;
+import static org.sopt36.ninedotserver.user.exception.UserErrorCode.USER_NOT_FOUND;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -33,6 +36,7 @@ public class SubGoalQueryService {
     private final CoreGoalSnapshotRepositoryPort coreGoalSnapshotRepository;
     private final SubGoalSnapshotRepositoryPort subGoalSnapshotRepository;
     private final HistoryRepositoryPort historyRepository;
+    private final UserQueryPort userQueryPort;
 
     public List<SubGoalIdResponse> getSubGoalIds(Long userId, Long coreGoalSnapshotId) {
         CoreGoalSnapshot coreGoalSnapshot = findCoreGoalOrThrow(coreGoalSnapshotId);
@@ -54,7 +58,7 @@ public class SubGoalQueryService {
             LocalDate date
     ) {
 
-        boolean isYesterdayExist = hasYesterdayData(mandalartId, date.minusDays(1));
+        boolean isYesterdayExist = canMoveToYesterday(userId, date);
 
         if (coreGoalSnapshotId == null && cycle == null) {
             return filterNothing(userId, mandalartId, date, isYesterdayExist);
@@ -72,9 +76,21 @@ public class SubGoalQueryService {
                 date, isYesterdayExist);
     }
 
-    private boolean hasYesterdayData(Long mandalartId, LocalDate yesterday) {
-        LocalDateTime endOfDay = yesterday.atTime(23, 59, 59);
-        return subGoalSnapshotRepository.existsBySubGoal_CoreGoal_Mandalart_IdAndValidFromLessThanEqual(mandalartId, endOfDay);
+    private boolean canMoveToYesterday(Long userId, LocalDate date) {
+        User user = findUserOrThrow(userId);
+        LocalDate onboardingCompletedAt = user.getOnboardingCompletedAt();
+        if (onboardingCompletedAt == null) {
+            return false;
+        }
+
+        LocalDate yesterday = date.minusDays(1);
+        return !yesterday.isBefore(onboardingCompletedAt);
+
+    }
+
+    private User findUserOrThrow(Long userId) {
+        return userQueryPort.findById(userId)
+                .orElseThrow(() -> new UserException(USER_NOT_FOUND));
     }
 
     private CoreGoalSnapshot findCoreGoalOrThrow(Long coreGoalSnapshotId) {
