@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Component
-@Transactional(propagation = Propagation.REQUIRES_NEW)
+@Transactional
 public class RefreshTokenAdapter implements RefreshTokenPort {
 
     private final RefreshTokenRepository refreshTokenJpaRepository;

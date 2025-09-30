@@ -42,7 +42,7 @@ public class SignupHandler implements SignupUsecase {
             signupCommand.birthday(),
             signupCommand.job()
         );
-        userCommandPort.save(user);
+        userCommandPort.saveAndFlush(user);
 
         List<Answer> answers = getAnswers(signupCommand, user);
         answerRepositoryPort.saveAll(answers);
