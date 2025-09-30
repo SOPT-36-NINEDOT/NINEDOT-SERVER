@@ -35,8 +35,8 @@ public enum JobType {
     public static JobType from(String raw) {
         validateNotBlank(raw);
         return findByName(raw)
-                .or(() -> findByDisplayName(raw))
-                .orElseThrow(() -> new UserException(UserErrorCode.INVALID_JOB_VALUE));
+            .or(() -> findByDisplayName(raw.trim()))
+            .orElseThrow(() -> new UserException(UserErrorCode.INVALID_JOB_VALUE));
     }
 
     private static void validateNotBlank(String raw) {
@@ -47,14 +47,14 @@ public enum JobType {
 
     private static Optional<JobType> findByName(String raw) {
         return Arrays.stream(JobType.values())
-                .filter(type -> type.name().equalsIgnoreCase(raw))
-                .findFirst();
+            .filter(type -> type.name().equalsIgnoreCase(raw))
+            .findFirst();
     }
 
     private static Optional<JobType> findByDisplayName(String raw) {
         return Arrays.stream(JobType.values())
-                .filter(type -> type.displayName.equalsIgnoreCase(raw))
-                .findFirst();
+            .filter(type -> type.displayName.equalsIgnoreCase(raw))
+            .findFirst();
     }
 
 }

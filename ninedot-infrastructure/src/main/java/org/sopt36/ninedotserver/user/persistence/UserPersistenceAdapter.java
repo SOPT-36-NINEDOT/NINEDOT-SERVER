@@ -23,8 +23,8 @@ public class UserPersistenceAdapter implements UserQueryPort, UserCommandPort {
     }
 
     @Override
-    public <S extends User> S save(S user) {
-        return userRepository.save(user);
+    public <S extends User> S saveAndFlush(S user) {
+        return userRepository.saveAndFlush(user);
     }
 
     @Override

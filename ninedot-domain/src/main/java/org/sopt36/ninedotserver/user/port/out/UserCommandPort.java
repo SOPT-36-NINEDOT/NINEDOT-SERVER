@@ -4,5 +4,5 @@ import org.sopt36.ninedotserver.user.model.User;
 
 public interface UserCommandPort {
 
-    <S extends User> S save(S user);
+    <S extends User> S saveAndFlush(S user);
 }
