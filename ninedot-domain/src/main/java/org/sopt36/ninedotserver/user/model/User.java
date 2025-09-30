@@ -14,6 +14,8 @@ import org.sopt36.ninedotserver.user.model.value.Email;
 import org.sopt36.ninedotserver.user.model.value.ProfileImageUrl;
 import org.sopt36.ninedotserver.user.model.value.UserName;
 
+import java.time.LocalDate;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -54,6 +56,9 @@ public class User extends BaseEntity {
     @Column(name = "onboarding_completed", nullable = false)
     @ColumnDefault(value = "false")
     private Boolean onboardingCompleted;
+
+    @Column(name = "onboarding_completed_at")
+    private LocalDate onboardingCompletedAt;
 
     public static User create(
         String name,
@@ -105,6 +110,7 @@ public class User extends BaseEntity {
     public void completeOnboarding() {
         if (Boolean.FALSE.equals(this.onboardingCompleted)) {
             this.onboardingCompleted = true;
+            this.onboardingCompletedAt = LocalDate.now();
         }
     }
 
