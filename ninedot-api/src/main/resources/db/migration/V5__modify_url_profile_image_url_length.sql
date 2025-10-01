@@ -1,2 +1,2 @@
 ALTER TABLE `user`
-    MODIFY COLUMN profile_image_url VARCHAR(1000) NOT NULL;
+    MODIFY COLUMN profile_image_url VARCHAR(4096) NOT NULL;
