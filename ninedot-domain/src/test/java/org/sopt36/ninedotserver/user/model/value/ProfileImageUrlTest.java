@@ -28,21 +28,21 @@ public class ProfileImageUrlTest {
 
         // when & then
         assertThatThrownBy(() -> new ProfileImageUrl(blankUrl))
-                .isInstanceOf(UserException.class)
-                .extracting(e -> ((UserException) e).getErrorCode())
-                .isEqualTo(UserErrorCode.PROFILE_IMAGE_NOT_BLANK);
+            .isInstanceOf(UserException.class)
+            .extracting(e -> ((UserException) e).getErrorCode())
+            .isEqualTo(UserErrorCode.PROFILE_IMAGE_NOT_BLANK);
     }
 
     @Test
     void 너무_긴_URL이면_예외발생() {
         // given
-        String tooLongUrl = "a".repeat(1001);
+        String tooLongUrl = "a".repeat(4097);
 
         // when & then
         assertThatThrownBy(() -> new ProfileImageUrl(tooLongUrl))
-                .isInstanceOf(UserException.class)
-                .extracting(e -> ((UserException) e).getErrorCode())
-                .isEqualTo(UserErrorCode.PROFILE_IMAGE_URL_TOO_LONG);
+            .isInstanceOf(UserException.class)
+            .extracting(e -> ((UserException) e).getErrorCode())
+            .isEqualTo(UserErrorCode.PROFILE_IMAGE_URL_TOO_LONG);
     }
 
 }
