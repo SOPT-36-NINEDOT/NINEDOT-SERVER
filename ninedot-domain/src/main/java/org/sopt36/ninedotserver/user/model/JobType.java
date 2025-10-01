@@ -11,8 +11,8 @@ import java.util.Optional;
 public enum JobType {
     STUDENT("학생"),
     JOB_SEEKER("취업 준비생 / 휴직자"),
-    OFFICE_WORKER("사무/행정직"),
-    PLANNER("기획/전략/PM"),
+    OFFICE_WORKER("사무 / 행정직"),
+    PLANNER("기획 / 전략 / PM"),
     DEVELOPER("개발자 / 데이터직"),
     DESIGNER("디자이너 / 크리에이터"),
     MARKETER("마케터 / 콘텐츠 운영자"),
@@ -33,7 +33,7 @@ public enum JobType {
     }
 
     public static JobType from(String raw) {
-        validateNotBlank(raw);
+        validateNotBlank(raw.trim());
         return findByName(raw)
             .or(() -> findByDisplayName(raw.trim()))
             .orElseThrow(() -> new UserException(UserErrorCode.INVALID_JOB_VALUE));
@@ -47,13 +47,13 @@ public enum JobType {
 
     private static Optional<JobType> findByName(String raw) {
         return Arrays.stream(JobType.values())
-            .filter(type -> type.name().equalsIgnoreCase(raw))
+            .filter(type -> type.name().equalsIgnoreCase(raw.trim()))
             .findFirst();
     }
 
     private static Optional<JobType> findByDisplayName(String raw) {
         return Arrays.stream(JobType.values())
-            .filter(type -> type.displayName.equalsIgnoreCase(raw))
+            .filter(type -> type.displayName.equalsIgnoreCase(raw.trim()))
             .findFirst();
     }
 
