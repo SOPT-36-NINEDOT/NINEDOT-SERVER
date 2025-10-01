@@ -5,7 +5,7 @@ import org.sopt36.ninedotserver.user.exception.UserException;
 
 public record ProfileImageUrl(String value) {
 
-    public static final int MAX_LENGTH = 1000;
+    public static final int MAX_LENGTH = 4096;
 
     public ProfileImageUrl {
         validateNotBlank(value);
