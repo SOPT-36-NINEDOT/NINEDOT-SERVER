@@ -36,7 +36,7 @@ public class ProfileImageUrlTest {
     @Test
     void 너무_긴_URL이면_예외발생() {
         // given
-        String tooLongUrl = "a".repeat(4097);
+        String tooLongUrl = "a".repeat(ProfileImageUrl.MAX_LENGTH + 1);
 
         // when & then
         assertThatThrownBy(() -> new ProfileImageUrl(tooLongUrl))
