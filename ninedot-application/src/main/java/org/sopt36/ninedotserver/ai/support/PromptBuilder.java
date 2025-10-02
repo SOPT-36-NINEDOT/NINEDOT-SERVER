@@ -43,6 +43,7 @@ public class PromptBuilder {
         for (String coreGoal : coreGoals) {
             sb.append(coreGoal).append("\n");
         }
+        sb.append("너가 추천해주는 상위목표 8개는 지금까지 작성한 상위목표와 겹치지 않아야만 해.\n");
         log.info(sb.toString());
         return sb.toString();
     }
