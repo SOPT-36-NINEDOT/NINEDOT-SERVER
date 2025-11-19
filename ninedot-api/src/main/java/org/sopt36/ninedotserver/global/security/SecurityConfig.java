@@ -35,7 +35,8 @@ public class SecurityConfig {
         "https://ninedot.p-e.kr",
         "https://www.ninedot.p-e.kr",
         "https://ninedot-client.vercel.app",
-        "https://ninedot-client-six.vercel.app"
+        "https://ninedot-client-six.vercel.app",
+        "https://ninedot-client-ecru.vercel.app"
     );
 
     private static final List<String> ALLOWED_METHODS = List.of(
