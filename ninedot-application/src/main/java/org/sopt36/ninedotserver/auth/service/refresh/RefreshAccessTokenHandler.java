@@ -53,12 +53,12 @@ public class RefreshAccessTokenHandler implements RefreshAccessTokenUsecase {
                 throw new AuthException(TOO_MANY_REQUESTS);
             }
 
-            log.info("기존 토큰 확인");
             RefreshToken oldRefreshToken = getValidRefreshToken(refreshCommand.refreshToken());
             Long userId = oldRefreshToken.getUserId();
 
-            log.info("기존 토큰 삭제 및 토큰 재발급");
             IssuedTokens issuedTokens = tokenService.issueTokens(userId);
+
+            log.info("[userId:{}] 리프레시 토큰으로 액세스 토큰 재발급", userId);
 
             return RefreshResult.from(issuedTokens);
         } catch (InterruptedException e) {

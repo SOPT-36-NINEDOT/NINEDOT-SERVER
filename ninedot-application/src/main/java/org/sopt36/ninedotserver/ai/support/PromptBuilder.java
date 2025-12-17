@@ -44,7 +44,6 @@ public class PromptBuilder {
             sb.append(coreGoal).append("\n");
         }
         sb.append("너가 추천해주는 상위목표 8개는 지금까지 작성한 상위목표와 겹치지 않아야만 해.\n");
-        log.info(sb.toString());
         return sb.toString();
     }
 
@@ -99,10 +98,7 @@ public class PromptBuilder {
             .append("7. 총 8개의 하위 목표를 추천해줘.\n")
             .append("8. 다른 텍스트는 절대 포함하지 말고 JSON 배열만 응답해줘.\n");
 
-        String prompt = sb.toString();
-        log.info("[SubGoalPrompt]\n{}", prompt);
-        return prompt;
-
+        return sb.toString();
     }
 
 }

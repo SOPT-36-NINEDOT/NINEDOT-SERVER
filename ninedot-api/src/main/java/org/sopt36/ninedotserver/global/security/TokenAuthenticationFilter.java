@@ -68,8 +68,6 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             Authentication auth = jwtAuthenticationFactory.getAuthentication(principal);
             SecurityContextHolder.getContext().setAuthentication(auth);
 
-            log.debug("인증 성공");
-
             filterChain.doFilter(request, response);
         } catch (AuthException e) {
             SecurityContextHolder.clearContext();
