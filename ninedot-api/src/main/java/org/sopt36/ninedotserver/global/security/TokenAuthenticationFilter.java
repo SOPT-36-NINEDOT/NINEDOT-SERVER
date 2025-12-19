@@ -2,7 +2,6 @@ package org.sopt36.ninedotserver.global.security;
 
 import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.EXPIRED_ACCESS_TOKEN;
 import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.EXPIRED_TOKEN;
-import static org.sopt36.ninedotserver.auth.exception.AuthErrorCode.UNAUTHORIZED;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -21,47 +20,46 @@ import org.sopt36.ninedotserver.exception.ErrorCode;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Slf4j
-@Component
 @RequiredArgsConstructor
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
+
+    private static final List<String> SKIP_PATHS = List.of(
+        "/v3/api-docs/**",
+        "/swagger-ui/**",
+        "/swagger-ui.html",
+        "/api/*/jobs",
+        "/api/*/persona",
+        "/api/*/auth/**",
+        "/actuator/**"
+    );
+    private static final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     private final ResolvePrincipalByTokenUsecase resolvePrincipalByTokenUsecase;
     private final JwtAuthenticationFactory jwtAuthenticationFactory;
     private final JsonAuthenticationEntryPoint jsonAuthenticationEntryPoint;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        return SKIP_PATHS.stream().anyMatch(p -> pathMatcher.match(p, uri));
+    }
+
+    @Override
     protected void doFilterInternal(
-        HttpServletRequest request,
+        @NonNull HttpServletRequest request,
         @NonNull HttpServletResponse response,
         @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        List<String> skipPaths = List.of(
-            "/v3/api-docs/**",
-            "/swagger-ui/**",
-            "/swagger-ui.html",
-            "/api/*/jobs",
-            "/api/*/persona",
-            "/api/*/auth/signup",
-            "/api/*/auth/refresh",
-            "/api/*/auth/oauth2/google/callback"
-        );
-        String uri = request.getRequestURI();
-        if (skipPaths.stream()
-            .anyMatch(p -> new AntPathMatcher().match(p, uri))) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         try {
             String token = resolveToken(request);
 
             if (token == null) {
-                throw new AuthException(UNAUTHORIZED);
+                filterChain.doFilter(request, response);
+                return;
             }
 
             PrincipalDto principal = resolvePrincipalByTokenUsecase.execute(token);

@@ -2,6 +2,8 @@ package org.sopt36.ninedotserver.global.security;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.sopt36.ninedotserver.auth.port.in.ResolvePrincipalByTokenUsecase;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest; // 중요!
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -47,25 +49,34 @@ public class SecurityConfig {
         "Authorization", "Content-Type"
     );
 
-    private final TokenAuthenticationFilter tokenAuthenticationFilter;
+    private final ResolvePrincipalByTokenUsecase resolvePrincipalByTokenUsecase;
+    private final JwtAuthenticationFactory jwtAuthenticationFactory;
+    private final JsonAuthenticationEntryPoint jsonAuthenticationEntryPoint;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http,
-        JsonAuthenticationEntryPoint jsonAuthenticationEntryPoint) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .cors(c -> c.configurationSource(corsConfigurationSource()))
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
+                .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api/*/auth/logout").authenticated()
-                .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                 .anyRequest().authenticated()
             )
             .exceptionHandling(e -> e
                 .authenticationEntryPoint(jsonAuthenticationEntryPoint)
             )
-            .addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(
+                new TokenAuthenticationFilter(
+                    resolvePrincipalByTokenUsecase,
+                    jwtAuthenticationFactory,
+                    jsonAuthenticationEntryPoint
+                ),
+                UsernamePasswordAuthenticationFilter.class
+            );
 
         return http.build();
     }

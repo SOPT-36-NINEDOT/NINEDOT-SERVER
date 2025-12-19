@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ServiceLoggingAspect {
 
-    @Around("execution(* org.sopt36.ninedotserver..service.*(..))")
+    @Around("execution(* org.sopt36.ninedotserver..service..*(..))")
     public Object logService(ProceedingJoinPoint pjp) throws Throwable {
         String signature = pjp.getSignature().toShortString();
         long start = System.currentTimeMillis();
