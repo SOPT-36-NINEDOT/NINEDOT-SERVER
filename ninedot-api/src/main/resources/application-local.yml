@@ -71,7 +71,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: "health,info,metrics,prometheus"
+        include: health,info,prometheus
       base-path: /actuator
   endpoint:
     health:
@@ -79,8 +79,11 @@ management:
   metrics:
     tags:
       application: ninedot-server
-      env: prod
+      env: local
     distribution:
       percentiles-histogram:
         http.server.requests: true
         jvm.memory.used: true
+
+server:
+  address: 0.0.0.0
