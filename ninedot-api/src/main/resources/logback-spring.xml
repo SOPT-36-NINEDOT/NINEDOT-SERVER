@@ -1,39 +1,29 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
+  <!-- STDOUT (Dozzle / 콘솔용) -->
   <appender class="ch.qos.logback.core.ConsoleAppender" name="STDOUT">
-    <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
-      <providers>
-        <arguments/>
-        <pattern>
-          <pattern>
-            {
-            "level": "%level",
-            "logger": "%logger{36}",
-            "thread": "%thread",
-            "message": "%message",
-            "requestId": "%X{requestId}",
-            "user": "%X{userId}",
-            "trace": "%X{traceId}",
-            "span": "%X{spanId}"
-            }
-          </pattern>
-        </pattern>
-        <stackTrace>
-          <fieldName>stacktrace</fieldName>
-        </stackTrace>
-        <timestamp>
-          <fieldName>timestamp</fieldName>
-          <timeZone>UTC</timeZone>
-        </timestamp>
-      </providers>
-    </encoder>
+    <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
   </appender>
 
-  <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+  <!-- local -->
+  <springProfile name="local">
+    <root level="INFO">
+      <appender-ref ref="STDOUT"/>
+    </root>
+  </springProfile>
 
-  <root level="INFO">
-    <appender-ref ref="STDOUT"/>
-  </root>
+  <!-- prod -->
+  <springProfile name="prod">
+    <root level="INFO">
+      <appender-ref ref="STDOUT"/>
+    </root>
+  </springProfile>
+
+  <!-- develop -->
+  <springProfile name="develop">
+    <root level="INFO">
+      <appender-ref ref="STDOUT"/>
+    </root>
+  </springProfile>
 
 </configuration>
