@@ -3,7 +3,7 @@ package org.sopt36.ninedotserver.global.security;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.auth.port.in.ResolvePrincipalByTokenUsecase;
-import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest; // 중요!
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;

@@ -1,12 +1,10 @@
 version: "3.8"
 
 services:
-  app:
+  app_blue:
     image: "${DOCKER_HUB_USERNAME}/ninedot-be-app:latest"
-    container_name: ninedot-be-app
+    container_name: ninedot-be-app-blue
     restart: always
-    ports:
-      - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: prod
       SPRING_DATASOURCE_URL: "jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}"
@@ -18,6 +16,41 @@ services:
       - /etc/localtime:/etc/localtime:ro
     env_file:
       - .env
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  app_green:
+    image: "${DOCKER_HUB_USERNAME}/ninedot-be-app:latest"
+    container_name: ninedot-be-app-green
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: "jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}"
+      SPRING_DATASOURCE_USERNAME: "${DB_USERNAME}"
+      SPRING_DATASOURCE_PASSWORD: "${DB_PASSWORD}"
+      TZ: Asia/Seoul
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    env_file:
+      - .env
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: ninedot-be-app-nginx
+    restart: always
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
 
   dozzle:
     image: amir20/dozzle:latest
@@ -31,3 +64,40 @@ services:
       DOZZLE_PASSWORD: "${DOZZLE_PASSWORD}"
     env_file:
       - .env
+
+  grafana:
+    image: grafana/grafana-oss:11.1.0
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: "${GRAFANA_ADMIN_PASSWORD}"
+    env_file:
+      - .env
+    depends_on:
+      - loki
+
+  loki:
+    image: grafana/loki:3.0.0
+    container_name: loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./loki/local-config.yaml:/etc/loki/local-config.yaml:ro
+      - loki-data:/loki
+
+  promtail:
+    image: grafana/promtail:3.0.0
+    container_name: promtail
+    command: -config.file=/etc/promtail/config.yml
+    volumes:
+      - ./promtail/promtail-config.yml:/etc/promtail/config.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    depends_on:
+      - loki
+
+volumes:
+  loki-data:
