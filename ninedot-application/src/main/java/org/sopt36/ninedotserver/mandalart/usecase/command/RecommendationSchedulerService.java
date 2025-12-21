@@ -40,8 +40,6 @@ public class RecommendationSchedulerService {
     @Transactional
     public void generateDailyRecommendations() {
         userRepository.findAll().forEach(user -> {
-            log.info("Executing generateDailyRecommendations()");
-
             Long userId = user.getId();
             List<Long> mandalartIds = mandalartRepository.findIdByUserId(userId);
 

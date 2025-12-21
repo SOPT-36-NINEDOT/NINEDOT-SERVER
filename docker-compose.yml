@@ -1,11 +1,73 @@
 version: "3.8"
 
 services:
+  app_blue:
+    build: .
+    image: "${DOCKER_HUB_USERNAME}/ninedot-be-app:latest"
+    container_name: ninedot-be-app-blue
+    platform: linux/amd64
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      TZ: Asia/Seoul
+      JAVA_TOOL_OPTIONS: "-Djava.net.preferIPv4Stack=true"
+    env_file:
+      - .env
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - backend
+      - observability
+
+  app_green:
+    build: .
+    image: "${DOCKER_HUB_USERNAME}/ninedot-be-app:latest"
+    container_name: ninedot-be-app-green
+    platform: linux/amd64
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      TZ: Asia/Seoul
+      JAVA_TOOL_OPTIONS: "-Djava.net.preferIPv4Stack=true"
+    env_file:
+      - .env
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - backend
+      - observability
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: ninedot-be-app-nginx
+    restart: always
+    depends_on:
+      - app_blue
+      - app_green
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    networks:
+      - backend
+
   dozzle:
-    image: amir20/dozzle:latest
+    image: amir20/dozzle:v8.6.0
     container_name: dozzle
     ports:
-      - "9999:8080"
+      - "127.0.0.1:9999:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
@@ -13,3 +75,66 @@ services:
       DOZZLE_PASSWORD: "${DOZZLE_PASSWORD}"
     env_file:
       - .env
+    networks:
+      - observability
+
+  prometheus:
+    image: prom/prometheus:v2.52.0
+    container_name: prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - backend
+      - observability
+
+  grafana:
+    image: grafana/grafana-oss:11.1.0
+    container_name: grafana
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: "${GRAFANA_ADMIN_PASSWORD}"
+    env_file:
+      - .env
+    depends_on:
+      - prometheus
+      - loki
+    networks:
+      - observability
+
+  loki:
+    image: grafana/loki:3.0.0
+    container_name: loki
+    ports:
+      - "127.0.0.1:3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./loki/local-config.yaml:/etc/loki/local-config.yaml:ro
+      - loki-data:/loki
+    networks:
+      - observability
+
+  promtail:
+    image: grafana/promtail:3.0.0
+    container_name: promtail
+    command: -config.file=/etc/promtail/config.yml
+    volumes:
+      - ./promtail/promtail-config.yml:/etc/promtail/config.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    depends_on:
+      - loki
+    networks:
+      - observability
+
+volumes:
+  prometheus-data:
+  loki-data:
+
+networks:
+  backend:
+  observability:

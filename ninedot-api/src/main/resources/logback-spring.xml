@@ -1,0 +1,29 @@
+<configuration>
+
+  <!-- STDOUT (Dozzle / 콘솔용) -->
+  <appender class="ch.qos.logback.core.ConsoleAppender" name="STDOUT">
+    <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+  </appender>
+
+  <!-- local -->
+  <springProfile name="local">
+    <root level="INFO">
+      <appender-ref ref="STDOUT"/>
+    </root>
+  </springProfile>
+
+  <!-- prod -->
+  <springProfile name="prod">
+    <root level="INFO">
+      <appender-ref ref="STDOUT"/>
+    </root>
+  </springProfile>
+
+  <!-- develop -->
+  <springProfile name="develop">
+    <root level="INFO">
+      <appender-ref ref="STDOUT"/>
+    </root>
+  </springProfile>
+
+</configuration>

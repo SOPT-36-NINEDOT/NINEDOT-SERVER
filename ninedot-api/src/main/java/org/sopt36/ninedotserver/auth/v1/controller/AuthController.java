@@ -61,8 +61,6 @@ public class AuthController {
         @RequestParam(value = "redirect_uri", required = false) String clientRedirectUri,
         HttpServletResponse servletResponse
     ) {
-        log.info("[로그인 요청 시작]");
-
         GoogleLoginCommand command = AuthRequestMapper.toGoogleLoginCommand(
             request,
             clientRedirectUri
@@ -75,8 +73,6 @@ public class AuthController {
         );
         AuthResponse body = AuthResponseMapper.toOAuthResponse(authResult);
 
-        log.info("[로그인 요청 완료]");
-
         return ResponseEntity.ok(ApiResponse.ok(LOGIN_SIGNUP_SUCCESS, body));
     }
 
@@ -85,8 +81,6 @@ public class AuthController {
         @CookieValue(value = "refreshToken", required = false) String refreshToken,
         HttpServletResponse servletResponse
     ) {
-        log.info("[토큰 재발급 요청 시작]");
-
         if (refreshToken == null || refreshToken.isBlank()) {
             throw new AuthException(UNAUTHORIZED);
         }
@@ -101,8 +95,6 @@ public class AuthController {
 
         RefreshResponse body = AuthResponseMapper.toRefreshResponse(refreshResult);
 
-        log.info("[토큰 재발급 완료]");
-
         return ResponseEntity.ok(ApiResponse.ok(ACCESS_TOKEN_REFRESH_SUCCESS, body));
     }
 
@@ -111,13 +103,9 @@ public class AuthController {
         @AuthenticationPrincipal PrincipalDto principal,
         HttpServletResponse servletResponse
     ) {
-        log.info("[로그아웃 요청 시작]");
-
         LogoutCommand logoutCommand = AuthRequestMapper.toLogoutCommand(principal.userId());
         logoutUsecase.execute(logoutCommand);
         cookieWriter.write(servletResponse, clearRefreshToken());
-
-        log.info("[로그아웃 요청 완료]");
 
         return ResponseEntity.ok(ApiResponse.ok(REFRESH_TOKEN_DELETED));
     }
@@ -127,7 +115,6 @@ public class AuthController {
         @RequestBody @Valid SignupRequest request,
         HttpServletResponse servletResponse
     ) {
-        log.info("[회원가입 요청 시작]");
         SignupCommand serviceRequest = AuthRequestMapper.toSignupServiceRequest(request);
         SignupThenLoginResult signupResult = signupUsecase.execute(serviceRequest);
         SignupThenLoginResponse body = AuthResponseMapper.toSignupThenLoginResponse(signupResult);
@@ -136,8 +123,6 @@ public class AuthController {
             servletResponse,
             CookieInstruction.setRefreshToken(signupResult.issuedTokens().refreshToken())
         );
-
-        log.info("[회원가입 요청 완료]");
 
         return ResponseEntity.ok(ApiResponse.ok(SIGNUP_SUCCESS, body));
     }
