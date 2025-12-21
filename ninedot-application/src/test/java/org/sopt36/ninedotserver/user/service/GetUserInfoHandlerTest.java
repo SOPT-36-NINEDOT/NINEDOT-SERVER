@@ -15,11 +15,13 @@ import org.sopt36.ninedotserver.user.exception.UserErrorCode;
 import org.sopt36.ninedotserver.user.exception.UserException;
 import org.sopt36.ninedotserver.user.model.User;
 import org.sopt36.ninedotserver.user.port.out.UserQueryPort;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,6 +47,7 @@ class GetUserInfoHandlerTest {
                 "2000.01.01",
                 "DEVELOPER"
         );
+        ReflectionTestUtils.setField(user, "id", 1L);
     }
 
     @Test
@@ -57,7 +60,7 @@ class GetUserInfoHandlerTest {
                 new OnboardingStatus(false, OnboardingPage.CORE_GOAL);
 
         when(userQueryPort.findById(userId)).thenReturn(Optional.of(user));
-        when(onboardingStatusService.determineOnboardingStatus(isNull()))
+        when(onboardingStatusService.determineOnboardingStatus(userId))
                 .thenReturn(onboardingStatus);
 
         // when
