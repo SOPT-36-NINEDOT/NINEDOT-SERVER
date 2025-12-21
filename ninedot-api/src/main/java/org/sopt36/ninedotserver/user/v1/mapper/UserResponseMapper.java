@@ -10,7 +10,9 @@ public class UserResponseMapper {
                 result.id(),
                 result.name(),
                 result.email(),
-                result.profileImageUrl()
+                result.profileImageUrl(),
+                result.onboardingCompleted(),
+                result.nextPage()
         );
     }
 }
