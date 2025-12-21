@@ -4,18 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.*;
 import static org.sopt36.ninedotserver.auth.model.OnboardingPage.ONBOARDING_COMPLETED;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -44,9 +37,6 @@ class LoginOrSignupWithGoogleCodeHandlerTest {
 
     @Mock
     AuthAccountService authAccountService;
-
-    @Mock
-    Cache<String, ReentrantLock> authCodeLockCache;
 
     @Mock
     Cache<String, AuthResult> authResultCache;
@@ -110,17 +100,11 @@ class LoginOrSignupWithGoogleCodeHandlerTest {
             String badUri = "bad://uri";
             GoogleLoginCommand command = new GoogleLoginCommand(code, badUri);
 
-            ReentrantLock lock = new ReentrantLock();
 
-            lenient().when(authResultCache.getIfPresent(anyString())).thenReturn(null);
-            lenient().when(authCodeLockCache.getIfPresent(code)).thenReturn(lock);
-            lenient().when(authCodeLockCache.get(
-                    eq(code),
-                    any(java.util.function.Function.class)
-            )).thenAnswer(invocation -> lock);
-            lenient().when(authCodeLockCache.asMap()).thenReturn(mock(ConcurrentMap.class));
-            lenient().when(redirectUriValidationPort.resolveAndValidate(badUri))
-                .thenThrow(new IllegalArgumentException("invalid redirect"));
+            when(authResultCache.getIfPresent(anyString())).thenReturn(null);
+            when(redirectUriValidationPort.resolveAndValidate(badUri))
+                    .thenThrow(new IllegalArgumentException("invalid redirect"));
+
 
             // when & then
             assertThrows(IllegalArgumentException.class,
@@ -139,16 +123,11 @@ class LoginOrSignupWithGoogleCodeHandlerTest {
             String validatedUri = "https://srv/cb";
             GoogleLoginCommand command = new GoogleLoginCommand(code, clientUri);
 
-            ReentrantLock lock = new ReentrantLock();
-
-            lenient().when(authResultCache.getIfPresent(anyString())).thenReturn(null);
-            lenient().when(authCodeLockCache.getIfPresent(code)).thenReturn(lock);
-            lenient().when(authCodeLockCache.get(eq(code), any())).thenReturn(new ReentrantLock());
-            lenient().when(authCodeLockCache.asMap()).thenReturn(mock(ConcurrentMap.class));
-            lenient().when(redirectUriValidationPort.resolveAndValidate(clientUri))
-                .thenReturn(validatedUri);
-            lenient().when(oAuthService.exchangeAuthorizationCodeAndFetchUser(validatedUri, code))
-                .thenThrow(new RuntimeException("oauth error"));
+            when(authResultCache.getIfPresent(anyString())).thenReturn(null);
+            when(redirectUriValidationPort.resolveAndValidate(clientUri))
+                    .thenReturn(validatedUri);
+            when(oAuthService.exchangeAuthorizationCodeAndFetchUser(validatedUri, code))
+                    .thenThrow(new RuntimeException("oauth error"));
 
             // when & then
             assertThrows(RuntimeException.class,
