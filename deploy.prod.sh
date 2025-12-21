@@ -23,6 +23,7 @@ COMPOSE_FILE="docker-compose.prod.yml"
 APP_BASE_NAME="ninedot-be-app"
 ACTIVE_COLOR_FILE="/home/ubuntu/ninedot-be-app/.active_color"
 NGINX_SERVICE="nginx"
+NGINX_CONTAINER="${APP_BASE_NAME}-nginx"
 HEALTH_TIMEOUT_SEC=120
 HEALTH_INTERVAL_SEC=5
 
@@ -55,8 +56,8 @@ OLD_SERVICE="app_${ACTIVE_COLOR}"
 # 최신 이미지 가져오기
 docker pull ${DOCKER_HUB_USERNAME}/ninedot-be-app:latest
 
-# 컨테이너 실행
-docker-compose -f "${COMPOSE_FILE}" --env-file .env up -d "${NGINX_SERVICE}" "${NEW_SERVICE}"
+# 컨테이너 실행 (앱 먼저 기동)
+docker-compose -f "${COMPOSE_FILE}" --env-file .env up -d "${NEW_SERVICE}"
 
 echo "애플리케이션 헬스 체크 대기 중..."
 elapsed=0
@@ -98,6 +99,10 @@ if ! sed "s|__UPSTREAM__|${NEW_CONTAINER}:8080|" nginx/app.conf.template > nginx
   docker-compose -f "${COMPOSE_FILE}" stop "${NEW_SERVICE}" || true
   docker-compose -f "${COMPOSE_FILE}" rm -f "${NEW_SERVICE}" || true
   exit 1
+fi
+
+if ! docker ps --format '{{.Names}}' | grep -q "^${NGINX_CONTAINER}$"; then
+  docker-compose -f "${COMPOSE_FILE}" up -d "${NGINX_SERVICE}"
 fi
 
 if ! docker-compose -f "${COMPOSE_FILE}" exec -T "${NGINX_SERVICE}" nginx -t; then
