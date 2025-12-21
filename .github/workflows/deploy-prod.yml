@@ -50,8 +50,9 @@ jobs:
           echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> .env
           echo "GEMINI_RESPONSE_STRUCTURE=${{ secrets.GEMINI_RESPONSE_STRUCTURE }}" >> .env
           echo "GEMINI_SUB_GOAL_RESPONSE_STRUCTURE=${{ secrets.GEMINI_SUB_GOAL_RESPONSE_STRUCTURE}}" >> .env
+          echo "GRAFANA_ADMIN_PASSWORD=${{secrets.GRAFANA_ADMIN_PASSWORD}}" >> .env
           
-          zip -r deploy.zip .env docker-compose.prod.yml deploy.prod.sh appspec.yml
+          zip -r deploy.zip .env docker-compose.prod.yml deploy.prod.sh appspec.yml prometheus.yml loki/local-config.yaml promtail/promtail-config.yml nginx/app.conf.template nginx/conf.d/app.conf
 
 
       - name: Configure AWS credentials
