@@ -19,6 +19,9 @@ import com.github.benmanes.caffeine.cache.Cache;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
+
+import com.github.benmanes.caffeine.cache.Caffeine;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -54,6 +57,21 @@ class LoginOrSignupWithGoogleCodeHandlerTest {
     @InjectMocks
     LoginOrSignupWithGoogleCodeHandler loginOrSignupWithGoogleCodeHandler;
 
+    Cache<String, ReentrantLock> realAuthCodeLockCache;
+
+    @BeforeEach
+    void setUp() {
+        realAuthCodeLockCache = Caffeine.newBuilder().build();
+
+        loginOrSignupWithGoogleCodeHandler = new LoginOrSignupWithGoogleCodeHandler(
+                redirectUriValidationPort,
+                oAuthService,
+                authAccountService,
+                realAuthCodeLockCache,
+                authResultCache
+        );
+    }
+
     @Nested
     @DisplayName("execute(GoogleLoginCommand)")
     class Execute {
@@ -71,8 +89,14 @@ class LoginOrSignupWithGoogleCodeHandlerTest {
                 123L, "AT.xxx.yyy", true, ONBOARDING_COMPLETED, Optional.empty()
             );
 
+            ReentrantLock lock = new ReentrantLock();
+
             lenient().when(authResultCache.getIfPresent(anyString())).thenReturn(null);
-            lenient().when(authCodeLockCache.get(eq(code), any())).thenReturn(new ReentrantLock());
+            lenient().when(authCodeLockCache.getIfPresent(code)).thenReturn(lock);
+            lenient().when(authCodeLockCache.get(
+                    eq(code),
+                    any(java.util.function.Function.class)
+            )).thenAnswer(invocation -> lock);
             lenient().when(authCodeLockCache.asMap()).thenReturn(mock(ConcurrentMap.class));
             lenient().when(redirectUriValidationPort.resolveAndValidate(clientRedirectUri))
                 .thenReturn(validatedRedirectUri);
@@ -103,8 +127,14 @@ class LoginOrSignupWithGoogleCodeHandlerTest {
             String badUri = "bad://uri";
             GoogleLoginCommand command = new GoogleLoginCommand(code, badUri);
 
+            ReentrantLock lock = new ReentrantLock();
+
             lenient().when(authResultCache.getIfPresent(anyString())).thenReturn(null);
-            lenient().when(authCodeLockCache.get(eq(code), any())).thenReturn(new ReentrantLock());
+            lenient().when(authCodeLockCache.getIfPresent(code)).thenReturn(lock);
+            lenient().when(authCodeLockCache.get(
+                    eq(code),
+                    any(java.util.function.Function.class)
+            )).thenAnswer(invocation -> lock);
             lenient().when(authCodeLockCache.asMap()).thenReturn(mock(ConcurrentMap.class));
             lenient().when(redirectUriValidationPort.resolveAndValidate(badUri))
                 .thenThrow(new IllegalArgumentException("invalid redirect"));
@@ -126,7 +156,10 @@ class LoginOrSignupWithGoogleCodeHandlerTest {
             String validatedUri = "https://srv/cb";
             GoogleLoginCommand command = new GoogleLoginCommand(code, clientUri);
 
+            ReentrantLock lock = new ReentrantLock();
+
             lenient().when(authResultCache.getIfPresent(anyString())).thenReturn(null);
+            lenient().when(authCodeLockCache.getIfPresent(code)).thenReturn(lock);
             lenient().when(authCodeLockCache.get(eq(code), any())).thenReturn(new ReentrantLock());
             lenient().when(authCodeLockCache.asMap()).thenReturn(mock(ConcurrentMap.class));
             lenient().when(redirectUriValidationPort.resolveAndValidate(clientUri))
