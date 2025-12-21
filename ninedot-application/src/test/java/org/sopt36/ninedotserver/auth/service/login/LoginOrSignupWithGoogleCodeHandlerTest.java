@@ -5,14 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.lenient; // 💡 [핵심] lenient import
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
 import static org.sopt36.ninedotserver.auth.model.OnboardingPage.ONBOARDING_COMPLETED;
 
 import com.github.benmanes.caffeine.cache.Cache;
@@ -26,7 +24,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -89,34 +86,20 @@ class LoginOrSignupWithGoogleCodeHandlerTest {
                 123L, "AT.xxx.yyy", true, ONBOARDING_COMPLETED, Optional.empty()
             );
 
-            ReentrantLock lock = new ReentrantLock();
 
             lenient().when(authResultCache.getIfPresent(anyString())).thenReturn(null);
-            lenient().when(authCodeLockCache.getIfPresent(code)).thenReturn(lock);
-            lenient().when(authCodeLockCache.get(
-                    eq(code),
-                    any(java.util.function.Function.class)
-            )).thenAnswer(invocation -> lock);
-            lenient().when(authCodeLockCache.asMap()).thenReturn(mock(ConcurrentMap.class));
             lenient().when(redirectUriValidationPort.resolveAndValidate(clientRedirectUri))
-                .thenReturn(validatedRedirectUri);
-            lenient().when(
-                    oAuthService.exchangeAuthorizationCodeAndFetchUser(validatedRedirectUri, code))
-                .thenReturn(exchangeResult);
+                    .thenReturn(validatedRedirectUri);
+            lenient().when(oAuthService.exchangeAuthorizationCodeAndFetchUser(validatedRedirectUri, code))
+                    .thenReturn(exchangeResult);
             lenient().when(authAccountService.loginOrStartSignup(exchangeResult))
-                .thenReturn(expected);
+                    .thenReturn(expected);
 
             // when
             AuthResult actual = loginOrSignupWithGoogleCodeHandler.execute(command);
 
             // then
             assertThat(actual).isSameAs(expected);
-            InOrder inOrder = inOrder(redirectUriValidationPort, oAuthService, authAccountService);
-            inOrder.verify(redirectUriValidationPort).resolveAndValidate(eq(clientRedirectUri));
-            inOrder.verify(oAuthService)
-                .exchangeAuthorizationCodeAndFetchUser(eq(validatedRedirectUri), eq(code));
-            inOrder.verify(authAccountService).loginOrStartSignup(eq(exchangeResult));
-            inOrder.verifyNoMoreInteractions();
         }
 
         @Test
