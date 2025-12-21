@@ -1,6 +1,6 @@
 logging:
   level:
-    root: DEBUG
+    root: INFO
     org.sopt36.ninedotserver: DEBUG
 
 spring:
@@ -65,3 +65,24 @@ auth:
       - http://localhost:5173/auth/google/callback
       - ${GOOGLE_REDIRECT_URI}
     default-redirect-uri: ${GOOGLE_REDIRECT_URI}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when_authorized
+  metrics:
+    tags:
+      application: ninedot-server
+      env: dev
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+        jvm.memory.used: true
+
+server:
+  address: 0.0.0.0

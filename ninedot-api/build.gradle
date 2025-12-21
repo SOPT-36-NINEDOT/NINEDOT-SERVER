@@ -35,6 +35,9 @@ dependencies {
     // Actuator
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
+    // Prometheus
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+
     // lombok
     compileOnly "org.projectlombok:lombok:${rootProject.ext.lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${rootProject.ext.lombokVersion}"
@@ -42,6 +45,12 @@ dependencies {
     // test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'com.h2database:h2'
+
+    // json log
+    implementation("net.logstash.logback:logstash-logback-encoder:7.4")
+
+    // 실행 중 변경 사항 자동 반영
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
 }
 
 tasks.named('jar') { enabled = false }
