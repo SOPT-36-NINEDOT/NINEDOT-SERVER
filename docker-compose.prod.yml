@@ -51,6 +51,9 @@ services:
     image: nginx:1.27-alpine
     container_name: ninedot-be-app-nginx
     restart: always
+    depends_on:
+      - app_blue
+      - app_green
     ports:
       - "8080:80"
     volumes:
@@ -113,6 +116,8 @@ services:
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus-data:/prometheus
+    networks:
+      - backend
 
 volumes:
   loki-data:

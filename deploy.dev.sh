@@ -12,10 +12,10 @@ if ! [ -x "$(command -v docker)" ]; then
   echo "Docker 설치 완료"
 fi
 
-if ! [ -x "$(command -v docker-compose)" ]; then
-  echo "Docker Compose가 설치되어 있지 않습니다. 설치 중..."
-  sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-  sudo chmod +x /usr/local/bin/docker-compose
+if ! docker compose version >/dev/null 2>&1; then
+  echo "Docker Compose 플러그인이 설치되어 있지 않습니다. 설치 중..."
+  sudo apt update
+  sudo apt install -y docker-compose-plugin
   echo "Docker Compose 설치 완료"
 fi
 
@@ -48,13 +48,15 @@ if [ ! -f .env ]; then
 fi
 
 # 최신 이미지 가져오기
-# shellcheck disable=SC2046
-export $(grep -v '^#' .env | xargs)
+set -a
+# shellcheck disable=SC1091
+. ./.env
+set +a
 # shellcheck disable=SC2086
 docker pull ${DOCKER_HUB_USERNAME}/ninedot-be-app-dev:latest
 
 # 컨테이너 실행
-docker-compose -f "${COMPOSE_FILE}" --env-file .env up -d "${NGINX_SERVICE}" "${NEW_SERVICE}"
+docker compose -f "${COMPOSE_FILE}" --env-file .env up -d "${NGINX_SERVICE}" "${NEW_SERVICE}"
 
 echo "애플리케이션 헬스 체크 대기 중..."
 elapsed=0
@@ -62,9 +64,9 @@ while [ "${elapsed}" -lt "${HEALTH_TIMEOUT_SEC}" ]; do
   status=$(docker inspect -f '{{.State.Health.Status}}' "${NEW_CONTAINER}" 2>/dev/null || true)
   if [ -z "${status}" ]; then
     echo "컨테이너 헬스 체크를 확인할 수 없습니다"
-    docker-compose -f "${COMPOSE_FILE}" logs --tail=50 "${NEW_SERVICE}"
-    docker-compose -f "${COMPOSE_FILE}" stop "${NEW_SERVICE}" || true
-    docker-compose -f "${COMPOSE_FILE}" rm -f "${NEW_SERVICE}" || true
+    docker compose -f "${COMPOSE_FILE}" logs --tail=50 "${NEW_SERVICE}"
+    docker compose -f "${COMPOSE_FILE}" stop "${NEW_SERVICE}" || true
+    docker compose -f "${COMPOSE_FILE}" rm -f "${NEW_SERVICE}" || true
     exit 1
   fi
   if [ "${status}" = "healthy" ]; then
@@ -73,9 +75,9 @@ while [ "${elapsed}" -lt "${HEALTH_TIMEOUT_SEC}" ]; do
   fi
   if [ "${status}" = "unhealthy" ]; then
     echo "헬스 체크 실패"
-    docker-compose -f "${COMPOSE_FILE}" logs --tail=50 "${NEW_SERVICE}"
-    docker-compose -f "${COMPOSE_FILE}" stop "${NEW_SERVICE}" || true
-    docker-compose -f "${COMPOSE_FILE}" rm -f "${NEW_SERVICE}" || true
+    docker compose -f "${COMPOSE_FILE}" logs --tail=50 "${NEW_SERVICE}"
+    docker compose -f "${COMPOSE_FILE}" stop "${NEW_SERVICE}" || true
+    docker compose -f "${COMPOSE_FILE}" rm -f "${NEW_SERVICE}" || true
     exit 1
   fi
   sleep "${HEALTH_INTERVAL_SEC}"
@@ -84,9 +86,9 @@ done
 
 if [ "${elapsed}" -ge "${HEALTH_TIMEOUT_SEC}" ]; then
   echo "헬스 체크 타임아웃"
-  docker-compose -f "${COMPOSE_FILE}" logs --tail=50 "${NEW_SERVICE}"
-  docker-compose -f "${COMPOSE_FILE}" stop "${NEW_SERVICE}" || true
-  docker-compose -f "${COMPOSE_FILE}" rm -f "${NEW_SERVICE}" || true
+  docker compose -f "${COMPOSE_FILE}" logs --tail=50 "${NEW_SERVICE}"
+  docker compose -f "${COMPOSE_FILE}" stop "${NEW_SERVICE}" || true
+  docker compose -f "${COMPOSE_FILE}" rm -f "${NEW_SERVICE}" || true
   exit 1
 fi
 
@@ -98,27 +100,31 @@ if ! sed "s|__UPSTREAM__|${NEW_CONTAINER}:8080|" nginx/app.conf.template > nginx
   exit 1
 fi
 
-if ! docker-compose -f "${COMPOSE_FILE}" exec -T "${NGINX_SERVICE}" nginx -t; then
+if ! docker compose -f "${COMPOSE_FILE}" exec -T "${NGINX_SERVICE}" nginx -t; then
   echo "Nginx 설정 검증 실패"
-  sed "s|__UPSTREAM__|${OLD_CONTAINER}:8080|" nginx/app.conf.template > nginx/conf.d/app.conf
-  docker-compose -f "${COMPOSE_FILE}" stop "${NEW_SERVICE}" || true
-  docker-compose -f "${COMPOSE_FILE}" rm -f "${NEW_SERVICE}" || true
+  if docker ps --format '{{.Names}}' | grep -q "^${OLD_CONTAINER}$"; then
+    sed "s|__UPSTREAM__|${OLD_CONTAINER}:8080|" nginx/app.conf.template > nginx/conf.d/app.conf
+  fi
+  docker compose -f "${COMPOSE_FILE}" stop "${NEW_SERVICE}" || true
+  docker compose -f "${COMPOSE_FILE}" rm -f "${NEW_SERVICE}" || true
   exit 1
 fi
 
-if ! docker-compose -f "${COMPOSE_FILE}" exec -T "${NGINX_SERVICE}" nginx -s reload; then
+if ! docker compose -f "${COMPOSE_FILE}" exec -T "${NGINX_SERVICE}" nginx -s reload; then
   echo "Nginx reload 실패"
-  sed "s|__UPSTREAM__|${OLD_CONTAINER}:8080|" nginx/app.conf.template > nginx/conf.d/app.conf
-  docker-compose -f "${COMPOSE_FILE}" exec -T "${NGINX_SERVICE}" nginx -s reload || true
-  docker-compose -f "${COMPOSE_FILE}" stop "${NEW_SERVICE}" || true
-  docker-compose -f "${COMPOSE_FILE}" rm -f "${NEW_SERVICE}" || true
+  if docker ps --format '{{.Names}}' | grep -q "^${OLD_CONTAINER}$"; then
+    sed "s|__UPSTREAM__|${OLD_CONTAINER}:8080|" nginx/app.conf.template > nginx/conf.d/app.conf
+    docker compose -f "${COMPOSE_FILE}" exec -T "${NGINX_SERVICE}" nginx -s reload || true
+  fi
+  docker compose -f "${COMPOSE_FILE}" stop "${NEW_SERVICE}" || true
+  docker compose -f "${COMPOSE_FILE}" rm -f "${NEW_SERVICE}" || true
   exit 1
 fi
 echo "${NEW_COLOR}" > "${ACTIVE_COLOR_FILE}"
 
 if docker ps --format '{{.Names}}' | grep -q "^${OLD_CONTAINER}$"; then
-  docker-compose -f "${COMPOSE_FILE}" stop "${OLD_SERVICE}" || true
-  docker-compose -f "${COMPOSE_FILE}" rm -f "${OLD_SERVICE}" || true
+  docker compose -f "${COMPOSE_FILE}" stop "${OLD_SERVICE}" || true
+  docker compose -f "${COMPOSE_FILE}" rm -f "${OLD_SERVICE}" || true
 fi
 
 docker image prune -f

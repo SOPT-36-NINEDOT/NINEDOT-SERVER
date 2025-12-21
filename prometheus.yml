@@ -2,6 +2,6 @@ scrape_configs:
   - job_name: 'ninedot-server'
     metrics_path: /actuator/prometheus
     static_configs:
-      - targets: [ 'ninedot-be-app:8080' ]
+      - targets: [ 'app_blue:8080', 'app_green:8080' ]
         labels:
           application: ninedot-api

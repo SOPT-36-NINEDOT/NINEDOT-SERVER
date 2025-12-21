@@ -58,8 +58,6 @@ public class RefreshAccessTokenHandler implements RefreshAccessTokenUsecase {
 
             IssuedTokens issuedTokens = tokenService.issueTokens(userId);
 
-            log.info("[userId:{}] 리프레시 토큰으로 액세스 토큰 재발급", userId);
-
             return RefreshResult.from(issuedTokens);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

@@ -51,6 +51,9 @@ services:
     image: nginx:1.27-alpine
     container_name: ninedot-be-app-dev-nginx
     restart: always
+    depends_on:
+      - app_blue
+      - app_green
     ports:
       - "8080:80"
     volumes:
@@ -62,7 +65,7 @@ services:
     image: amir20/dozzle:latest
     container_name: dozzle
     ports:
-      - "9999:8080"
+      - "127.0.0.1:9999:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
@@ -71,11 +74,22 @@ services:
     env_file:
       - .env
 
+  prometheus:
+    image: prom/prometheus:v2.52.0
+    container_name: prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - backend
+
   grafana:
     image: grafana/grafana-oss:11.1.0
     container_name: grafana
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     environment:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: "${GRAFANA_ADMIN_PASSWORD}"
@@ -88,7 +102,7 @@ services:
     image: grafana/loki:3.0.0
     container_name: loki
     ports:
-      - "3100:3100"
+      - "127.0.0.1:3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
       - ./loki/local-config.yaml:/etc/loki/local-config.yaml:ro
@@ -107,6 +121,7 @@ services:
 
 volumes:
   loki-data:
+  prometheus-data:
 
 networks:
   backend:

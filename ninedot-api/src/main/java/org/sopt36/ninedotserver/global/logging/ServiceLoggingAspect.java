@@ -37,7 +37,7 @@ public class ServiceLoggingAspect {
                 System.currentTimeMillis() - start,
                 Arrays.toString(redact(pjp.getArgs())));
             return result;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.warn("{} failed took={}ms args={} error={}", signature,
                 System.currentTimeMillis() - start,
                 Arrays.toString(redact(pjp.getArgs())), e.toString());

@@ -26,7 +26,7 @@ FROM eclipse-temurin:17.0.12_7-jre-alpine
 ENV TZ=Asia/Seoul
 ENV JAVA_TOOL_OPTIONS="-XX:+ExitOnOutOfMemoryError -XX:MaxRAMPercentage=75.0"
 
-RUN apk add --no-cache tzdata ca-certificates && update-ca-certificates
+RUN apk add --no-cache tzdata ca-certificates curl && update-ca-certificates
 
 RUN addgroup -S -g 10001 app && adduser -S -u 10001 -G app app
 
