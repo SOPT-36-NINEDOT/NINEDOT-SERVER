@@ -23,6 +23,7 @@ services:
       retries: 3
     networks:
       - backend
+      - observability
 
   app_green:
     image: "${DOCKER_HUB_USERNAME}/ninedot-be-app:latest"
@@ -46,6 +47,7 @@ services:
       retries: 3
     networks:
       - backend
+      - observability
 
   nginx:
     image: nginx:1.27-alpine
@@ -62,10 +64,10 @@ services:
       - backend
 
   dozzle:
-    image: amir20/dozzle:latest
+    image: amir20/dozzle:v8.6.0
     container_name: dozzle
     ports:
-      - "9999:8080"
+      - "127.0.0.1:9999:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
@@ -73,6 +75,8 @@ services:
       DOZZLE_PASSWORD: "${DOZZLE_PASSWORD}"
     env_file:
       - .env
+    networks:
+      - observability
 
   grafana:
     image: grafana/grafana-oss:11.1.0
@@ -86,8 +90,9 @@ services:
       - .env
     depends_on:
       - loki
+      - prometheus
     networks:
-      - backend
+      - observability
 
   loki:
     image: grafana/loki:3.0.0
@@ -98,6 +103,8 @@ services:
     volumes:
       - ./loki/local-config.yaml:/etc/loki/local-config.yaml:ro
       - loki-data:/loki
+    networks:
+      - observability
 
   promtail:
     image: grafana/promtail:3.0.0
@@ -109,6 +116,8 @@ services:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
     depends_on:
       - loki
+    networks:
+      - observability
 
   prometheus:
     image: prom/prometheus:v2.52.0
@@ -120,6 +129,7 @@ services:
       - prometheus-data:/prometheus
     networks:
       - backend
+      - observability
 
 volumes:
   loki-data:
@@ -127,3 +137,4 @@ volumes:
 
 networks:
   backend:
+  observability:
