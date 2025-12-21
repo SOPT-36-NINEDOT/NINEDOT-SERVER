@@ -21,6 +21,8 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
+    networks:
+      - backend
 
   app_green:
     image: "${DOCKER_HUB_USERNAME}/ninedot-be-app:latest"
@@ -42,6 +44,8 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
+    networks:
+      - backend
 
   nginx:
     image: nginx:1.27-alpine
@@ -51,6 +55,8 @@ services:
       - "8080:80"
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    networks:
+      - backend
 
   dozzle:
     image: amir20/dozzle:latest
@@ -69,7 +75,7 @@ services:
     image: grafana/grafana-oss:11.1.0
     container_name: grafana
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     environment:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: "${GRAFANA_ADMIN_PASSWORD}"
@@ -82,7 +88,7 @@ services:
     image: grafana/loki:3.0.0
     container_name: loki
     ports:
-      - "3100:3100"
+      - "127.0.0.1:3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
       - ./loki/local-config.yaml:/etc/loki/local-config.yaml:ro
@@ -99,5 +105,18 @@ services:
     depends_on:
       - loki
 
+  prometheus:
+    image: prom/prometheus:v2.52.0
+    container_name: prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+
 volumes:
   loki-data:
+  prometheus-data:
+
+networks:
+  backend:

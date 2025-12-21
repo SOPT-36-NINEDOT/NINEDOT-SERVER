@@ -60,12 +60,22 @@ echo "애플리케이션 헬스 체크 대기 중..."
 elapsed=0
 while [ "${elapsed}" -lt "${HEALTH_TIMEOUT_SEC}" ]; do
   status=$(docker inspect -f '{{.State.Health.Status}}' "${NEW_CONTAINER}" 2>/dev/null || true)
+  if [ -z "${status}" ]; then
+    echo "컨테이너 헬스 체크를 확인할 수 없습니다"
+    docker-compose -f "${COMPOSE_FILE}" logs --tail=50 "${NEW_SERVICE}"
+    docker-compose -f "${COMPOSE_FILE}" stop "${NEW_SERVICE}" || true
+    docker-compose -f "${COMPOSE_FILE}" rm -f "${NEW_SERVICE}" || true
+    exit 1
+  fi
   if [ "${status}" = "healthy" ]; then
     echo "헬스 체크 성공"
     break
   fi
   if [ "${status}" = "unhealthy" ]; then
     echo "헬스 체크 실패"
+    docker-compose -f "${COMPOSE_FILE}" logs --tail=50 "${NEW_SERVICE}"
+    docker-compose -f "${COMPOSE_FILE}" stop "${NEW_SERVICE}" || true
+    docker-compose -f "${COMPOSE_FILE}" rm -f "${NEW_SERVICE}" || true
     exit 1
   fi
   sleep "${HEALTH_INTERVAL_SEC}"
@@ -74,12 +84,36 @@ done
 
 if [ "${elapsed}" -ge "${HEALTH_TIMEOUT_SEC}" ]; then
   echo "헬스 체크 타임아웃"
+  docker-compose -f "${COMPOSE_FILE}" logs --tail=50 "${NEW_SERVICE}"
+  docker-compose -f "${COMPOSE_FILE}" stop "${NEW_SERVICE}" || true
+  docker-compose -f "${COMPOSE_FILE}" rm -f "${NEW_SERVICE}" || true
   exit 1
 fi
 
 mkdir -p nginx/conf.d
-sed "s|__UPSTREAM__|${NEW_CONTAINER}:8080|" nginx/app.conf.template > nginx/conf.d/app.conf
-docker-compose -f "${COMPOSE_FILE}" exec -T "${NGINX_SERVICE}" nginx -s reload
+if ! sed "s|__UPSTREAM__|${NEW_CONTAINER}:8080|" nginx/app.conf.template > nginx/conf.d/app.conf; then
+  echo "Nginx 설정 파일 생성 실패"
+  docker-compose -f "${COMPOSE_FILE}" stop "${NEW_SERVICE}" || true
+  docker-compose -f "${COMPOSE_FILE}" rm -f "${NEW_SERVICE}" || true
+  exit 1
+fi
+
+if ! docker-compose -f "${COMPOSE_FILE}" exec -T "${NGINX_SERVICE}" nginx -t; then
+  echo "Nginx 설정 검증 실패"
+  sed "s|__UPSTREAM__|${OLD_CONTAINER}:8080|" nginx/app.conf.template > nginx/conf.d/app.conf
+  docker-compose -f "${COMPOSE_FILE}" stop "${NEW_SERVICE}" || true
+  docker-compose -f "${COMPOSE_FILE}" rm -f "${NEW_SERVICE}" || true
+  exit 1
+fi
+
+if ! docker-compose -f "${COMPOSE_FILE}" exec -T "${NGINX_SERVICE}" nginx -s reload; then
+  echo "Nginx reload 실패"
+  sed "s|__UPSTREAM__|${OLD_CONTAINER}:8080|" nginx/app.conf.template > nginx/conf.d/app.conf
+  docker-compose -f "${COMPOSE_FILE}" exec -T "${NGINX_SERVICE}" nginx -s reload || true
+  docker-compose -f "${COMPOSE_FILE}" stop "${NEW_SERVICE}" || true
+  docker-compose -f "${COMPOSE_FILE}" rm -f "${NEW_SERVICE}" || true
+  exit 1
+fi
 echo "${NEW_COLOR}" > "${ACTIVE_COLOR_FILE}"
 
 if docker ps --format '{{.Names}}' | grep -q "^${OLD_CONTAINER}$"; then

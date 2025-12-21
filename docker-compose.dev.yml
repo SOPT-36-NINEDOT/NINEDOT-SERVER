@@ -21,6 +21,8 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
+    networks:
+      - backend
 
   app_green:
     image: "${DOCKER_HUB_USERNAME}/ninedot-be-app-dev:latest"
@@ -42,6 +44,8 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
+    networks:
+      - backend
 
   nginx:
     image: nginx:1.27-alpine
@@ -51,6 +55,8 @@ services:
       - "8080:80"
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    networks:
+      - backend
 
   dozzle:
     image: amir20/dozzle:latest
@@ -101,3 +107,6 @@ services:
 
 volumes:
   loki-data:
+
+networks:
+  backend:

@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.UUID;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.jboss.logging.MDC;
+import org.slf4j.MDC;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -47,4 +47,3 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
         }
     }
 }
-

@@ -78,7 +78,7 @@ management:
   metrics:
     tags:
       application: ninedot-server
-      env: local
+      env: dev
     distribution:
       percentiles-histogram:
         http.server.requests: true
