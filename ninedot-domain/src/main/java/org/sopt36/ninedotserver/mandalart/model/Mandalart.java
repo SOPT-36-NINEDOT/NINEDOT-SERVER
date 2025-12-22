@@ -52,7 +52,7 @@ public class Mandalart extends BaseEntity {
     @ColumnDefault(value = "true")
     private boolean aiGeneratable;
 
-    @Column(name = "completed_at", nullable = false)
+    @Column(name = "completed_at", nullable = true)
     private Instant completedAt;
 
     public static Mandalart create(User user, String title, boolean aiGeneratable) {
@@ -79,6 +79,10 @@ public class Mandalart extends BaseEntity {
                 .toLocalDate();
 
         return (int) ChronoUnit.DAYS.between(completedDateKst, today) + 1;
+    }
+
+    public void updateCompletedAt() {
+        this.completedAt = Instant.now();
     }
 
     private void requireUserId(Long userId) {
