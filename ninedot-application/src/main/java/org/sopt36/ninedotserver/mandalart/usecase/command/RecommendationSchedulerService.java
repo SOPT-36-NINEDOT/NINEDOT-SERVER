@@ -1,5 +1,6 @@
 package org.sopt36.ninedotserver.mandalart.usecase.command;
 
+import static org.sopt36.ninedotserver.mandalart.exception.MandalartErrorCode.MANDALART_NOT_FOUND;
 import static org.sopt36.ninedotserver.user.exception.UserErrorCode.USER_NOT_FOUND;
 
 import java.time.LocalDate;
@@ -9,16 +10,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sopt36.ninedotserver.mandalart.exception.MandalartException;
+import org.sopt36.ninedotserver.mandalart.model.Mandalart;
 import org.sopt36.ninedotserver.mandalart.model.Recommendation;
 import org.sopt36.ninedotserver.mandalart.model.SubGoalSnapshot;
 import org.sopt36.ninedotserver.mandalart.port.out.HistoryRepositoryPort;
 import org.sopt36.ninedotserver.mandalart.port.out.MandalartRepositoryPort;
 import org.sopt36.ninedotserver.mandalart.port.out.RecommendationRepositoryPort;
 import org.sopt36.ninedotserver.mandalart.port.out.SubGoalSnapshotRepositoryPort;
-import org.sopt36.ninedotserver.user.model.User;
 import org.sopt36.ninedotserver.user.exception.UserException;
+import org.sopt36.ninedotserver.user.model.User;
 import org.sopt36.ninedotserver.user.port.out.UserQueryPort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class RecommendationSchedulerService {
 
-    private static final Logger log = LoggerFactory.getLogger(RecommendationSchedulerService.class);
+    private static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
     private final RecommendationRepositoryPort recommendationRepository;
     private final UserQueryPort userRepository;
@@ -51,17 +52,27 @@ public class RecommendationSchedulerService {
 
     @Transactional
     public void computeRecommendations(Long userId, Long mandalartId) {
-        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
+        LocalDate today = LocalDate.now(KST);
 
-        // 1) 가입일 기준으로 filterDays 계산
+        // 1) 가입일(만다라트 완성일) 기준으로 filterDays 계산
+        Mandalart mandalart = mandalartRepository.findById(mandalartId)
+            .orElseThrow(() -> new MandalartException(MANDALART_NOT_FOUND));
+
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new UserException(USER_NOT_FOUND));
-        long daysSinceSignup =
-            ChronoUnit.DAYS.between(user.getCreatedAt().toLocalDate(), today) + 1;
-        int filterDays = daysSinceSignup == 1 ? 0
-            : daysSinceSignup == 2 ? 1
-                : daysSinceSignup == 3 ? 2
-                    : 3;
+
+        LocalDate completedDate =
+            mandalart.getCompletedAt()
+                .atZone(KST)
+                .toLocalDate();
+
+        long daysSinceCompletion =
+            ChronoUnit.DAYS.between(completedDate, today) + 1;
+
+        int filterDays =
+            daysSinceCompletion == 1 ? 0 :
+                daysSinceCompletion == 2 ? 1 :
+                    daysSinceCompletion == 3 ? 2 : 3;
 
         LocalDate startDate = today.minusDays(filterDays);
         LocalDate endDate = today.minusDays(1);

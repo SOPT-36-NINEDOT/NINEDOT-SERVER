@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.sopt36.ninedotserver.auth.dto.security.PrincipalDto;
 import org.sopt36.ninedotserver.dto.response.ApiResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.RecommendationListResponse;
+import org.sopt36.ninedotserver.mandalart.usecase.command.MandalartCommandService;
 import org.sopt36.ninedotserver.mandalart.usecase.command.RecommendationSchedulerService;
 import org.sopt36.ninedotserver.mandalart.usecase.query.RecommendationQueryService;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -27,6 +28,7 @@ public class RecommendationController {
 
     private final RecommendationQueryService recommendationQueryService;
     private final RecommendationSchedulerService schedulerService;
+    private final MandalartCommandService mandalartCommandService;
 
     @GetMapping("/mandalarts/{mandalartId}/histories/recommendation")
     public ResponseEntity<ApiResponse<RecommendationListResponse, Void>> getRecommendations(
@@ -53,6 +55,7 @@ public class RecommendationController {
         @PathVariable Long mandalartId
     ) {
         Long userId = principal.userId();
+        mandalartCommandService.updateCompletedAt(userId, mandalartId);
         schedulerService.computeRecommendations(userId, mandalartId);
 
         return ResponseEntity.ok(ApiResponse.ok(RECOMMENDATION_CREATED_SUCCESS));
