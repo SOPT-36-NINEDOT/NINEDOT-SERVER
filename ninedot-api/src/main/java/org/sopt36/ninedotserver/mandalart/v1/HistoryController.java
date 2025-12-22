@@ -6,7 +6,9 @@ import static org.sopt36.ninedotserver.mandalart.v1.message.HistoryMessage.HISTO
 
 import java.net.URI;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.sopt36.ninedotserver.auth.dto.security.PrincipalDto;
 import org.sopt36.ninedotserver.dto.response.ApiResponse;
 import org.sopt36.ninedotserver.mandalart.dto.response.StreakListResponse;
@@ -14,7 +16,6 @@ import org.sopt36.ninedotserver.mandalart.usecase.command.HistoryCommandService;
 import org.sopt36.ninedotserver.mandalart.usecase.query.HistoryQueryService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,10 +24,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
 @RestController
 public class HistoryController {
+
+    private static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
     private final HistoryCommandService historyCommandService;
     private final HistoryQueryService historyQueryService;
@@ -38,7 +42,7 @@ public class HistoryController {
         @AuthenticationPrincipal PrincipalDto principal
     ) {
         Long userId = principal.userId();
-        LocalDate completedDate = (date != null) ? date : LocalDate.now();
+        LocalDate completedDate = (date != null) ? date : LocalDate.now(KST);
         Long historyId = historyCommandService.createHistory(userId, subGoalId, completedDate);
         URI location = URI.create(
             "/api/v1/sub-goals/" + subGoalId + "/histories/" + historyId
@@ -55,7 +59,7 @@ public class HistoryController {
         @AuthenticationPrincipal PrincipalDto principal
     ) {
         Long userId = principal.userId();
-        LocalDate completedDate = (date != null) ? date : LocalDate.now();
+        LocalDate completedDate = (date != null) ? date : LocalDate.now(KST);
         historyCommandService.deleteHistory(userId, subGoalId, completedDate);
 
         return ResponseEntity.ok(ApiResponse.ok(HISTORY_DELETED_SUCCESS));

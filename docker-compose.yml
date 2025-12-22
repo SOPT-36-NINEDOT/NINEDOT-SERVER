@@ -21,6 +21,7 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
+      start_period: 120s
     networks:
       - backend
       - observability
@@ -45,6 +46,7 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
+      start_period: 120s
     networks:
       - backend
       - observability

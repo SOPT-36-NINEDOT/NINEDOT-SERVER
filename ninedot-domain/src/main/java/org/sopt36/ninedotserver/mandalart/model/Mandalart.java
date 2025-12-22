@@ -9,7 +9,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -33,6 +35,7 @@ import org.sopt36.ninedotserver.user.model.User;
 public class Mandalart extends BaseEntity {
 
     private static final int MAX_TITLE_LENGTH = 30;
+    private static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,6 +51,9 @@ public class Mandalart extends BaseEntity {
     @Column(name = "ai_generatable", nullable = false)
     @ColumnDefault(value = "true")
     private boolean aiGeneratable;
+
+    @Column(name = "completed_at", nullable = true)
+    private Instant completedAt;
 
     public static Mandalart create(User user, String title, boolean aiGeneratable) {
         return Mandalart.builder()
@@ -67,7 +73,16 @@ public class Mandalart extends BaseEntity {
     }
 
     public int getProgressDays(LocalDate today) {
-        return (int) ChronoUnit.DAYS.between(this.getCreatedAt().toLocalDate(), today) + 1;
+        LocalDate completedDateKst =
+            this.completedAt
+                .atZone(KST)
+                .toLocalDate();
+
+        return (int) ChronoUnit.DAYS.between(completedDateKst, today) + 1;
+    }
+
+    public void updateCompletedAt() {
+        this.completedAt = Instant.now();
     }
 
     private void requireUserId(Long userId) {

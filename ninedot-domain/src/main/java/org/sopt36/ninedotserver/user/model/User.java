@@ -31,22 +31,22 @@ public class User extends BaseEntity {
 
     @Embedded
     @AttributeOverride(name = "value",
-            column = @Column(name = "name", length = UserName.MAX_LENGTH, nullable = false))
+        column = @Column(name = "name", length = UserName.MAX_LENGTH, nullable = false))
     private UserName name;
 
     @Embedded
     @AttributeOverride(name = "value",
-            column = @Column(name = "email", nullable = false, unique = true))
+        column = @Column(name = "email", nullable = false, unique = true))
     private Email email;
 
     @Embedded
     @AttributeOverride(name = "value",
-            column = @Column(name = "profile_Image_Url", length = ProfileImageUrl.MAX_LENGTH, nullable = false))
+        column = @Column(name = "profile_Image_Url", length = ProfileImageUrl.MAX_LENGTH, nullable = false))
     private ProfileImageUrl profileImageUrl;
 
     @Embedded
     @AttributeOverride(name = "value",
-            column = @Column(name = "birthday", length = Birthday.MAX_LENGTH, nullable = false))
+        column = @Column(name = "birthday", length = Birthday.MAX_LENGTH, nullable = false))
     private Birthday birthday;
 
     @Enumerated(EnumType.STRING)
@@ -68,27 +68,31 @@ public class User extends BaseEntity {
         String job
     ) {
         return User.builder()
-                .name(new UserName(name))
-                .email(new Email(email))
-                .profileImageUrl(new ProfileImageUrl(profileImageUrl))
-                .birthday(new Birthday(birthday))
-                .job(JobType.from(job))
-                .onboardingCompleted(false)
-                .build();
+            .name(new UserName(name))
+            .email(new Email(email))
+            .profileImageUrl(new ProfileImageUrl(profileImageUrl))
+            .birthday(new Birthday(birthday))
+            .job(JobType.from(job))
+            .onboardingCompleted(false)
+            .build();
     }
 
     public String nameAsString() {
         return name.toString();
     }
+
     public String emailAsString() {
         return email.toString();
     }
+
     public String profileImageUrlAsString() {
         return profileImageUrl.toString();
     }
+
     public String birthdayAsString() {
         return birthday.toString();
     }
+
     public String jobAsString() {
         return job.toString();
     }
@@ -110,7 +114,7 @@ public class User extends BaseEntity {
     public void completeOnboarding() {
         if (Boolean.FALSE.equals(this.onboardingCompleted)) {
             this.onboardingCompleted = true;
-            this.onboardingCompletedAt = LocalDate.now();
+            this.onboardingCompletedAt = LocalDate.now(); // TODO TIMEZONE 명시 => 이거 온보딩 완료 시 로직이랑 스트릭 쪽 다시 바꾸기
         }
     }
 

@@ -20,7 +20,7 @@
   </springProfile>
 
   <!-- develop -->
-  <springProfile name="develop,dev">
+  <springProfile name="dev">
     <root level="INFO">
       <appender-ref ref="STDOUT"/>
     </root>

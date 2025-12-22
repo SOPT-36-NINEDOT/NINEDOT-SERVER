@@ -3,6 +3,7 @@ package org.sopt36.ninedotserver.mandalart.usecase.query;
 import static org.sopt36.ninedotserver.mandalart.exception.MandalartErrorCode.MANDALART_NOT_FOUND;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class HistoryQueryService {
 
+    private static final ZoneId KST = ZoneId.of("Asia/Seoul");
+
     private final HistoryRepositoryPort historyRepository;
     private final MandalartRepositoryPort mandalartRepository;
 
@@ -33,9 +36,15 @@ public class HistoryQueryService {
         mandalart.ensureOwnedBy(userId);
 
         // 기간 계산
-        LocalDate startDate = mandalart.getCreatedAt().toLocalDate();
-        LocalDate today = LocalDate.now();
-        long totalDays = ChronoUnit.DAYS.between(startDate, today) + 1;
+        LocalDate startDate =
+            mandalart.getCompletedAt()
+                .atZone(KST)
+                .toLocalDate();
+
+        LocalDate today = LocalDate.now(KST);
+
+        long totalDays =
+            ChronoUnit.DAYS.between(startDate, today) + 1;
 
         List<LocalDate> allDates = IntStream.range(0, (int) totalDays)
             .mapToObj(startDate::plusDays)
