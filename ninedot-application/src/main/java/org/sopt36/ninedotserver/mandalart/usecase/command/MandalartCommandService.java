@@ -1,8 +1,10 @@
 package org.sopt36.ninedotserver.mandalart.usecase.command;
 
+import static org.sopt36.ninedotserver.mandalart.exception.MandalartErrorCode.MANDALART_NOT_FOUND;
 import static org.sopt36.ninedotserver.user.exception.UserErrorCode.USER_NOT_FOUND;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt36.ninedotserver.mandalart.exception.MandalartException;
 import org.sopt36.ninedotserver.mandalart.model.Mandalart;
 import org.sopt36.ninedotserver.mandalart.dto.request.MandalartCreateRequest;
 import org.sopt36.ninedotserver.mandalart.dto.response.MandalartCreateResponse;
@@ -37,6 +39,14 @@ public class MandalartCommandService {
         mandalartRepository.save(mandalart);
 
         return MandalartCreateResponse.from(mandalart);
+    }
+
+    @Transactional
+    public void updateCompletedAt(Long userId, Long mandalartId) {
+        Mandalart mandalart = mandalartRepository.findById(mandalartId)
+            .orElseThrow(() -> new MandalartException(MANDALART_NOT_FOUND));
+        mandalart.ensureOwnedBy(userId);
+        mandalart.updateCompletedAt();
     }
 
     private User getExistingUser(Long userId) {
