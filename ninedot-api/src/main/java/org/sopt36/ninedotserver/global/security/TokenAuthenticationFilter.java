@@ -33,7 +33,9 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         "/swagger-ui.html",
         "/api/*/jobs",
         "/api/*/persona",
-        "/api/*/auth/**",
+        "/api/*/auth/refresh",
+        "/api/*/auth/signup",
+        "/api/*/auth/oauth2/google/callback",
         "/actuator/**"
     );
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
